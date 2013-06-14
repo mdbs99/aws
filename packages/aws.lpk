@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="Aws"/>
+    <Author Value="Marcos Douglas B. dos Santos"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <IncludeFiles Value="..\src"/>
+        <OtherUnitFiles Value="..\src"/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <Other>
+        <CompilerMessages>
+          <MsgFileName Value=""/>
+        </CompilerMessages>
+        <CompilerPath Value="$(CompPath)"/>
+      </Other>
+    </CompilerOptions>
+    <Description Value="AWS runtime package."/>
+    <License Value="See the file LICENSE, included in this distribution, for details about the copyright."/>
+    <Version Release="1"/>
+    <Files Count="3">
+      <Item1>
+        <Filename Value="..\src\aws.inc"/>
+        <Type Value="Include"/>
+      </Item1>
+      <Item2>
+        <Filename Value="..\src\awss3.pas"/>
+        <UnitName Value="AwsS3"/>
+      </Item2>
+      <Item3>
+        <Filename Value="..\src\awsbase.pas"/>
+        <UnitName Value="AwsBase"/>
+      </Item3>
+    </Files>
+    <Type Value="RunTimeOnly"/>
+    <RequiredPkgs Count="2">
+      <Item1>
+        <PackageName Value="laz_synapse"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="FCL"/>
+      </Item2>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
