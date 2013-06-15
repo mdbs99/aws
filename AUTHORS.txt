@@ -1,0 +1,14 @@
+AWS Lib
+
+Here is a list of people that have contributed in some way towards
+the AWS Lib.
+
+
+Lead Developer and Maintainer
+-----------------------------
+Marcos Douglas B. dos Santos <mdbs99 at delfire.net>
+ 
+
+Contributors
+-----------------------------
+José Benedito (jbsolucoes)
