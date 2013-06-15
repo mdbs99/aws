@@ -25,6 +25,7 @@ uses
   AwsBase;
 
 type
+  EAwsS3Error = class(EAwsError);
   TAwsS3Client = class(TAwsObject)
   private const
     S3_URL = 's3.amazonaws.com';
@@ -40,9 +41,14 @@ type
     constructor Create; override;
     destructor Destroy; override;
 
-    // REST API
+    // BUCKET
+    procedure DELETEBucket(const ABucket, ASubResources: string);
     procedure GETService;
     procedure GETBucket(const ABucket, ASubResources: string); overload;
+    function HEADBucket(const ABucket: string): Boolean;
+    procedure PUTBucket(const ABucket, ASubResources: string);
+
+    // OBJECT
     procedure PUTObject(const ABucket, AContentType, AObjectName: string; AStream: TStream); overload;
     procedure PUTObject(const ABucket, AContentType, AObjectName, AFileName: string); overload;
 
@@ -107,6 +113,28 @@ begin
   inherited Destroy;
 end;
 
+procedure TAwsS3Client.DELETEBucket(const ABucket, ASubResources: string);
+begin
+  FHTTP.Clear;
+  SetAuthHeader('DELETE', '', '', '', '/' + ABucket + ASubResources);
+  Send('DELETE', ABucket, ASubResources);
+end;
+
+function TAwsS3Client.HEADBucket(const ABucket: string): Boolean;
+begin
+  FHTTP.Clear;
+  SetAuthHeader('HEAD', '', '', '', '/' + ABucket + '/');
+  Send('HEAD', ABucket, '');
+  Result := FHTTP.ResultCode = 200;
+end;
+
+procedure TAwsS3Client.PUTBucket(const ABucket, ASubResources: string);
+begin
+  FHTTP.Clear;
+  SetAuthHeader('GET', '', '', '', '/' + ABucket + ASubResources);
+  Send('GET', ABucket, ASubResources);
+end;
+
 procedure TAwsS3Client.GETService;
 begin
   FHTTP.Clear;
@@ -115,26 +143,20 @@ begin
 end;
 
 procedure TAwsS3Client.GETBucket(const ABucket, ASubResources: string);
-var
-  Res: string;
 begin
   FHTTP.Clear;
-  Res := '/' + ABucket + ASubResources;
-  SetAuthHeader('GET', '', '', '', Res);
+  SetAuthHeader('GET', '', '', '', '/' + ABucket + ASubResources);
   Send('GET', ABucket, ASubResources);
 end;
 
 procedure TAwsS3Client.PUTObject(const ABucket, AContentType, AObjectName: string;
   AStream: TStream);
-var
-  Res: string;
 begin
   FHTTP.Clear;
-  Res := '/'+ABucket+'/'+AObjectName;
-  SetAuthHeader('PUT', '', AContentType, '', Res);
+  SetAuthHeader('PUT', '', AContentType, '', '/' + ABucket + '/' + AObjectName);
   FHTTP.MimeType := AContentType;
   FHTTP.Document.LoadFromStream(AStream);
-  Send('PUT', ABucket, '/'+AObjectName);
+  Send('PUT', ABucket, '/' + AObjectName);
 end;
 
 procedure TAwsS3Client.PUTObject(const ABucket, AContentType, AObjectName,
