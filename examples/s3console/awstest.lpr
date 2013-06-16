@@ -1,10 +1,3 @@
-#AWS Lib
-
-AWS Lib is a Pascal implementation of Amazon S3 REST API for [Free Pascal](http://freepascal.org/).
-
-It is minimalistic, clean and simple.
-
-``` pascal
 program awstest;
 {$mode objfpc}{$H+}
 uses
@@ -26,7 +19,7 @@ begin
       // check access
       s3.GETService;
       if s3.HTTP.ResultCode <> 200 then
-	    raise Exception.Create('Access denied.');
+	raise Exception.Create('Access denied.');
 
       // bucket check
       s3.GETBucket(BUCKET_NAME, '/');
@@ -52,5 +45,5 @@ begin
 
   writeln('Everything works!');
   writeln;
-end.  
-```
+end.
+

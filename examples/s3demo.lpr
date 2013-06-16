@@ -1,0 +1,22 @@
+program s3demo;
+
+{$mode objfpc}{$H+}
+
+uses
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Interfaces, // this includes the LCL widgetset
+  Forms, uMain
+  { you can add units after this };
+
+{$R *.res}
+
+begin
+  Application.Title := 'AWS S3 Demo';
+  RequireDerivedFormResource := True;
+  Application.Initialize;
+  Application.CreateForm(TfrmMain, frmMain);
+  Application.Run;
+end.
+
