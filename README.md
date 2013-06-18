@@ -4,6 +4,9 @@ AWS Lib is a Pascal implementation of Amazon S3 REST API for [Free Pascal](http:
 
 It is minimalistic, clean and simple.
 
+Amazon S3 REST API:
+http://docs.aws.amazon.com/AmazonS3/latest/API/APIRest.html
+
 ``` pascal
 program awstest;
 {$mode objfpc}{$H+}
