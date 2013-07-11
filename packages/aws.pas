@@ -7,7 +7,7 @@ unit Aws;
 interface
 
 uses
-  AwsS3, AwsBase;
+  AWSS3, AWSBase;
 
 implementation
 

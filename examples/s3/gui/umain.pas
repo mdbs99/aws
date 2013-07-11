@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Buttons, ExtCtrls, EditBtn, AwsS3;
+  Buttons, ExtCtrls, EditBtn, AWSS3;
 
 type
   TfrmMain = class(TForm)
@@ -35,7 +35,7 @@ type
     procedure btnFileUploadClick(Sender: TObject);
     procedure btnFileDeleteClick(Sender: TObject);
   private
-    FS3Client: TAwsS3Client;
+    FS3Client: TAWSS3Client;
     procedure ShowLastError(const AMsg: string);
   end;
 
@@ -50,7 +50,7 @@ implementation
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  FS3Client := TAwsS3Client.Create;
+  FS3Client := TAWSS3Client.Create;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);

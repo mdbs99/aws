@@ -10,7 +10,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 }
 
-unit AwsBase;
+unit AWSBase;
 
 {$i aws.inc}
 
@@ -21,13 +21,13 @@ uses
   Classes, SysUtils;
 
 type
-  EAwsError = class(Exception)
+  EAWSError = class(Exception)
   public
     constructor Create(AInstance: TObject; const AMsg: string); overload;
     constructor CreateFmt(AInstance: TObject; const AMsg: string; const AArgs: array of const); overload;
   end;
 
-  TAwsObject = class
+  TAWSObject = class
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -35,14 +35,14 @@ type
 
 implementation
 
-{ EAwsError }
+{ EAWSError }
 
-constructor EAwsError.Create(AInstance: TObject; const AMsg: string);
+constructor EAWSError.Create(AInstance: TObject; const AMsg: string);
 begin
   inherited CreateFmt('%s: %s', [AInstance.ClassName, AMsg]);
 end;
 
-constructor EAwsError.CreateFmt(AInstance: TObject; const AMsg: string;
+constructor EAWSError.CreateFmt(AInstance: TObject; const AMsg: string;
   const AArgs: array of const);
 var
   S: string;
@@ -53,12 +53,12 @@ end;
 
 { TghObject }
 
-constructor TAwsObject.Create;
+constructor TAWSObject.Create;
 begin
   inherited Create;
 end;
 
-destructor TAwsObject.Destroy;
+destructor TAWSObject.Destroy;
 begin
   inherited Destroy;
 end;
