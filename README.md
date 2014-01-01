@@ -27,23 +27,19 @@ begin
     s3.UseSSL := True;
     try
       // check access
-      s3.GETService;
-      if s3.HTTP.ResultCode <> 200 then
+      if s3.GETService <> 200 then
 	    raise Exception.Create('Access denied.');
 
       // bucket check
-      s3.GETBucket(BUCKET_NAME, '/');
-      if s3.HTTP.ResultCode <> 200 then
+      if s3.GETBucket(BUCKET_NAME, '/') <> 200 then
         raise Exception.Create('Bucket do not exists or access denied.');
 
       // create a new bucket
-      s3.PUTBucket(NEW_BUCKET_NAME, '/');
-      if s3.HTTP.ResultCode <> 200 then
+      if s3.PUTBucket(NEW_BUCKET_NAME, '/') <> 200 then
         raise Exception.Create('Bucket was not created.');
 
       // delete the new bucket
-      s3.DELETEBucket(NEW_BUCKET_NAME, '/');
-      if s3.HTTP.ResultCode <> 204 then  // No Content response
+      if s3.DELETEBucket(NEW_BUCKET_NAME, '/') <> 204 then  // No Content response
         raise Exception.Create('Bucket was not deleted.');
     except
       on E: Exception do
