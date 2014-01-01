@@ -2,7 +2,7 @@
 <CONFIG>
   <Package Version="4">
     <PathDelim Value="\"/>
-    <Name Value="Aws"/>
+    <Name Value="AWS"/>
     <Author Value="Marcos Douglas B. dos Santos"/>
     <CompilerOptions>
       <Version Value="11"/>
