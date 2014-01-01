@@ -23,6 +23,7 @@ uses
 type
   TAWSS3Test = class(TTestCase)
   protected
+    FBucketName: string;
     FS3: TAWSS3Client;
     procedure SetUp; override;
     procedure TearDown; override;
@@ -65,6 +66,7 @@ begin
     FS3.UseSSL := True;
     FS3.AccessKeyId := Ini.ReadString('AWS', 'AccessKeyId', '');
     FS3.SecretKey := Ini.ReadString('AWS', 'SecretKey', '');
+    FBucketName :=  Ini.ReadString('AWS', 'BucketName', '')
   finally
     Ini.Free;
   end;
@@ -77,7 +79,7 @@ end;
 
 procedure TAWSS3Test.TestHEADBucket;
 begin
-  CheckTrue(FS3.HEADBucket('integra001'));
+  CheckTrue(FS3.HEADBucket(FBucketName));
 end;
 
 procedure TAWSS3Test.TestGETService;
@@ -87,72 +89,72 @@ end;
 
 procedure TAWSS3Test.TestGETBucket_ListObjects;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_acl;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?acl'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?acl'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_cors;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?cors'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?cors'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_lifecycle;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?lifecycle'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?lifecycle'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_policy;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?policy'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?policy'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_location;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?location'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?location'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_logging;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?logging'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?logging'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_notification;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?notification'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?notification'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_tagging;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?tagging'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?tagging'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_versions;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?versions'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?versions'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_requestPayment;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?requestPayment'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?requestPayment'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_versioning;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?versioning'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?versioning'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_website;
 begin
-  CheckEquals(200, FS3.GETBucket('integra001', '/?website'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '/?website'));
 end;
 
 procedure TAWSS3Test.TesPUTObject;
 begin
-  CheckEquals(200, FS3.PUTObject('integra001', 'text/plan', 'test.txt', 'test.txt'));
+  CheckEquals(200, FS3.PUTObject(FBucketName, 'text/plan', 'test.txt', 'test.txt'));
 end;
 
 initialization
