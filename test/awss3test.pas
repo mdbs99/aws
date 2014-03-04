@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013  -  Marcos Douglas B. dos Santos
+    Copyright (C) 2013-2014  -  Marcos Douglas B. dos Santos
 
     See the files COPYING.GH, included in this
     distribution, for details about the copyright.
@@ -32,19 +32,14 @@ type
     procedure TestGETService;
     procedure TestGETBucket_ListObjects;
     procedure TestGETBucket_acl;
-    procedure TestGETBucket_cors;
-    procedure TestGETBucket_lifecycle;
-    procedure TestGETBucket_policy;
     procedure TestGETBucket_location;
     procedure TestGETBucket_logging;
     procedure TestGETBucket_notification;
-    procedure TestGETBucket_tagging;
     procedure TestGETBucket_versions;
     procedure TestGETBucket_requestPayment;
     procedure TestGETBucket_versioning;
-    procedure TestGETBucket_website;
-
-    procedure TesPUTObject;
+    procedure TestPUTObject;
+    procedure TestFolderOperations;
   end;
 
 implementation
@@ -89,72 +84,53 @@ end;
 
 procedure TAWSS3Test.TestGETBucket_ListObjects;
 begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, ''));
 end;
 
 procedure TAWSS3Test.TestGETBucket_acl;
 begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?acl'));
-end;
-
-procedure TAWSS3Test.TestGETBucket_cors;
-begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?cors'));
-end;
-
-procedure TAWSS3Test.TestGETBucket_lifecycle;
-begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?lifecycle'));
-end;
-
-procedure TAWSS3Test.TestGETBucket_policy;
-begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?policy'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '?acl'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_location;
 begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?location'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '?location'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_logging;
 begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?logging'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '?logging'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_notification;
 begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?notification'));
-end;
-
-procedure TAWSS3Test.TestGETBucket_tagging;
-begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?tagging'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '?notification'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_versions;
 begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?versions'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '?versions'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_requestPayment;
 begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?requestPayment'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '?requestPayment'));
 end;
 
 procedure TAWSS3Test.TestGETBucket_versioning;
 begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?versioning'));
+  CheckEquals(200, FS3.GETBucket(FBucketName, '?versioning'));
 end;
 
-procedure TAWSS3Test.TestGETBucket_website;
-begin
-  CheckEquals(200, FS3.GETBucket(FBucketName, '/?website'));
-end;
-
-procedure TAWSS3Test.TesPUTObject;
+procedure TAWSS3Test.TestPUTObject;
 begin
   CheckEquals(200, FS3.PUTObject(FBucketName, 'text/plan', 'test.txt', 'test.txt'));
+  //CheckEquals(200, FS3.DELETEObject(FBucketName, 'test.txt'));
+end;
+
+procedure TAWSS3Test.TestFolderOperations;
+begin
+  CheckEquals(200, FS3.PUTFolder(FBucketName, 'my_new_folder'));
 end;
 
 initialization

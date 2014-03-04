@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013  -  Marcos Douglas B. dos Santos
+    Copyright (C) 2013-2014  -  Marcos Douglas B. dos Santos
 
     See the file LICENSE.txt, included in this distribution,
     for details about the copyright.
@@ -48,15 +48,19 @@ type
     function GETService: Integer;
 
     // BUCKET
-    function DELETEBucket(const ABucket, ASubResources: string): Integer;
-    function GETBucket(const ABucket, ASubResources: string): Integer; overload;
     function HEADBucket(const ABucket: string): Boolean;
+    function GETBucket(const ABucket, ASubResources: string): Integer; overload;
     function PUTBucket(const ABucket, ASubResources: string): Integer;
+    function DELETEBucket(const ABucket, ASubResources: string): Integer;
 
     // OBJECT
-    function DELETEObject(const ABucket, AObjectName: string): Integer;
     function PUTObject(const ABucket, AContentType, AObjectName: string; AStream: TStream): Integer; overload;
     function PUTObject(const ABucket, AContentType, AObjectName, AFileName: string): Integer; overload;
+    function DELETEObject(const ABucket, AObjectName: string): Integer;
+
+    // Utilities
+    function PUTFolder(const ABucket, ANewFolder: string): Integer;
+    function DELETEFolder(const ABucket, AFolderName: string): Integer;
 
     // Properties
     property HTTP: THTTPSend read FHTTP;
@@ -72,38 +76,40 @@ implementation
 procedure TAWSS3Client.SetAuthHeader(AVerb, AContentMD5, AContentType,
   CanonicalizedAmzHeaders, CanonicalizedResource: string);
 var
-  H, Base64, DT: string;
+  Header: string;
+  HeaderBase64: string;
+  DateFmt: string;
 begin
-  DT := RFC822DateTime(Now);
+  DateFmt := RFC822DateTime(Now);
 
-  H := AVerb + #10
+  Header := AVerb + #10
      + AContentMD5 + #10
      + AContentType + #10
-     + DT + #10
+     + DateFmt + #10
      + CanonicalizedAmzHeaders
      + CanonicalizedResource;
 
-  Base64 := EncodeBase64(HMAC_SHA1(H, FSecretKey));
+  HeaderBase64 := EncodeBase64(HMAC_SHA1(Header, FSecretKey));
 
-  FHTTP.Headers.Add('Date: ' + DT);
-  FHTTP.Headers.Add('Authorization: AWS ' + FAccessKeyId + ':' + Base64);
+  FHTTP.Headers.Add('Date: ' + DateFmt);
+  FHTTP.Headers.Add('Authorization: AWS ' + FAccessKeyId + ':' + HeaderBase64);
 end;
 
 function TAWSS3Client.Send(const AVerb, ABucket, AQuery: string): Integer;
 var
-  Url: string;
+  URL: string;
 begin
-  Url := '';
+  URL := '';
   if FUseSSL then
-    Url += 'https://'
+    URL += 'https://'
   else
-    Url += 'http://';
+    URL += 'http://';
 
   if ABucket <> '' then
-    Url += ABucket + '.';
+    URL += ABucket + '.';
 
-  Url += S3_URL + AQuery;
-  FHTTP.HTTPMethod(AVerb, Url);
+  URL += S3_URL + AQuery;
+  FHTTP.HTTPMethod(AVerb, URL);
   Result := FHTTP.ResultCode;
 end;
 
@@ -127,20 +133,6 @@ begin
   Result := Send('GET', '', '');
 end;
 
-function TAWSS3Client.DELETEBucket(const ABucket, ASubResources: string): Integer;
-begin
-  FHTTP.Clear;
-  SetAuthHeader('DELETE', '', '', '', '/' + ABucket + ASubResources);
-  Result := Send('DELETE', ABucket, ASubResources);
-end;
-
-function TAWSS3Client.GETBucket(const ABucket, ASubResources: string): Integer;
-begin
-  FHTTP.Clear;
-  SetAuthHeader('GET', '', '', '', '/' + ABucket + ASubResources);
-  Result := Send('GET', ABucket, ASubResources);
-end;
-
 function TAWSS3Client.HEADBucket(const ABucket: string): Boolean;
 begin
   FHTTP.Clear;
@@ -149,18 +141,25 @@ begin
   Result := FHTTP.ResultCode = 200;
 end;
 
+function TAWSS3Client.GETBucket(const ABucket, ASubResources: string): Integer;
+begin
+  FHTTP.Clear;
+  SetAuthHeader('GET', '', '', '', '/' + ABucket + '/' + ASubResources);
+  Result := Send('GET', ABucket, '/' + ASubResources);
+end;
+
 function TAWSS3Client.PUTBucket(const ABucket, ASubResources: string): Integer;
 begin
   FHTTP.Clear;
-  SetAuthHeader('PUT', '', '', '', '/' + ABucket + ASubResources);
-  Result := Send('PUT', ABucket, ASubResources);
+  SetAuthHeader('PUT', '', '', '', '/' + ABucket + '/' + ASubResources);
+  Result := Send('PUT', ABucket, '/' + ASubResources);
 end;
 
-function TAWSS3Client.DELETEObject(const ABucket, AObjectName: string): Integer;
+function TAWSS3Client.DELETEBucket(const ABucket, ASubResources: string): Integer;
 begin
   FHTTP.Clear;
-  SetAuthHeader('DELETE', '', '', '', '/' + ABucket + '/' + AObjectName);
-  Result := Send('DELETE', ABucket, '/' + AObjectName);
+  SetAuthHeader('DELETE', '', '', '', '/' + ABucket + ASubResources);
+  Result := Send('DELETE', ABucket, ASubResources);
 end;
 
 function TAWSS3Client.PUTObject(const ABucket, AContentType,
@@ -184,6 +183,33 @@ begin
   finally
     Buf.Free;
   end;
+end;
+
+function TAWSS3Client.DELETEObject(const ABucket, AObjectName: string): Integer;
+begin
+  { TODO: not working yet }
+  FHTTP.Clear;
+  SetAuthHeader('DELETE', '', '', '', '/' + ABucket + '/' + AObjectName);
+  Result := Send('DELETE', ABucket, '/' + AObjectName);
+end;
+
+function TAWSS3Client.PUTFolder(const ABucket, ANewFolder: string): Integer;
+var
+  Buf: TMemoryStream;
+begin
+  Buf := TMemoryStream.Create;
+  try
+    // hack to synapse add Content-Length
+    Buf.WriteBuffer('', 1);
+    Result := PUTObject(ABucket, '', ANewFolder + '/', Buf);
+  finally
+    Buf.Free;
+  end;
+end;
+
+function TAWSS3Client.DELETEFolder(const ABucket, AFolderName: string): Integer;
+begin
+  Result := DELETEObject(ABucket, AFolderName + '/');
 end;
 
 end.

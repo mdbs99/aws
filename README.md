@@ -6,21 +6,22 @@ It is minimalistic, clean and simple.
 
 Amazon S3 REST API:
 http://docs.aws.amazon.com/AmazonS3/latest/API/APIRest.html
+http://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html
 
 ``` pascal
 program awstest;
 {$mode objfpc}{$H+}
 uses
-  SysUtils, AwsS3;
+  SysUtils, AWSS3;
 const
   ACCESS_KEY = 'YOUR ACCESS KEY ID';
   SECRET_KEY = 'YOUR SECRET KEY';
   BUCKET_NAME = 'YOUR BUCKET';
   NEW_BUCKET_NAME = 'awspascal_s3_0001';
 var
-  s3: TAwsS3Client;
+  s3: TAWSS3Client;
 begin
-  s3 := TAwsS3Client.Create;
+  s3 := TAWSS3Client.Create;
   try
     s3.AccessKeyId := ACCESS_KEY;
     s3.SecretKey := SECRET_KEY;

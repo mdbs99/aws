@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013  -  Marcos Douglas B. dos Santos
+    Copyright (C) 2013-2014  -  Marcos Douglas B. dos Santos
 
     See the files COPYING.GH, included in this
     distribution, for details about the copyright.
@@ -51,7 +51,7 @@ begin
   inherited CreateFmt(S, AArgs);
 end;
 
-{ TghObject }
+{ TAWSObject }
 
 constructor TAWSObject.Create;
 begin
