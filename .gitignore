@@ -10,6 +10,6 @@
 *.compiled
 bin/
 test/lib/
-test/key.ini
+
 
 
