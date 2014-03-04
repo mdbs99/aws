@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <Package Version="4">
     <PathDelim Value="\"/>
@@ -21,7 +21,7 @@
     </CompilerOptions>
     <Description Value="AWS runtime package."/>
     <License Value="See the file LICENSE, included in this distribution, for details about the copyright."/>
-    <Version Release="1"/>
+    <Version Release="2" Build="5"/>
     <Files Count="3">
       <Item1>
         <Filename Value="..\src\aws.inc"/>
@@ -29,11 +29,11 @@
       </Item1>
       <Item2>
         <Filename Value="..\src\awss3.pas"/>
-        <UnitName Value="AwsS3"/>
+        <UnitName Value="AWSS3"/>
       </Item2>
       <Item3>
         <Filename Value="..\src\awsbase.pas"/>
-        <UnitName Value="AwsBase"/>
+        <UnitName Value="AWSBase"/>
       </Item3>
     </Files>
     <Type Value="RunTimeOnly"/>
