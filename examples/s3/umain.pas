@@ -82,7 +82,7 @@ end;
 
 procedure TfrmMain.btnBucketCheckClick(Sender: TObject);
 begin
-  FS3Client.GETBucket(edtBucketName.Text, '/');
+  FS3Client.GETBucket(edtBucketName.Text, '');
   if FS3Client.HTTP.ResultCode = 200 then
     ShowMessage('The bucket exists and you have access!')
   else
@@ -91,7 +91,7 @@ end;
 
 procedure TfrmMain.btnBucketCreateClick(Sender: TObject);
 begin
-  FS3Client.PUTBucket(edtBucketName.Text, '/');
+  FS3Client.PUTBucket(edtBucketName.Text, '');
   if FS3Client.HTTP.ResultCode = 200 then
     ShowMessage('The bucket was created!')
   else
@@ -100,7 +100,7 @@ end;
 
 procedure TfrmMain.btnBucketDeleteClick(Sender: TObject);
 begin
-  FS3Client.DELETEBucket(edtBucketName.Text, '/');
+  FS3Client.DELETEBucket(edtBucketName.Text, '');
   if FS3Client.HTTP.ResultCode = 204 then  // No Content response
     ShowMessage('The bucket was deleted!')
   else

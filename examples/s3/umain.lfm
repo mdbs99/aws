@@ -8,7 +8,7 @@ object frmMain: TfrmMain
   ClientWidth = 523
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  LCLVersion = '1.1'
+  LCLVersion = '1.3'
   object edtAcessKeyId: TEdit
     Left = 31
     Height = 21

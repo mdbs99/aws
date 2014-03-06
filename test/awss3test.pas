@@ -129,8 +129,11 @@ begin
 end;
 
 procedure TAWSS3Test.TestFolderOperations;
+const
+  NEW_FOLDER = 'my_new_folder';
 begin
-  CheckEquals(200, FS3.PUTFolder(FBucketName, 'my_new_folder'));
+  CheckEquals(200, FS3.PUTFolder(FBucketName, NEW_FOLDER));
+  CheckEquals(200, FS3.PUTObject(FBucketName, 'text/plan', NEW_FOLDER+'/test.txt', 'test.txt'));
 end;
 
 initialization
