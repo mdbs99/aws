@@ -56,6 +56,8 @@ type
     // OBJECT
     function PUTObject(const ABucket, AContentType, AObjectName: string; AStream: TStream): Integer; overload;
     function PUTObject(const ABucket, AContentType, AObjectName, AFileName: string): Integer; overload;
+    function GETObject(const ABucket, AObjectName, AFileName: string): Integer;
+    function GETObject(const ABucket, AObjectName: string; AStream: TStream): Integer;
     function DELETEObject(const ABucket, AObjectName: string): Integer;
 
     // Utilities
@@ -185,12 +187,34 @@ begin
   end;
 end;
 
+function TAWSS3Client.GETObject(const ABucket, AObjectName: string; AStream: TStream): Integer;
+begin
+  FHTTP.Clear;
+  SetAuthHeader('GET', '', '', '', '/' + ABucket + '/' + AObjectName);
+  Result := Send('GET', ABucket, '/' + AObjectName);
+  FHTTP.Document.SaveToStream(AStream);
+end;
+
+function TAWSS3Client.GETObject(const ABucket, AObjectName, AFileName: string): Integer;
+var
+  Buf: TFileStream;
+begin
+  Buf := TFileStream.Create(AFileName, fmCreate);
+  try
+    Result := GetObject(ABucket, AObjectName, Buf);  // above
+    if result <> 200 then
+      deleteFile(AFilename);
+  finally
+    Buf.Free;
+  end;
+end;
+
 function TAWSS3Client.DELETEObject(const ABucket, AObjectName: string): Integer;
 begin
-  { TODO: not working yet }
   FHTTP.Clear;
   SetAuthHeader('DELETE', '', '', '', '/' + ABucket + '/' + AObjectName);
-  Result := Send('DELETE', ABucket, '/' + AObjectName);
+  // seems to work
+  Result := Send('DELETE', '', '/'+ABucket +'/'+AObjectName); 
 end;
 
 function TAWSS3Client.PUTFolder(const ABucket, ANewFolder: string): Integer;
