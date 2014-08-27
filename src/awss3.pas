@@ -202,11 +202,11 @@ begin
   Buf := TFileStream.Create(AFileName, fmCreate);
   try
     Result := GetObject(ABucket, AObjectName, Buf);  // above
-    if result <> 200 then
-      deleteFile(AFilename);
   finally
     Buf.Free;
   end;
+  if result <> 200 then
+    deleteFile(AFilename);
 end;
 
 function TAWSS3Client.DELETEObject(const ABucket, AObjectName: string): Integer;
