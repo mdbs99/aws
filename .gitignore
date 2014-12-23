@@ -10,6 +10,7 @@
 *.compiled
 *.ini
 test/lib/
+examples/s3/lib/
 
 
 
