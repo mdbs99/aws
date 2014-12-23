@@ -24,36 +24,24 @@ uses
   synautil,
   ssl_openssl,
   //aws
+  aws_sys,
   aws_auth;
 
 type
   TResultCode = type Integer;
 
-  IHttpResult = interface(IInterface)
+  IHttpResult = interface(IDisposable)
     function GetCode: TResultCode;
     function GetBody: string;
   end;
 
-  IHttpClient = interface(IInterface)
-    function Send(const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): IHttpResult;
+  IHttpSender = interface(IDisposable)
+    procedure Send(out Res: IHttpResult);
   end;
 
-  IHttpSender = interface(IInterface)
-    function Send: IHttpResult;
-  end;
-
-  THttpSender = class sealed(TInterfacedObject, IHttpSender)
-  private
-    FSender: THTTPSend;
-    FMethod: string;
-    FHeader: string;
-    FContentType: string;
-    FURI: string;
-  public
-    constructor Create(const Method, Header, ContentType, URI: string); reintroduce;
-    destructor Destroy; override;
-    function Send: IHttpResult;
+  IHttpClient = interface(IDisposable)
+    procedure Send(const Method, Resource, SubResource, ContentType, ContentMD5,
+      CanonicalizedAmzHeaders, CanonicalizedResource: string; out Res: IHttpResult);
   end;
 
   THttpResult = class sealed(TInterfacedObject, IHttpResult)
@@ -66,7 +54,20 @@ type
     function GetBody: string;
   end;
 
-  THttpClient = class sealed(TInterfacedObject, IHttpClient)
+  THttpSender = class sealed(IHttpSender)
+  private
+    FSender: THTTPSend;
+    FMethod: string;
+    FHeader: string;
+    FContentType: string;
+    FURI: string;
+  public
+    constructor Create(const Method, Header, ContentType, URI: string); reintroduce;
+    destructor Destroy; override;
+    procedure Send(out Res: IHttpResult);
+  end;
+
+  THttpClient = class sealed(IHttpClient)
   private const
     AWS_URI = 's3.amazonaws.com';
   private
@@ -77,11 +78,29 @@ type
       CanonicalizedAmzHeaders, CanonicalizedResource: string): string;
   public
     constructor Create(Credentials: ICredentials); reintroduce;
-    function Send(const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): IHttpResult;
+    procedure Send(const Method, Resource, SubResource, ContentType, ContentMD5,
+      CanonicalizedAmzHeaders, CanonicalizedResource: string; out Res: IHttpResult);
   end;
 
 implementation
+
+{ THttpResult }
+
+constructor THttpResult.Create(Code: Integer; const Body: string);
+begin
+  FCode := Code;
+  FBody := Body;
+end;
+
+function THttpResult.GetCode: TResultCode;
+begin
+  Result := FCode;
+end;
+
+function THttpResult.GetBody: string;
+begin
+  Result := FBody;
+end;
 
 { THttpSender }
 
@@ -102,32 +121,14 @@ begin
   inherited Destroy;
 end;
 
-function THttpSender.Send: IHttpResult;
+procedure THttpSender.Send(out Res: IHttpResult);
 begin
   FSender.Clear;
   FSender.Headers.Add(FHeader);
   if FContentType <> '' then
     FSender.MimeType := FContentType;
   FSender.HTTPMethod(FMethod, FURI);
-  Result := THttpResult.Create(FSender.ResultCode, FSender.ResultString);
-end;
-
-{ THttpResult }
-
-constructor THttpResult.Create(Code: Integer; const Body: string);
-begin
-  FCode := Code;
-  FBody := Body;
-end;
-
-function THttpResult.GetCode: TResultCode;
-begin
-  Result := FCode;
-end;
-
-function THttpResult.GetBody: string;
-begin
-  Result := FBody;
+  Res := THttpResult.Create(FSender.ResultCode, FSender.ResultString);
 end;
 
 { THttpClient }
@@ -157,7 +158,7 @@ begin
      + DateFmt + #10
      + CanonicalizedAmzHeaders
      + CanonicalizedResource;
-  Result := 'Date: ' + DateFmt
+  Result := 'Date: ' + DateFmt + #10
           + 'Authorization: AWS '
           + FCredentials.GetAccessKeyId + ':' + EncodeBase64(HMAC_SHA1(H, FCredentials.GetSecretKey));
 end;
@@ -168,16 +169,21 @@ begin
   FCredentials := Credentials;
 end;
 
-function THttpClient.Send(const Method, Resource, SubResource, ContentType,
-  ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource: string): IHttpResult;
+procedure THttpClient.Send(const Method, Resource, SubResource, ContentType,
+  ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource: string; out
+  Res: IHttpResult);
 var
   H: string;
 begin
   H := MakeAuthHeader(
     Method, ContentType, ContentMD5,
     CanonicalizedAmzHeaders, CanonicalizedResource);
-  Result := THttpSender.Create(
-      Method, H, ContentType, MakeURI(Resource, SubResource)).Send;
+  with THttpSender.Create(Method, H, ContentType, MakeURI(Resource, SubResource)) do
+  try
+    Send(Res);
+  finally
+    Free;
+  end;
 end;
 
 end.

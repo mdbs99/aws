@@ -11,7 +11,7 @@
 }
 unit test_s3;
 
-{$mode objfpc}{$H+}
+{$i ../src/aws.inc}
 
 interface
 
@@ -27,13 +27,13 @@ uses
   aws_s3;
 
 type
-  THttpClientMocker = class(TInterfacedObject, IHttpClient)
+  THttpClientMocker = class(IHttpClient)
   private
     FLog: TStrings;
   public
     constructor Create(Log: TStrings);
-    function Send(const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): IHttpResult;
+    procedure Send(const Method, Resource, SubResource, ContentType, ContentMD5,
+      CanonicalizedAmzHeaders, CanonicalizedResource: string; out Res: IHttpResult);
   end;
 
 //  TS3RegionMocker = class(TInterfacedObject, IS3Region)
@@ -96,9 +96,9 @@ begin
   FLog := Log;
 end;
 
-function THttpClientMocker.Send(const Method, Resource, SubResource,
+procedure THttpClientMocker.Send(const Method, Resource, SubResource,
   ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string): IHttpResult;
+  CanonicalizedResource: string; out Res: IHttpResult);
 var
   Code: TResultCode;
   Body: TStrings;
@@ -137,7 +137,7 @@ begin
       Code := 200;
       Body.LoadFromFile('put-bucket.txt');
     end;
-    Result := THttpResult.Create(Code, Body.Text);
+    Res := THttpResult.Create(Code, Body.Text);
   finally
     Body.Free;
   end;
@@ -156,8 +156,8 @@ end;
 procedure TS3Test.TearDown;
 begin
   FLog.Free;
-  FCredentials := nil;
-  FClient := nil;
+  FCredentials.Free;
+  FClient.Free;
   inherited TearDown;
 end;
 
@@ -168,23 +168,33 @@ var
   R: IS3Region;
 begin
   R := TS3Region.Create(FClient);
-  AssertTrue('Service denied', R.IsOnline);
-  AssertTrue('Method <> GET', FLog.Values['Method'] = 'GET');
-  AssertTrue('CanonicalizedResource <> /', FLog.Values['CanonicalizedResource'] = '/');
+  try
+    AssertTrue('Service denied', R.IsOnline);
+    AssertTrue('Method <> GET', FLog.Values['Method'] = 'GET');
+    AssertTrue('CanonicalizedResource <> /', FLog.Values['CanonicalizedResource'] = '/');
+  finally
+    R.Free;
+  end;
 end;
 
 procedure TS3RegionTest.TestBuckets;
 var
   R: IS3Region;
   Body: TStrings;
+  Res: IHttpResult;
 begin
   R := TS3Region.Create(FClient);
   Body := TStringList.Create;
+  Res := nil;
   try
-    Body.Text := R.Buckets.All.GetBody;
-    AssertTrue(Body[1] = '<ListAllMyBucketsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01"');
+    R.Buckets.All(Res);
+    Body.Text := Res.GetBody;
+    AssertEquals(200, Res.GetCode);
+    AssertEquals(Body[1], '<ListAllMyBucketsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01"');
   finally
     Body.Free;
+    Res.Free;
+    R.Free;
   end;
 end;
 
@@ -195,10 +205,16 @@ var
   R: IS3Region;
   Res: IHttpResult;
 begin
+  Res := nil;
   R := TS3Region.Create(FClient);
-  Res := R.Buckets.Check('myawsbucket');
-  AssertEquals('Bucket invalid', 200, Res.GetCode);
-  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.GetBody));
+  try
+    R.Buckets.Check('myawsbucket', Res);
+    AssertEquals('Bucket invalid', 200, Res.GetCode);
+    AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.GetBody));
+  finally
+    R.Free;
+    Res.Free;
+  end;
 end;
 
 procedure TS3BucketsTest.TestDelete;
@@ -206,10 +222,16 @@ var
   R: IS3Region;
   Res: IHttpResult;
 begin
+  Res := nil;
   R := TS3Region.Create(FClient);
-  Res := R.Buckets.Delete('quotes', '/');
-  AssertEquals('Bucket not found', 204, Res.GetCode);
-  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 204 No Content', Res.GetBody));
+  try
+    R.Buckets.Delete('quotes', '/', Res);
+    AssertEquals('Bucket not found', 204, Res.GetCode);
+    AssertEquals('Invalid body', 1, Pos('HTTP/1.1 204 No Content', Res.GetBody));
+  finally
+    R.Free;
+    Res.Free;
+  end;
 end;
 
 procedure TS3BucketsTest.TestPut;
@@ -217,10 +239,16 @@ var
   R: IS3Region;
   Res: IHttpResult;
 begin
+  Res := nil;
   R := TS3Region.Create(FClient);
-  Res := R.Buckets.Put('colorpictures', '/');
-  AssertEquals('ResultCode invalid', 200, Res.GetCode);
-  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.GetBody));
+  try
+    R.Buckets.Put('colorpictures', '/', Res);
+    AssertEquals('ResultCode invalid', 200, Res.GetCode);
+    AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.GetBody));
+  finally
+    R.Free;
+    Res.Free;
+  end;
 end;
 
 procedure TAWSS3Test.SetUp;

@@ -1,4 +1,4 @@
-unit uMain;
+unit umain;
 
 {$mode objfpc}{$H+}
 
@@ -6,7 +6,11 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Buttons, ExtCtrls, EditBtn, AWSS3;
+  Buttons, ExtCtrls, EditBtn,
+  //aws
+  aws_auth,
+  aws_http,
+  aws_s3;
 
 type
   TfrmMain = class(TForm)
@@ -59,15 +63,16 @@ begin
 end;
 
 procedure TfrmMain.BitBtn1Click(Sender: TObject);
+var
+  Cred: ICredentials;
+  Client: THttpClient;
+  Reg: IS3Region;
 begin
-  FS3Client.AccessKeyId := edtAcessKeyId.Text;
-  FS3Client.SecretKey := edtSecretKey.Text;
-
-  FS3Client.GETService;
-
-  with FS3Client.HTTP do
-  begin
-    if ResultCode = 200 then
+  Cred := TCredentials.Create(edtAcessKeyId.Text, edtSecretKey.Text, True);
+  Client := THttpClient.Create(Cred);
+  Reg := TS3Region.Create(Client);
+  try
+    if Reg.IsOnline then
     begin
       pnlServices.Visible := True;
       ShowMessage('Ok!');
@@ -77,6 +82,10 @@ begin
       pnlServices.Visible := False;
       ShowLastError('Access denied.');
     end;
+  finally
+    Reg.Free;
+    Client.Free;
+    Cred.Free;
   end;
 end;
 

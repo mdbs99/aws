@@ -25,55 +25,56 @@ uses
   synautil,
   ssl_openssl,
   //aws
+  aws_sys,
   aws_http;
 
 type
-  IS3Object = interface(IInterface)
+  IS3Object = interface(IDisposable)
     function Name: string;
   end;
 
-  IS3Objects = interface(IInterface)
-    function Get(const AName, AFileName: string): IHttpResult;
-    function Get(const AName: string; AStream: TStream): IHttpResult;
-    function Delete(const AName: string): IHttpResult;
-    function Put(const AName, ContentType, AFileName: string): IHttpResult;
-    function Put(const AName, ContentType: string; AStream: TStream): IHttpResult;
+  IS3Objects = interface(IDisposable)
+    procedure Get(const AName, AFileName: string; out Res: IHttpResult);
+    procedure Get(const AName: string; AStream: TStream; out Res: IHttpResult);
+    procedure Delete(const AName: string; out Res: IHttpResult);
+    procedure Put(const AName, ContentType, AFileName: string; out Res: IHttpResult);
+    procedure Put(const AName, ContentType: string; AStream: TStream; out Res: IHttpResult);
   end;
 
-  IS3Bucket = interface(IInterface)
+  IS3Bucket = interface(IDisposable)
     function Name: string;
     function Objects: IS3Objects;
   end;
 
-  IS3Buckets = interface(IInterface)
-    function Check(const AName: string): IHttpResult;
-    function Get(const AName, Resources: string): IS3Bucket;
-    function Delete(const AName, Resources: string): IHttpResult;
-    function Put(const AName, Resources: string): IHttpResult;
-    function All: IHttpResult;
+  IS3Buckets = interface(IDisposable)
+    procedure Check(const AName: string; out Res: IHttpResult);
+    procedure Get(const AName, Resources: string; out Bucket: IS3Bucket);
+    procedure Delete(const AName, Resources: string; out Res: IHttpResult);
+    procedure Put(const AName, Resources: string; out Res: IHttpResult);
+    procedure All(out Res: IHttpResult);
   end;
 
-  IS3Region = interface(IInterface)
+  IS3Region = interface(IDisposable)
     function Client: IHttpClient;
     function IsOnline: Boolean;
     function Buckets: IS3Buckets;
   end;
 
-  TS3Objects = class sealed(TInterfacedObject, IS3Objects)
+  TS3Objects = class sealed(IS3Objects)
   private
     FBucket: IS3Bucket;
   public
     constructor Create(Bucket: IS3Bucket);
-    function Get(const AName, AFileName: string): IHttpResult;
-    function Get(const AName: string; AStream: TStream): IHttpResult;
-    function Delete(const AName: string): IHttpResult;
-    function Put(const AName, ContentType, AFileName: string): IHttpResult;
-    function Put(const AName, ContentType: string; AStream: TStream): IHttpResult;
+    procedure Get(const AName, AFileName: string; out Res: IHttpResult);
+    procedure Get(const AName: string; AStream: TStream; out Res: IHttpResult);
+    procedure Delete(const AName: string; out Res: IHttpResult);
+    procedure Put(const AName, ContentType, AFileName: string; out Res: IHttpResult);
+    procedure Put(const AName, ContentType: string; AStream: TStream; out Res: IHttpResult);
   end;
 
   TS3Region = class;
 
-  TS3Bucket = class sealed(TInterfacedObject, IS3Bucket)
+  TS3Bucket = class sealed(IS3Bucket)
   private
     FName: string;
   public
@@ -82,24 +83,25 @@ type
     function Objects: IS3Objects;
   end;
 
-  TS3Buckets = class sealed(TInterfacedObject, IS3Buckets)
+  TS3Buckets = class sealed(IS3Buckets)
   private
     FRegion: IS3Region;
   public
     constructor Create(Region: IS3Region);
-    destructor Destroy; override;
-    function Check(const AName: string): IHttpResult;
-    function Get(const AName, Resources: string): IS3Bucket;
-    function Delete(const AName, Resources: string): IHttpResult;
-    function Put(const AName, Resources: string): IHttpResult;
-    function All: IHttpResult;
+    procedure Check(const AName: string; out Res: IHttpResult);
+    procedure Get(const AName, Resources: string; out Bucket: IS3Bucket);
+    procedure Delete(const AName, Resources: string; out Res: IHttpResult);
+    procedure Put(const AName, Resources: string; out Res: IHttpResult);
+    procedure All(out Res: IHttpResult);
   end;
 
-  TS3Region = class sealed(TInterfacedObject, IS3Region)
+  TS3Region = class sealed(IS3Region)
   private
     FClient: IHttpClient;
+    FBuckets: IS3Buckets;
   public
     constructor Create(Client: IHttpClient);
+    destructor Destroy; override;
     function Client: IHttpClient;
     function IsOnline: Boolean;
     function Buckets: IS3Buckets;
@@ -162,27 +164,30 @@ begin
   FBucket := Bucket;
 end;
 
-function TS3Objects.Get(const AName, AFileName: string): IHttpResult;
+procedure TS3Objects.Get(const AName, AFileName: string; out Res: IHttpResult);
 begin
 
 end;
 
-function TS3Objects.Get(const AName: string; AStream: TStream): IHttpResult;
+procedure TS3Objects.Get(const AName: string; AStream: TStream; out
+  Res: IHttpResult);
 begin
 
 end;
 
-function TS3Objects.Delete(const AName: string): IHttpResult;
+procedure TS3Objects.Delete(const AName: string; out Res: IHttpResult);
 begin
 
 end;
 
-function TS3Objects.Put(const AName, ContentType, AFileName: string): IHttpResult;
+procedure TS3Objects.Put(const AName, ContentType, AFileName: string; out
+  Res: IHttpResult);
 begin
 
 end;
 
-function TS3Objects.Put(const AName, ContentType: string; AStream: TStream): IHttpResult;
+procedure TS3Objects.Put(const AName, ContentType: string; AStream: TStream;
+  out Res: IHttpResult);
 begin
 
 end;
@@ -211,36 +216,30 @@ begin
   FRegion := Region;
 end;
 
-destructor TS3Buckets.Destroy;
+procedure TS3Buckets.Check(const AName: string; out Res: IHttpResult);
 begin
-  FRegion := nil;
-  inherited Destroy;
+  FRegion.Client.Send('HEAD', AName, '', '', '', '', '/' + AName + '/', Res);
 end;
 
-function TS3Buckets.Check(const AName: string): IHttpResult;
-begin
-  Result := FRegion.Client.Send('HEAD', AName, '', '', '', '', '/' + AName + '/');
-end;
-
-function TS3Buckets.Get(const AName, Resources: string): IS3Bucket;
+procedure TS3Buckets.Get(const AName, Resources: string; out Bucket: IS3Bucket);
 begin
   // TODO
-  Result := nil;
+  Bucket := nil;
 end;
 
-function TS3Buckets.Delete(const AName, Resources: string): IHttpResult;
+procedure TS3Buckets.Delete(const AName, Resources: string; out Res: IHttpResult);
 begin
-  Result := FRegion.Client.Send('DELETE', AName, Resources, '', '', '', '/' + AName + Resources);
+  FRegion.Client.Send('DELETE', AName, Resources, '', '', '', '/' + AName + Resources, Res);
 end;
 
-function TS3Buckets.Put(const AName, Resources: string): IHttpResult;
+procedure TS3Buckets.Put(const AName, Resources: string; out Res: IHttpResult);
 begin
-  Result := FRegion.Client.Send('PUT', AName, Resources, '', '', '', '/' + AName + Resources);
+  FRegion.Client.Send('PUT', AName, Resources, '', '', '', '/' + AName + Resources, Res);
 end;
 
-function TS3Buckets.All: IHttpResult;
+procedure TS3Buckets.All(out Res: IHttpResult);
 begin
-  Result := FRegion.Client.Send('GET', '', '', '', '', '', '/');
+  FRegion.Client.Send('GET', '', '', '', '', '', '/', Res);
 end;
 
 { TS3Region }
@@ -249,6 +248,12 @@ constructor TS3Region.Create(Client: IHttpClient);
 begin
   inherited Create;
   FClient := Client;
+  FBuckets := TS3Buckets.Create(Self);
+end;
+
+destructor TS3Region.Destroy;
+begin
+  FBuckets.Free;
 end;
 
 function TS3Region.Client: IHttpClient;
@@ -257,13 +262,21 @@ begin
 end;
 
 function TS3Region.IsOnline: Boolean;
+var
+  Res: IHttpResult;
 begin
-  Result := FClient.Send('GET', '', '', '', '', '', '/').GetCode = 200;
+  Res := nil;
+  try
+    FClient.Send('GET', '', '', '', '', '', '/', Res);
+    Result := Res.GetCode = 200;
+  finally
+    Res.Free;
+  end;
 end;
 
 function TS3Region.Buckets: IS3Buckets;
 begin
-  Result := TS3Buckets.Create(Self);
+  Result := FBuckets;
 end;
 
 { TAWSS3Client }

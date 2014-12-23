@@ -15,8 +15,12 @@ unit aws_auth;
 
 interface
 
+uses
+  // aws
+  aws_sys;
+
 type
-  ICredentials = interface(IInterface)
+  ICredentials = interface(IDisposable)
     function GetAccessKeyId: string;
     function GetSecretKey: string;
     function IsSSL: Boolean;
