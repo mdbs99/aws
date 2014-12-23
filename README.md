@@ -1,55 +1,45 @@
 #AWS Lib
 
-AWS Lib is a Pascal implementation of Amazon S3 REST API for [Free Pascal](http://freepascal.org/).
+AWS Lib is a Pascal implementation of Amazon REST API for [Free Pascal](http://freepascal.org/).
 
-It is minimalistic, clean and simple.
-
+Until now we have the implementation of Amazon S3.
 * S3 REST API: http://docs.aws.amazon.com/AmazonS3/latest/API/APIRest.html
 * S3 Error responses: http://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html
+
+It is minimalistic, clean and simple.
 
 ``` pascal
 program awstest;
 {$mode objfpc}{$H+}
 uses
-  SysUtils, AWSS3;
+  sysutils,
+  aws_auth,
+  aws_http,  
+  aws_s3;
 const
   ACCESS_KEY = 'YOUR ACCESS KEY ID';
   SECRET_KEY = 'YOUR SECRET KEY';
-  BUCKET_NAME = 'YOUR BUCKET';
-  NEW_BUCKET_NAME = 'awspascal_s3_0001';
 var
-  s3: TAWSS3Client;
+  Cred: ICredentials;
+  Client: IHttpClient;
+  Region: IS3Region;
 begin
-  s3 := TAWSS3Client.Create;
+  Cred := TCredentials.Create(ACCESS_KEY, SECRET_KEY, True);
+  Client := THttpClient.Create(Cred);
+  Region := TS3Region.Create(Client);
   try
-    s3.AccessKeyId := ACCESS_KEY;
-    s3.SecretKey := SECRET_KEY;
-    s3.UseSSL := True;
     try
       // check access
-      if s3.GETService <> 200 then
-	    raise Exception.Create('Access denied.');
-
-      // bucket check
-      if s3.GETBucket(BUCKET_NAME, '/') <> 200 then
-        raise Exception.Create('Bucket do not exists or access denied.');
-
+      if Region.IsOnline then
+	    writeln('Online');
       // create a new bucket
-      if s3.PUTBucket(NEW_BUCKET_NAME, '/') <> 200 then
-        raise Exception.Create('Bucket was not created.');
-
+	  Region.Buckets.Put('colorpictures', '/');
       // delete the new bucket
-      if s3.DELETEBucket(NEW_BUCKET_NAME, '/') <> 204 then  // No Content response
-        raise Exception.Create('Bucket was not deleted.');
-    except
-      on E: Exception do
-	    writeln(E.Message + #13 + Format('ERROR: #%d %s', [s3.HTTP.ResultCode, s3.HTTP.ResultString]));
-    end;
+	  Region.Buckets.Delete('colorpictures', '/');
   finally
-    s3.Free;
+    Region.Free;
+    Client.Free;
+    Cred.Free;
   end;
-
-  writeln('Everything works!');
-  writeln;
 end.  
 ```
