@@ -42,12 +42,6 @@
               </Win32>
             </Options>
           </Linking>
-          <Other>
-            <CompilerMessages>
-              <MsgFileName Value=""/>
-            </CompilerMessages>
-            <CompilerPath Value="$(CompPath)"/>
-          </Other>
         </CompilerOptions>
       </Item2>
     </BuildModes>
@@ -79,12 +73,11 @@
       <Unit0>
         <Filename Value="test.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="test"/>
       </Unit0>
       <Unit1>
-        <Filename Value="awss3test.pas"/>
+        <Filename Value="test_s3.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="AWSS3Test"/>
+        <UnitName Value="test_s3"/>
       </Unit1>
     </Units>
   </ProjectOptions>
@@ -99,6 +92,9 @@
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
+      <Debugging>
+        <UseHeaptrc Value="True"/>
+      </Debugging>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>
@@ -106,11 +102,7 @@
       </Options>
     </Linking>
     <Other>
-      <CompilerMessages>
-        <MsgFileName Value=""/>
-      </CompilerMessages>
       <CustomOptions Value="-dDEB"/>
-      <CompilerPath Value="$(CompPath)"/>
     </Other>
   </CompilerOptions>
   <Debugging>

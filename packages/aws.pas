@@ -7,7 +7,7 @@ unit AWS;
 interface
 
 uses
-  AWSS3, AWSBase;
+  aws_s3, aws_auth, aws_http;
 
 implementation
 

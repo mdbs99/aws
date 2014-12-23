@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013-2014  -  Marcos Douglas B. dos Santos
+    Copyright (C) 2013-2014 by mdbs99
 
     See the file LICENSE.txt, included in this distribution,
     for details about the copyright.
@@ -9,27 +9,108 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 }
-
-unit AWSS3;
+unit aws_s3;
 
 {$i aws.inc}
 
 interface
 
 uses
-  // rtl
-  Classes, SysUtils,
-  // synapse
-  httpsend, synacode, synautil, ssl_openssl,
-  // aws
-  AWSBase;
+  //rtl
+  classes,
+  sysutils,
+  //synapse
+  httpsend,
+  synacode,
+  synautil,
+  ssl_openssl,
+  //aws
+  aws_http;
 
 type
-  EAWSS3Error = class(EAWSError);
+  IS3Object = interface(IInterface)
+    function Name: string;
+  end;
 
-  { TAWSS3Client }
+  IS3Objects = interface(IInterface)
+    function Get(const AName, AFileName: string): IHttpResult;
+    function Get(const AName: string; AStream: TStream): IHttpResult;
+    function Delete(const AName: string): IHttpResult;
+    function Put(const AName, ContentType, AFileName: string): IHttpResult;
+    function Put(const AName, ContentType: string; AStream: TStream): IHttpResult;
+  end;
 
-  TAWSS3Client = class(TAWSObject)
+  IS3Bucket = interface(IInterface)
+    function Name: string;
+    function Objects: IS3Objects;
+  end;
+
+  IS3Buckets = interface(IInterface)
+    function Check(const AName: string): IHttpResult;
+    function Get(const AName, Resources: string): IS3Bucket;
+    function Delete(const AName, Resources: string): IHttpResult;
+    function Put(const AName, Resources: string): IHttpResult;
+    function All: IHttpResult;
+  end;
+
+  IS3Region = interface(IInterface)
+    function Client: IHttpClient;
+    function IsOnline: Boolean;
+    function Buckets: IS3Buckets;
+  end;
+
+  TS3Objects = class sealed(TInterfacedObject, IS3Objects)
+  private
+    FBucket: IS3Bucket;
+  public
+    constructor Create(Bucket: IS3Bucket);
+    function Get(const AName, AFileName: string): IHttpResult;
+    function Get(const AName: string; AStream: TStream): IHttpResult;
+    function Delete(const AName: string): IHttpResult;
+    function Put(const AName, ContentType, AFileName: string): IHttpResult;
+    function Put(const AName, ContentType: string; AStream: TStream): IHttpResult;
+  end;
+
+  TS3Region = class;
+
+  TS3Bucket = class sealed(TInterfacedObject, IS3Bucket)
+  private
+    FName: string;
+  public
+    constructor Create(const AName: string);
+    function Name: string;
+    function Objects: IS3Objects;
+  end;
+
+  TS3Buckets = class sealed(TInterfacedObject, IS3Buckets)
+  private
+    FRegion: IS3Region;
+  public
+    constructor Create(Region: IS3Region);
+    destructor Destroy; override;
+    function Check(const AName: string): IHttpResult;
+    function Get(const AName, Resources: string): IS3Bucket;
+    function Delete(const AName, Resources: string): IHttpResult;
+    function Put(const AName, Resources: string): IHttpResult;
+    function All: IHttpResult;
+  end;
+
+  TS3Region = class sealed(TInterfacedObject, IS3Region)
+  private
+    FClient: IHttpClient;
+  public
+    constructor Create(Client: IHttpClient);
+    function Client: IHttpClient;
+    function IsOnline: Boolean;
+    function Buckets: IS3Buckets;
+  end;
+
+
+ /////////////////////////////////////////////////////////////////////////////
+ //                         DEPRECATED                                      //
+ /////////////////////////////////////////////////////////////////////////////
+
+  TAWSS3Client = class
   private const
     S3_URL = 's3.amazonaws.com';
   private
@@ -41,7 +122,7 @@ type
       CanonicalizedAmzHeaders, CanonicalizedResource: string);
     function Send(const AVerb, ABucket, AQuery: string): Integer;
   public
-    constructor Create; override;
+    constructor Create; deprecated;
     destructor Destroy; override;
 
     // SERVICE
@@ -70,8 +151,120 @@ type
     property SecretKey: AnsiString read FSecretKey write FSecretKey;
     property UseSSL: Boolean read FUseSSL write FUseSSL;
   end;
+/////////////////////////////////////////////////////////////////////////////
 
 implementation
+
+{ TS3Objects }
+
+constructor TS3Objects.Create(Bucket: IS3Bucket);
+begin
+  FBucket := Bucket;
+end;
+
+function TS3Objects.Get(const AName, AFileName: string): IHttpResult;
+begin
+
+end;
+
+function TS3Objects.Get(const AName: string; AStream: TStream): IHttpResult;
+begin
+
+end;
+
+function TS3Objects.Delete(const AName: string): IHttpResult;
+begin
+
+end;
+
+function TS3Objects.Put(const AName, ContentType, AFileName: string): IHttpResult;
+begin
+
+end;
+
+function TS3Objects.Put(const AName, ContentType: string; AStream: TStream): IHttpResult;
+begin
+
+end;
+
+{ TS3Bucket }
+
+constructor TS3Bucket.Create(const AName: string);
+begin
+  FName := AName;
+end;
+
+function TS3Bucket.Name: string;
+begin
+  Result := FName;
+end;
+
+function TS3Bucket.Objects: IS3Objects;
+begin
+  Result := nil;
+end;
+
+{ TS3Buckets }
+
+constructor TS3Buckets.Create(Region: IS3Region);
+begin
+  FRegion := Region;
+end;
+
+destructor TS3Buckets.Destroy;
+begin
+  FRegion := nil;
+  inherited Destroy;
+end;
+
+function TS3Buckets.Check(const AName: string): IHttpResult;
+begin
+  Result := FRegion.Client.Send('HEAD', AName, '', '', '', '', '/' + AName + '/');
+end;
+
+function TS3Buckets.Get(const AName, Resources: string): IS3Bucket;
+begin
+  // TODO
+  Result := nil;
+end;
+
+function TS3Buckets.Delete(const AName, Resources: string): IHttpResult;
+begin
+  Result := FRegion.Client.Send('DELETE', AName, Resources, '', '', '', '/' + AName + Resources);
+end;
+
+function TS3Buckets.Put(const AName, Resources: string): IHttpResult;
+begin
+  Result := FRegion.Client.Send('PUT', AName, Resources, '', '', '', '/' + AName + Resources);
+end;
+
+function TS3Buckets.All: IHttpResult;
+begin
+  Result := FRegion.Client.Send('GET', '', '', '', '', '', '/');
+end;
+
+{ TS3Region }
+
+constructor TS3Region.Create(Client: IHttpClient);
+begin
+  inherited Create;
+  FClient := Client;
+end;
+
+function TS3Region.Client: IHttpClient;
+begin
+  Result := FClient;
+end;
+
+function TS3Region.IsOnline: Boolean;
+begin
+  Result := FClient.Send('GET', '', '', '', '', '', '/').GetCode = 200;
+end;
+
+function TS3Region.Buckets: IS3Buckets;
+begin
+  Result := TS3Buckets.Create(Self);
+end;
 
 { TAWSS3Client }
 

@@ -3,7 +3,7 @@
   <Package Version="4">
     <PathDelim Value="\"/>
     <Name Value="AWS"/>
-    <Author Value="Marcos Douglas B. dos Santos"/>
+    <Author Value="mdbs99"/>
     <CompilerOptions>
       <Version Value="11"/>
       <PathDelim Value="\"/>
@@ -12,29 +12,27 @@
         <OtherUnitFiles Value="..\src"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
-      <Other>
-        <CompilerMessages>
-          <MsgFileName Value=""/>
-        </CompilerMessages>
-        <CompilerPath Value="$(CompPath)"/>
-      </Other>
     </CompilerOptions>
     <Description Value="AWS runtime package."/>
     <License Value="See the file LICENSE, included in this distribution, for details about the copyright."/>
-    <Version Release="2" Build="5"/>
-    <Files Count="3">
+    <Version Minor="1"/>
+    <Files Count="4">
       <Item1>
         <Filename Value="..\src\aws.inc"/>
         <Type Value="Include"/>
       </Item1>
       <Item2>
-        <Filename Value="..\src\awss3.pas"/>
-        <UnitName Value="AWSS3"/>
+        <Filename Value="..\src\aws_s3.pas"/>
+        <UnitName Value="aws_s3"/>
       </Item2>
       <Item3>
-        <Filename Value="..\src\awsbase.pas"/>
-        <UnitName Value="AWSBase"/>
+        <Filename Value="..\src\aws_auth.pas"/>
+        <UnitName Value="aws_auth"/>
       </Item3>
+      <Item4>
+        <Filename Value="..\src\aws_http.pas"/>
+        <UnitName Value="aws_http"/>
+      </Item4>
     </Files>
     <Type Value="RunTimeOnly"/>
     <RequiredPkgs Count="2">

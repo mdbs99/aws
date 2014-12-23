@@ -8,7 +8,7 @@
 *.so
 *.bat
 *.compiled
-bin/
+*.ini
 test/lib/
 
 

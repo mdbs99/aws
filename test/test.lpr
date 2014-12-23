@@ -3,7 +3,7 @@ program test;
 {$mode objfpc}{$H+}
 
 uses
-  Interfaces, Forms, GuiTestRunner, AwsS3Test;
+  Interfaces, Forms, GuiTestRunner, test_s3;
 
 {$R *.res}
 
