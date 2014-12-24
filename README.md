@@ -27,19 +27,12 @@ begin
   Cred := TCredentials.Create(ACCESS_KEY, SECRET_KEY, True);
   Client := THttpClient.Create(Cred);
   Region := TS3Region.Create(Client);
-  try
-    try
-      // check access
-      if Region.IsOnline then
-	    writeln('Online');
-      // create a new bucket
-	  Region.Buckets.Put('colorpictures', '/');
-      // delete the new bucket
-	  Region.Buckets.Delete('colorpictures', '/');
-  finally
-    Region.Free;
-    Client.Free;
-    Cred.Free;
-  end;
+  // check access
+  if Region.IsOnline then
+    writeln('Online');
+  // create a new bucket
+  Region.Buckets.Put('colorpictures', '/');
+  // delete the new bucket
+  Region.Buckets.Delete('colorpictures', '/');
 end.  
 ```
