@@ -20,7 +20,7 @@ uses
   aws_sys;
 
 type
-  ICredentials = interface(IDisposable)
+  ICredentials = interface(IInterface)
     function GetAccessKeyId: string;
     function GetSecretKey: string;
     function IsSSL: Boolean;

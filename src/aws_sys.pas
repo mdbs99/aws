@@ -16,12 +16,21 @@ unit aws_sys;
 interface
 
 type
+  PIInterface = ^IInterface;
+
   IDisposable = interface
   ['{85C70F91-68D9-4967-B482-9FCD29428A0B}']
     procedure Free;
   end;
 
+procedure SetWeak(InterfaceField: PIInterface; const Value: IInterface);
+
 implementation
+
+procedure SetWeak(InterfaceField: PIInterface; const Value: IInterface);
+begin
+  PPointer(InterfaceField)^ := Pointer(Value);
+end;
 
 end.
 

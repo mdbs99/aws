@@ -11,5 +11,5 @@
 }
 
 {$mode objfpc}{$H+}
-{$interfaces corba}
+{.$interfaces corba}
 

@@ -30,18 +30,18 @@ uses
 type
   TResultCode = type Integer;
 
-  IHttpResult = interface(IDisposable)
+  IHttpResult = interface(IInterface)
     function GetCode: TResultCode;
     function GetBody: string;
   end;
 
-  IHttpSender = interface(IDisposable)
-    procedure Send(out Res: IHttpResult);
+  IHttpSender = interface(IInterface)
+    function Send: IHttpResult;
   end;
 
-  IHttpClient = interface(IDisposable)
-    procedure Send(const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string; out Res: IHttpResult);
+  IHttpClient = interface(IInterface)
+    function Send(const Method, Resource, SubResource, ContentType, ContentMD5,
+      CanonicalizedAmzHeaders, CanonicalizedResource: string): IHttpResult;
   end;
 
   THttpResult = class sealed(TInterfacedObject, IHttpResult)
@@ -54,7 +54,7 @@ type
     function GetBody: string;
   end;
 
-  THttpSender = class sealed(IHttpSender)
+  THttpSender = class sealed(TInterfacedObject, IHttpSender)
   private
     FSender: THTTPSend;
     FMethod: string;
@@ -64,10 +64,10 @@ type
   public
     constructor Create(const Method, Header, ContentType, URI: string); reintroduce;
     destructor Destroy; override;
-    procedure Send(out Res: IHttpResult);
+    function Send: IHttpResult;
   end;
 
-  THttpClient = class sealed(IHttpClient)
+  THttpClient = class sealed(TInterfacedObject, IHttpClient)
   private const
     AWS_URI = 's3.amazonaws.com';
   private
@@ -77,9 +77,9 @@ type
     function MakeAuthHeader(const Method, ContentType, ContentMD5,
       CanonicalizedAmzHeaders, CanonicalizedResource: string): string;
   public
-    constructor Create(Credentials: ICredentials); reintroduce;
-    procedure Send(const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string; out Res: IHttpResult);
+    constructor Create(const Credentials: ICredentials);
+    function Send(const Method, Resource, SubResource, ContentType, ContentMD5,
+      CanonicalizedAmzHeaders, CanonicalizedResource: string): IHttpResult;
   end;
 
 implementation
@@ -121,14 +121,14 @@ begin
   inherited Destroy;
 end;
 
-procedure THttpSender.Send(out Res: IHttpResult);
+function THttpSender.Send: IHttpResult;
 begin
   FSender.Clear;
   FSender.Headers.Add(FHeader);
   if FContentType <> '' then
     FSender.MimeType := FContentType;
   FSender.HTTPMethod(FMethod, FURI);
-  Res := THttpResult.Create(FSender.ResultCode, FSender.ResultString);
+  Result := THttpResult.Create(FSender.ResultCode, FSender.ResultString);
 end;
 
 { THttpClient }
@@ -163,27 +163,24 @@ begin
           + FCredentials.GetAccessKeyId + ':' + EncodeBase64(HMAC_SHA1(H, FCredentials.GetSecretKey));
 end;
 
-constructor THttpClient.Create(Credentials: ICredentials);
+constructor THttpClient.Create(const Credentials: ICredentials);
 begin
   inherited Create;
   FCredentials := Credentials;
 end;
 
-procedure THttpClient.Send(const Method, Resource, SubResource, ContentType,
-  ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource: string; out
-  Res: IHttpResult);
+function THttpClient.Send(const Method, Resource, SubResource, ContentType,
+  ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource: string): IHttpResult;
 var
   H: string;
+  Snd: IHttpSender;
 begin
   H := MakeAuthHeader(
     Method, ContentType, ContentMD5,
     CanonicalizedAmzHeaders, CanonicalizedResource);
-  with THttpSender.Create(Method, H, ContentType, MakeURI(Resource, SubResource)) do
-  try
-    Send(Res);
-  finally
-    Free;
-  end;
+  Snd := THttpSender.Create(
+    Method, H, ContentType, MakeURI(Resource, SubResource));
+  Result := Snd.Send;
 end;
 
 end.

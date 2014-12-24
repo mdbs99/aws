@@ -65,27 +65,21 @@ end;
 procedure TfrmMain.BitBtn1Click(Sender: TObject);
 var
   Cred: ICredentials;
-  Client: THttpClient;
+  Client: IHttpClient;
   Reg: IS3Region;
 begin
   Cred := TCredentials.Create(edtAcessKeyId.Text, edtSecretKey.Text, True);
   Client := THttpClient.Create(Cred);
   Reg := TS3Region.Create(Client);
-  try
-    if Reg.IsOnline then
-    begin
-      pnlServices.Visible := True;
-      ShowMessage('Ok!');
-    end
-    else
-    begin
-      pnlServices.Visible := False;
-      ShowLastError('Access denied.');
-    end;
-  finally
-    Reg.Free;
-    Client.Free;
-    Cred.Free;
+  if Reg.IsOnline then
+  begin
+    pnlServices.Visible := True;
+    ShowMessage('Ok!');
+  end
+  else
+  begin
+    pnlServices.Visible := False;
+    ShowLastError('Access denied.');
   end;
 end;
 
