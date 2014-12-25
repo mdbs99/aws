@@ -2,7 +2,7 @@
 
 AWS Lib is a minimalistic Pascal implementation of Amazon REST API for [Free Pascal](http://freepascal.org/).
 
-This project is fully object-oriented, interface-based and all objects are immutable objects.
+This project is fully *object-oriented*, *interface-based* and all objects are *immutable objects*.
 
 ##Amazon S3
 * REST API: http://docs.aws.amazon.com/AmazonS3/latest/API/APIRest.html
