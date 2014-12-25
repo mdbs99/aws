@@ -135,7 +135,7 @@ end;
 function TAWSClient.MakeURI(const Resource, SubResource: string): string;
 begin
   Result := '';
-  if FCredentials.IsSSL then
+  if FCredentials.UseSSL then
     Result += 'https://'
   else
     Result += 'http://';

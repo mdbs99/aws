@@ -23,7 +23,7 @@ type
   IAWSCredentials = interface(IInterface)
     function GetAccessKeyId: string;
     function GetSecretKey: string;
-    function IsSSL: Boolean;
+    function UseSSL: Boolean;
   end;
 
   TAWSCredentials = class(TInterfacedObject, IAWSCredentials)
@@ -32,10 +32,10 @@ type
     FSecretKey: string;
     FSSL: Boolean;
   public
-    constructor Create(const AccessKeyId, SecretKey: string; SSL: Boolean); reintroduce;
+    constructor Create(const AccessKeyId, SecretKey: string; UseSSL: Boolean); reintroduce;
     function GetAccessKeyId: string;
     function GetSecretKey: string;
-    function IsSSL: Boolean;
+    function UseSSL: Boolean;
   end;
 
 implementation
@@ -43,11 +43,11 @@ implementation
 { TAWSCredentials }
 
 constructor TAWSCredentials.Create(const AccessKeyId, SecretKey: string;
-  SSL: Boolean);
+  UseSSL: Boolean);
 begin
   FAccessKeyId := AccessKeyId;
   FSecretKey := SecretKey;
-  FSSL := SSL;
+  FSSL := UseSSL;
 end;
 
 function TAWSCredentials.GetAccessKeyId: string;
@@ -60,7 +60,7 @@ begin
   Result := FSecretKey;
 end;
 
-function TAWSCredentials.IsSSL: Boolean;
+function TAWSCredentials.UseSSL: Boolean;
 begin
   Result := FSSL;
 end;

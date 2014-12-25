@@ -33,7 +33,7 @@ type
   public
     constructor Create(Log: TStrings);
     function Send(const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): IHTTPResult;
+      CanonicalizedAmzHeaders, CanonicalizedResource: string): IS3Result;
   end;
 
   TS3Test = class abstract(TTestCase)
@@ -94,7 +94,7 @@ end;
 
 function THttpClientMocker.Send(const Method, Resource, SubResource,
   ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string): IHTTPResult;
+  CanonicalizedResource: string): IS3Result;
 var
   Code: TResultCode;
   Body: TStrings;
@@ -170,7 +170,7 @@ end;
 procedure TS3RegionTest.TestBuckets;
 var
   R: IS3Region;
-  Res: IHTTPResult;
+  Res: IS3Result;
   Body: TStrings;
 begin
   R := TS3Region.Create(FClient);
@@ -190,7 +190,7 @@ end;
 procedure TS3BucketsTest.TestAccess;
 var
   R: IS3Region;
-  Res: IHTTPResult;
+  Res: IS3Result;
 begin
   R := TS3Region.Create(FClient);
   Res := R.Buckets.Check('myawsbucket');
@@ -201,7 +201,7 @@ end;
 procedure TS3BucketsTest.TestDelete;
 var
   R: IS3Region;
-  Res: IHTTPResult;
+  Res: IS3Result;
 begin
   R := TS3Region.Create(FClient);
   Res := R.Buckets.Delete('quotes', '/');
@@ -212,7 +212,7 @@ end;
 procedure TS3BucketsTest.TestPut;
 var
   R: IS3Region;
-  Res: IHTTPResult;
+  Res: IS3Result;
 begin
   R := TS3Region.Create(FClient);
   Res := R.Buckets.Put('colorpictures', '/');

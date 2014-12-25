@@ -29,16 +29,18 @@ uses
   aws_client;
 
 type
+  IS3Result = IHTTPResult;
+
   IS3Object = interface(IInterface)
     function Name: string;
   end;
 
   IS3Objects = interface(IInterface)
-    function Get(const AName, AFileName: string): IHTTPResult;
-    function Get(const AName: string; AStream: TStream): IHTTPResult;
-    function Delete(const AName: string): IHTTPResult;
-    function Put(const AName, ContentType, AFileName: string): IHTTPResult;
-    function Put(const AName, ContentType: string; AStream: TStream): IHTTPResult;
+    function Get(const AName, AFileName: string): IS3Result;
+    function Get(const AName: string; AStream: TStream): IS3Result;
+    function Delete(const AName: string): IS3Result;
+    function Put(const AName, ContentType, AFileName: string): IS3Result;
+    function Put(const AName, ContentType: string; AStream: TStream): IS3Result;
   end;
 
   IS3Bucket = interface(IInterface)
@@ -47,11 +49,11 @@ type
   end;
 
   IS3Buckets = interface(IInterface)
-    function Check(const AName: string): IHTTPResult;
-    function Get(const AName, Resources: string): IHTTPResult;
-    function Delete(const AName, Resources: string): IHTTPResult;
-    function Put(const AName, Resources: string): IHTTPResult;
-    function All: IHTTPResult;
+    function Check(const AName: string): IS3Result;
+    function Get(const AName, Resources: string): IS3Result;
+    function Delete(const AName, Resources: string): IS3Result;
+    function Put(const AName, Resources: string): IS3Result;
+    function All: IS3Result;
   end;
 
   IS3Region = interface(IInterface)
@@ -65,11 +67,11 @@ type
     FBucket: IS3Bucket;
   public
     constructor Create(const Bucket: IS3Bucket);
-    function Get(const AName, AFileName: string): IHTTPResult;
-    function Get(const AName: string; AStream: TStream): IHTTPResult;
-    function Delete(const AName: string): IHTTPResult;
-    function Put(const AName, ContentType, AFileName: string): IHTTPResult;
-    function Put(const AName, ContentType: string; AStream: TStream): IHTTPResult;
+    function Get(const AName, AFileName: string): IS3Result;
+    function Get(const AName: string; AStream: TStream): IS3Result;
+    function Delete(const AName: string): IS3Result;
+    function Put(const AName, ContentType, AFileName: string): IS3Result;
+    function Put(const AName, ContentType: string; AStream: TStream): IS3Result;
   end;
 
   TS3Region = class;
@@ -88,11 +90,11 @@ type
     FRegion: IS3Region;
   public
     constructor Create(const Region: IS3Region);
-    function Check(const AName: string): IHTTPResult;
-    function Get(const AName, Resources: string): IHTTPResult;
-    function Delete(const AName, Resources: string): IHTTPResult;
-    function Put(const AName, Resources: string): IHTTPResult;
-    function All: IHTTPResult;
+    function Check(const AName: string): IS3Result;
+    function Get(const AName, Resources: string): IS3Result;
+    function Delete(const AName, Resources: string): IS3Result;
+    function Put(const AName, Resources: string): IS3Result;
+    function All: IS3Result;
   end;
 
   TS3Region = class sealed(TInterfacedObject, IS3Region)
@@ -163,27 +165,27 @@ begin
   SetWeak(@FBucket, Bucket);
 end;
 
-function TS3Objects.Get(const AName, AFileName: string): IHTTPResult;
+function TS3Objects.Get(const AName, AFileName: string): IS3Result;
 begin
 
 end;
 
-function TS3Objects.Get(const AName: string; AStream: TStream): IHTTPResult;
+function TS3Objects.Get(const AName: string; AStream: TStream): IS3Result;
 begin
 
 end;
 
-function TS3Objects.Delete(const AName: string): IHTTPResult;
+function TS3Objects.Delete(const AName: string): IS3Result;
 begin
 
 end;
 
-function TS3Objects.Put(const AName, ContentType, AFileName: string): IHTTPResult;
+function TS3Objects.Put(const AName, ContentType, AFileName: string): IS3Result;
 begin
 
 end;
 
-function TS3Objects.Put(const AName, ContentType: string; AStream: TStream): IHTTPResult;
+function TS3Objects.Put(const AName, ContentType: string; AStream: TStream): IS3Result;
 begin
 
 end;
@@ -212,28 +214,28 @@ begin
   SetWeak(@FRegion, Region);
 end;
 
-function TS3Buckets.Check(const AName: string): IHTTPResult;
+function TS3Buckets.Check(const AName: string): IS3Result;
 begin
   Result := FRegion.Client.Send('HEAD', AName, '', '', '', '', '/' + AName + '/');
 end;
 
-function TS3Buckets.Get(const AName, Resources: string): IHTTPResult;
+function TS3Buckets.Get(const AName, Resources: string): IS3Result;
 begin
   // TODO
   Result := nil;
 end;
 
-function TS3Buckets.Delete(const AName, Resources: string): IHTTPResult;
+function TS3Buckets.Delete(const AName, Resources: string): IS3Result;
 begin
   Result := FRegion.Client.Send('DELETE', AName, Resources, '', '', '', '/' + AName + Resources);
 end;
 
-function TS3Buckets.Put(const AName, Resources: string): IHTTPResult;
+function TS3Buckets.Put(const AName, Resources: string): IS3Result;
 begin
   Result := FRegion.Client.Send('PUT', AName, Resources, '', '', '', '/' + AName + Resources);
 end;
 
-function TS3Buckets.All: IHTTPResult;
+function TS3Buckets.All: IS3Result;
 begin
   Result := FRegion.Client.Send('GET', '', '', '', '', '', '/');
 end;
