@@ -35,8 +35,8 @@
         <UnitName Value="aws_auth"/>
       </Item3>
       <Item4>
-        <Filename Value="..\src\aws_http.pas"/>
-        <UnitName Value="aws_http"/>
+        <Filename Value="..\src\aws_client.pas"/>
+        <UnitName Value="aws_client"/>
       </Item4>
       <Item5>
         <Filename Value="..\src\aws_sys.pas"/>

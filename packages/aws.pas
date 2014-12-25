@@ -7,7 +7,7 @@ unit AWS;
 interface
 
 uses
-  aws_s3, aws_auth, aws_http, aws_sys;
+  aws_s3, aws_auth, aws_client, aws_sys;
 
 implementation
 

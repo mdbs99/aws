@@ -20,13 +20,13 @@ uses
   aws_sys;
 
 type
-  ICredentials = interface(IInterface)
+  IAWSCredentials = interface(IInterface)
     function GetAccessKeyId: string;
     function GetSecretKey: string;
     function IsSSL: Boolean;
   end;
 
-  TCredentials = class(TInterfacedObject, ICredentials)
+  TAWSCredentials = class(TInterfacedObject, IAWSCredentials)
   private
     FAccessKeyId: string;
     FSecretKey: string;
@@ -40,9 +40,9 @@ type
 
 implementation
 
-{ TCredentials }
+{ TAWSCredentials }
 
-constructor TCredentials.Create(const AccessKeyId, SecretKey: string;
+constructor TAWSCredentials.Create(const AccessKeyId, SecretKey: string;
   SSL: Boolean);
 begin
   FAccessKeyId := AccessKeyId;
@@ -50,17 +50,17 @@ begin
   FSSL := SSL;
 end;
 
-function TCredentials.GetAccessKeyId: string;
+function TAWSCredentials.GetAccessKeyId: string;
 begin
   Result := FAccessKeyId;
 end;
 
-function TCredentials.GetSecretKey: string;
+function TAWSCredentials.GetSecretKey: string;
 begin
   Result := FSecretKey;
 end;
 
-function TCredentials.IsSSL: Boolean;
+function TAWSCredentials.IsSSL: Boolean;
 begin
   Result := FSSL;
 end;

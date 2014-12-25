@@ -26,7 +26,7 @@ uses
   ssl_openssl,
   //aws
   aws_sys,
-  aws_http;
+  aws_client;
 
 type
   IS3Object = interface(IInterface)
@@ -34,11 +34,11 @@ type
   end;
 
   IS3Objects = interface(IInterface)
-    function Get(const AName, AFileName: string): IHttpResult;
-    function Get(const AName: string; AStream: TStream): IHttpResult;
-    function Delete(const AName: string): IHttpResult;
-    function Put(const AName, ContentType, AFileName: string): IHttpResult;
-    function Put(const AName, ContentType: string; AStream: TStream): IHttpResult;
+    function Get(const AName, AFileName: string): IHTTPResult;
+    function Get(const AName: string; AStream: TStream): IHTTPResult;
+    function Delete(const AName: string): IHTTPResult;
+    function Put(const AName, ContentType, AFileName: string): IHTTPResult;
+    function Put(const AName, ContentType: string; AStream: TStream): IHTTPResult;
   end;
 
   IS3Bucket = interface(IInterface)
@@ -47,15 +47,15 @@ type
   end;
 
   IS3Buckets = interface(IInterface)
-    function Check(const AName: string): IHttpResult;
-    function Get(const AName, Resources: string): IHttpResult;
-    function Delete(const AName, Resources: string): IHttpResult;
-    function Put(const AName, Resources: string): IHttpResult;
-    function All: IHttpResult;
+    function Check(const AName: string): IHTTPResult;
+    function Get(const AName, Resources: string): IHTTPResult;
+    function Delete(const AName, Resources: string): IHTTPResult;
+    function Put(const AName, Resources: string): IHTTPResult;
+    function All: IHTTPResult;
   end;
 
   IS3Region = interface(IInterface)
-    function Client: IHttpClient;
+    function Client: IAWSClient;
     function IsOnline: Boolean;
     function Buckets: IS3Buckets;
   end;
@@ -65,11 +65,11 @@ type
     FBucket: IS3Bucket;
   public
     constructor Create(const Bucket: IS3Bucket);
-    function Get(const AName, AFileName: string): IHttpResult;
-    function Get(const AName: string; AStream: TStream): IHttpResult;
-    function Delete(const AName: string): IHttpResult;
-    function Put(const AName, ContentType, AFileName: string): IHttpResult;
-    function Put(const AName, ContentType: string; AStream: TStream): IHttpResult;
+    function Get(const AName, AFileName: string): IHTTPResult;
+    function Get(const AName: string; AStream: TStream): IHTTPResult;
+    function Delete(const AName: string): IHTTPResult;
+    function Put(const AName, ContentType, AFileName: string): IHTTPResult;
+    function Put(const AName, ContentType: string; AStream: TStream): IHTTPResult;
   end;
 
   TS3Region = class;
@@ -88,20 +88,20 @@ type
     FRegion: IS3Region;
   public
     constructor Create(const Region: IS3Region);
-    function Check(const AName: string): IHttpResult;
-    function Get(const AName, Resources: string): IHttpResult;
-    function Delete(const AName, Resources: string): IHttpResult;
-    function Put(const AName, Resources: string): IHttpResult;
-    function All: IHttpResult;
+    function Check(const AName: string): IHTTPResult;
+    function Get(const AName, Resources: string): IHTTPResult;
+    function Delete(const AName, Resources: string): IHTTPResult;
+    function Put(const AName, Resources: string): IHTTPResult;
+    function All: IHTTPResult;
   end;
 
   TS3Region = class sealed(TInterfacedObject, IS3Region)
   private
-    FClient: IHttpClient;
+    FClient: IAWSClient;
     FBuckets: IS3Buckets;
   public
-    constructor Create(const AClient: IHttpClient);
-    function Client: IHttpClient;
+    constructor Create(const AClient: IAWSClient);
+    function Client: IAWSClient;
     function IsOnline: Boolean;
     function Buckets: IS3Buckets;
   end;
@@ -163,27 +163,27 @@ begin
   SetWeak(@FBucket, Bucket);
 end;
 
-function TS3Objects.Get(const AName, AFileName: string): IHttpResult;
+function TS3Objects.Get(const AName, AFileName: string): IHTTPResult;
 begin
 
 end;
 
-function TS3Objects.Get(const AName: string; AStream: TStream): IHttpResult;
+function TS3Objects.Get(const AName: string; AStream: TStream): IHTTPResult;
 begin
 
 end;
 
-function TS3Objects.Delete(const AName: string): IHttpResult;
+function TS3Objects.Delete(const AName: string): IHTTPResult;
 begin
 
 end;
 
-function TS3Objects.Put(const AName, ContentType, AFileName: string): IHttpResult;
+function TS3Objects.Put(const AName, ContentType, AFileName: string): IHTTPResult;
 begin
 
 end;
 
-function TS3Objects.Put(const AName, ContentType: string; AStream: TStream): IHttpResult;
+function TS3Objects.Put(const AName, ContentType: string; AStream: TStream): IHTTPResult;
 begin
 
 end;
@@ -212,42 +212,42 @@ begin
   SetWeak(@FRegion, Region);
 end;
 
-function TS3Buckets.Check(const AName: string): IHttpResult;
+function TS3Buckets.Check(const AName: string): IHTTPResult;
 begin
   Result := FRegion.Client.Send('HEAD', AName, '', '', '', '', '/' + AName + '/');
 end;
 
-function TS3Buckets.Get(const AName, Resources: string): IHttpResult;
+function TS3Buckets.Get(const AName, Resources: string): IHTTPResult;
 begin
   // TODO
   Result := nil;
 end;
 
-function TS3Buckets.Delete(const AName, Resources: string): IHttpResult;
+function TS3Buckets.Delete(const AName, Resources: string): IHTTPResult;
 begin
   Result := FRegion.Client.Send('DELETE', AName, Resources, '', '', '', '/' + AName + Resources);
 end;
 
-function TS3Buckets.Put(const AName, Resources: string): IHttpResult;
+function TS3Buckets.Put(const AName, Resources: string): IHTTPResult;
 begin
   Result := FRegion.Client.Send('PUT', AName, Resources, '', '', '', '/' + AName + Resources);
 end;
 
-function TS3Buckets.All: IHttpResult;
+function TS3Buckets.All: IHTTPResult;
 begin
   Result := FRegion.Client.Send('GET', '', '', '', '', '', '/');
 end;
 
 { TS3Region }
 
-constructor TS3Region.Create(const AClient: IHttpClient);
+constructor TS3Region.Create(const AClient: IAWSClient);
 begin
   inherited Create;
   FClient := AClient;
   FBuckets := TS3Buckets.Create(Self);
 end;
 
-function TS3Region.Client: IHttpClient;
+function TS3Region.Client: IAWSClient;
 begin
   Result := FClient;
 end;
@@ -292,9 +292,9 @@ var
 begin
   URL := '';
   if FUseSSL then
-    URL += 'https://'
+    URL += 'HTTPs://'
   else
-    URL += 'http://';
+    URL += 'HTTP://';
 
   if ABucket <> '' then
     URL += ABucket + '.';

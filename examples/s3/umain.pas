@@ -9,7 +9,7 @@ uses
   Buttons, ExtCtrls, EditBtn,
   //aws
   aws_auth,
-  aws_http,
+  aws_client,
   aws_s3;
 
 type
@@ -64,12 +64,12 @@ end;
 
 procedure TfrmMain.BitBtn1Click(Sender: TObject);
 var
-  Cred: ICredentials;
-  Client: IHttpClient;
+  Cred: IAWSCredentials;
+  Client: IAWSClient;
   Reg: IS3Region;
 begin
-  Cred := TCredentials.Create(edtAcessKeyId.Text, edtSecretKey.Text, True);
-  Client := THttpClient.Create(Cred);
+  Cred := TAWSCredentials.Create(edtAcessKeyId.Text, edtSecretKey.Text, True);
+  Client := TAWSClient.Create(Cred);
   Reg := TS3Region.Create(Client);
   if Reg.IsOnline then
   begin

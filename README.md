@@ -16,23 +16,20 @@ uses
   aws_auth,
   aws_http,  
   aws_s3;
-const
-  ACCESS_KEY = 'YOUR ACCESS KEY ID';
-  SECRET_KEY = 'YOUR SECRET KEY';
 var
-  Cred: ICredentials;
-  Client: IHttpClient;
+  Cred: IAWSCredentials;
+  Client: IAWSClient;
   Region: IS3Region;
 begin
-  Cred := TCredentials.Create(ACCESS_KEY, SECRET_KEY, True);
-  Client := THttpClient.Create(Cred);
+  Cred := TAWSCredentials.Create('access_key', 'secret_key', True);
+  Client := TAWSClient.Create(Cred);
   Region := TS3Region.Create(Client);
-  // check access
   if Region.IsOnline then
-    writeln('Online');
-  // create a new bucket
-  Region.Buckets.Put('colorpictures', '/');
-  // delete the new bucket
-  Region.Buckets.Delete('colorpictures', '/');
+  begin
+    // create a new bucket
+    Region.Buckets.Put('colorpictures', '/');
+    // delete the new bucket
+    Region.Buckets.Delete('colorpictures', '/');
+  end;
 end.  
 ```

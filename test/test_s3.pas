@@ -23,24 +23,24 @@ uses
   testregistry,
   //aws
   aws_auth,
-  aws_http,
+  aws_client,
   aws_s3;
 
 type
-  THttpClientMocker = class(TInterfacedObject, IHttpClient)
+  THttpClientMocker = class(TInterfacedObject, IAWSClient)
   private
     FLog: TStrings;
   public
     constructor Create(Log: TStrings);
     function Send(const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): IHttpResult;
+      CanonicalizedAmzHeaders, CanonicalizedResource: string): IHTTPResult;
   end;
 
   TS3Test = class abstract(TTestCase)
   private
     FLog: TStrings;
-    FCredentials: ICredentials;
-    FClient: IHttpClient;
+    FCredentials: IAWSCredentials;
+    FClient: IAWSClient;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
@@ -94,7 +94,7 @@ end;
 
 function THttpClientMocker.Send(const Method, Resource, SubResource,
   ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string): IHttpResult;
+  CanonicalizedResource: string): IHTTPResult;
 var
   Code: TResultCode;
   Body: TStrings;
@@ -133,7 +133,7 @@ begin
       Code := 200;
       Body.LoadFromFile('put-bucket.txt');
     end;
-    Result := THttpResult.Create(Code, Body.Text);
+    Result := THTTPResult.Create(Code, Body.Text);
   finally
     Body.Free;
   end;
@@ -145,7 +145,7 @@ procedure TS3Test.SetUp;
 begin
   inherited SetUp;
   FLog := TStringList.Create;
-  FCredentials := TCredentials.Create('dummy_key', 'dummy_secret', False);
+  FCredentials := TAWSCredentials.Create('dummy_key', 'dummy_secret', False);
   FClient := THttpClientMocker.Create(FLog);
 end;
 
@@ -170,7 +170,7 @@ end;
 procedure TS3RegionTest.TestBuckets;
 var
   R: IS3Region;
-  Res: IHttpResult;
+  Res: IHTTPResult;
   Body: TStrings;
 begin
   R := TS3Region.Create(FClient);
@@ -190,7 +190,7 @@ end;
 procedure TS3BucketsTest.TestAccess;
 var
   R: IS3Region;
-  Res: IHttpResult;
+  Res: IHTTPResult;
 begin
   R := TS3Region.Create(FClient);
   Res := R.Buckets.Check('myawsbucket');
@@ -201,10 +201,10 @@ end;
 procedure TS3BucketsTest.TestDelete;
 var
   R: IS3Region;
-  Res: IHttpResult;
+  Res: IHTTPResult;
 begin
   R := TS3Region.Create(FClient);
-  Res:= R.Buckets.Delete('quotes', '/');
+  Res := R.Buckets.Delete('quotes', '/');
   AssertEquals('Bucket not found', 204, Res.GetCode);
   AssertEquals('Invalid body', 1, Pos('HTTP/1.1 204 No Content', Res.GetBody));
 end;
@@ -212,7 +212,7 @@ end;
 procedure TS3BucketsTest.TestPut;
 var
   R: IS3Region;
-  Res: IHttpResult;
+  Res: IHTTPResult;
 begin
   R := TS3Region.Create(FClient);
   Res := R.Buckets.Put('colorpictures', '/');
