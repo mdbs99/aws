@@ -35,9 +35,6 @@ type
     Label6: TLabel;
     Bevel1: TBevel;
     Label7: TLabel;
-    mmoResult: TMemo;
-    Label8: TLabel;
-    Bevel2: TBevel;
     edtObjectResource: TEdit;
     Label9: TLabel;
     btnBucketGet: TButton;
@@ -97,45 +94,26 @@ begin
 end;
 
 procedure TfrmMain.btnBucketCheckClick(Sender: TObject);
-var
-  Res: IS3Result;
 begin
-  Res := FRegion.Buckets.Check(edtBucketName.Text);
-  mmoResult.Text := Res.ResultHeader + Res.ResultText;
-  if Res.Success then
+  if FRegion.Buckets.Check(edtBucketName.Text) then
     ShowMessage('The bucket exists and you have access!')
   else
-    ShowMessage('Error: ' + IntToStr(Res.ResultCode));
+    ShowMessage('Access denied.');
 end;
 
 procedure TfrmMain.btnBucketCreateClick(Sender: TObject);
-var
-  Res: IS3Result;
 begin
-  Res := FRegion.Buckets.Put(edtBucketName.Text, edtBucketResource.Text);
-  mmoResult.Text := Res.ResultHeader + Res.ResultText;
-  if Res.Success then
-    ShowMessage('Success!')
-  else
-    ShowMessage('Error: ' + IntToStr(Res.ResultCode));
+  FRegion.Buckets.Put(edtBucketName.Text, edtBucketResource.Text);
+  ShowMessage('Success!')
 end;
 
 procedure TfrmMain.btnBucketDeleteClick(Sender: TObject);
-var
-  Res: IS3Result;
 begin
-  Res := FRegion.Buckets.Delete(edtBucketName.Text, edtBucketResource.Text);
-  mmoResult.Text := Res.ResultHeader + Res.ResultText;
-  if Res.Success then
-    ShowMessage('Success!')
-  else
-    ShowMessage('Error: ' + IntToStr(Res.ResultCode));
+  FRegion.Buckets.Delete(edtBucketName.Text, edtBucketResource.Text);
+  ShowMessage('Success!')
 end;
 
 procedure TfrmMain.btnFileUploadClick(Sender: TObject);
-var
-  Res: IS3Result;
-  Bkt: IS3Bucket;
 begin
   if edtBucketName.Text = '' then
   begin
@@ -188,15 +166,9 @@ begin
 end;
 
 procedure TfrmMain.btnBucketGetClick(Sender: TObject);
-var
-  Res: IS3Result;
 begin
-  Res := FRegion.Buckets.Get(edtBucketName.Text, edtBucketResource.Text);
-  mmoResult.Text := Res.ResultHeader + Res.ResultText;
-  if Res.Success then
-    ShowMessage('The bucket exists and you have access!')
-  else
-    ShowMessage('Error: ' + IntToStr(Res.ResultCode));
+  FRegion.Buckets.Get(edtBucketName.Text, edtBucketResource.Text);
+  ShowMessage('The bucket exists and you have access!')
 end;
 
 procedure TfrmMain.ShowLastError(const AMsg: string);

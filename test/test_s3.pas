@@ -23,29 +23,28 @@ uses
   testregistry,
   //aws
   aws_auth,
-  aws_http,
   aws_client,
   aws_s3;
 
 type
   TAWSClientMocker = class(TInterfacedObject, IAWSClient)
-  private
-    FLog: TStrings;
+  strict private
+    FRequest: IAWSRequest;
+    FResponse: IAWSResponse;
   public
-    constructor Create(Log: TStrings);
-    function Send(const SuccessCode: Integer; const Method, Resource, SubResource,
-      ContentType, ContentMD5, CanonicalizedAmzHeaders,
-      CanonicalizedResource: string): IAWSResult;
+    function Send(Request: IAWSRequest): IAWSResponse;
+    function Request: IAWSRequest;
+    function Response: IAWSResponse;
   end;
 
   TS3Test = class abstract(TTestCase)
   private
-    FLog: TStrings;
     FCredentials: IAWSCredentials;
     FClient: IAWSClient;
   protected
     procedure SetUp; override;
     procedure TearDown; override;
+    function ClientMock: TAWSClientMocker;
   end;
 
   TS3RegionTest = class(TS3Test)
@@ -96,56 +95,41 @@ uses IniFiles;
 
 { TAWSClientMocker }
 
-constructor TAWSClientMocker.Create(Log: TStrings);
+function TAWSClientMocker.Send(Request: IAWSRequest): IAWSResponse;
+var
+  Code: Integer;
+  Header, Text: string;
 begin
-  FLog := Log;
+  FRequest := Request;
+  Code := -1;
+  Header := '';
+  Text := '';
+  case Request.Method of
+    'GET', 'HEAD', 'PUT':
+      begin
+        Code := 200;
+        Header := 'HTTP/1.1 200 OK';
+        Text := 'OK';
+      end;
+    'DELETE':
+      begin
+        Code := 204;
+        Header := 'HTTP/1.1 204 No Content';
+        Text := 'No Content';
+      end;
+  end;
+  Result := TAWSResponse.Create(Code, Header, Text);
+  FResponse := Result;
 end;
 
-function TAWSClientMocker.Send(const SuccessCode: Integer; const Method,
-  Resource, SubResource, ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string): IAWSResult;
-var
-  ResultCode: Integer;
-  Body: TStrings;
+function TAWSClientMocker.Request: IAWSRequest;
 begin
-  FLog.Add('Method=' + Method);
-  FLog.Add('Resource=' + Resource);
-  FLog.Add('SubResource=' + SubResource);
-  FLog.Add('ContentType=' + ContentType);
-  FLog.Add('ContentMD5=' + ContentMD5);
-  FLog.Add('CanonicalizedAmzHeaders=' + CanonicalizedAmzHeaders);
-  FLog.Add('CanonicalizedResource=' + CanonicalizedResource);
-  ResultCode := -1;
-  Body := TStringList.Create;
-  try
-    // GET service
-    if (Method = 'GET') and (CanonicalizedResource = '/') then
-    begin
-      ResultCode := 200;
-      Body.LoadFromFile('get-service.txt');
-    end;
-    // HEAD bucket
-    if (Method = 'HEAD') and (CanonicalizedResource = '/myawsbucket/') then
-    begin
-      ResultCode := 200;
-      Body.LoadFromFile('head-bucket.txt');
-    end;
-    // DELETE bucket
-    if (Method = 'DELETE') and (CanonicalizedResource = '/quotes/') then
-    begin
-      ResultCode := 204;
-      Body.LoadFromFile('delete-bucket.txt');
-    end;
-    // PUT bucket
-    if (Method = 'PUT') and (CanonicalizedResource = '/colorpictures/') then
-    begin
-      ResultCode := 200;
-      Body.LoadFromFile('put-bucket.txt');
-    end;
-    Result := TAWSResult.Create(SuccessCode, THTTPResult.Create(ResultCode, Body.Text));
-  finally
-    Body.Free;
-  end;
+  Result := FRequest;
+end;
+
+function TAWSClientMocker.Response: IAWSResponse;
+begin
+  Result := FResponse;
 end;
 
 { TS3Test }
@@ -153,15 +137,18 @@ end;
 procedure TS3Test.SetUp;
 begin
   inherited SetUp;
-  FLog := TStringList.Create;
   FCredentials := TAWSCredentials.Create('dummy_key', 'dummy_secret', False);
-  FClient := TAWSClientMocker.Create(FLog);
+  FClient := TAWSClientMocker.Create;
 end;
 
 procedure TS3Test.TearDown;
 begin
-  FLog.Free;
   inherited TearDown;
+end;
+
+function TS3Test.ClientMock: TAWSClientMocker;
+begin
+  Result := FClient as TAWSClientMocker;
 end;
 
 { TS3RegionTest }
@@ -172,26 +159,13 @@ var
 begin
   R := TS3Region.Create(FClient);
   AssertTrue('Service denied', R.IsOnline);
-  AssertTrue('Method <> GET', FLog.Values['Method'] = 'GET');
-  AssertTrue('CanonicalizedResource <> /', FLog.Values['CanonicalizedResource'] = '/');
+  AssertEquals('GET', ClientMock.Request.Method);
+  AssertEquals('/', ClientMock.Request.CanonicalizedResource);
 end;
 
 procedure TS3RegionTest.TestBuckets;
-var
-  R: IS3Region;
-  Res: IS3Result;
-  Body: TStrings;
 begin
-  R := TS3Region.Create(FClient);
-  Body := TStringList.Create;
-  try
-    Res := R.Buckets.All;
-    Body.Text := Res.ResultText;
-    AssertEquals(200, Res.ResultCode);
-    AssertEquals(Body[1], '<ListAllMyBucketsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01"');
-  finally
-    Body.Free;
-  end;
+
 end;
 
 { TS3BucketsTest }
@@ -199,45 +173,44 @@ end;
 procedure TS3BucketsTest.TestCheck;
 var
   R: IS3Region;
-  Res: IS3Result;
 begin
   R := TS3Region.Create(FClient);
-  Res := R.Buckets.Check('myawsbucket');
-  AssertEquals('Bucket invalid', 200, Res.ResultCode);
-  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.ResultText));
+  AssertTrue(R.Buckets.Check('myawsbucket'));
+  AssertEquals('HEAD', ClientMock.Request.Method);
+  AssertEquals(200, ClientMock.Response.ResultCode);
+  AssertEquals('HTTP/1.1 200 OK', ClientMock.Response.ResultHeader);
+  AssertEquals('OK', ClientMock.Response.ResultText);
 end;
 
 procedure TS3BucketsTest.TestDelete;
 var
   R: IS3Region;
-  Res: IS3Result;
 begin
   R := TS3Region.Create(FClient);
-  Res := R.Buckets.Delete('quotes', '/');
-  AssertEquals('Bucket not found', 204, Res.ResultCode);
-  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 204 No Content', Res.ResultText));
+  R.Buckets.Delete('quotes', '/');
+  AssertEquals('DELETE', ClientMock.Request.Method);
+  AssertEquals(204, ClientMock.Response.ResultCode);
+  AssertEquals('HTTP/1.1 204 No Content', ClientMock.Response.ResultHeader);
+  AssertEquals('No Content', ClientMock.Response.ResultText);
 end;
 
 procedure TS3BucketsTest.TestPut;
 var
   R: IS3Region;
-  Res: IS3Result;
 begin
   R := TS3Region.Create(FClient);
-  Res := R.Buckets.Put('colorpictures', '/');
-  AssertEquals('ResultCode invalid', 200, Res.ResultCode);
-  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.ResultText));
+  R.Buckets.Put('colorpictures', '/');
+  AssertEquals('PUT', ClientMock.Request.Method);
+  AssertEquals(200, ClientMock.Response.ResultCode);
+  AssertEquals('HTTP/1.1 200 OK', ClientMock.Response.ResultHeader);
+  AssertEquals('OK', ClientMock.Response.ResultText);
 end;
 
 { TS3ObjectsTest }
 
 procedure TS3ObjectsTest.TestGet;
-var
-  R: IS3Region;
-  Res: IS3Result;
 begin
-  R := TS3Region.Create(FClient);
-  //Res := R.Buckets.;
+
 end;
 
 procedure TS3ObjectsTest.TestDelete;

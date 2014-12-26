@@ -24,24 +24,24 @@ uses
   ssl_openssl;
 
 type
-  IHTTPResult = interface(IInterface)
+  IHTTPResponse = interface(IInterface)
     function ResultCode: Integer;
     function ResultHeader: string;
     function ResultText: string;
   end;
 
   IHTTPSender = interface(IInterface)
-    function Send: IHTTPResult;
+    function Send: IHTTPResponse;
   end;
 
-  THTTPResult = class(TInterfacedObject, IHTTPResult)
+  THTTPResponse = class(TInterfacedObject, IHTTPResponse)
   private
     FResultCode: Integer;
     FResultHeader: string;
     FResultText: string;
   public
     constructor Create(ResultCode: Integer; const ResultHeader, ResultText: string);
-    constructor Create(Origin: IHTTPResult);
+    constructor Create(Origin: IHTTPResponse);
     function ResultCode: Integer;
     function ResultHeader: string;
     function ResultText: string;
@@ -57,14 +57,14 @@ type
   public
     constructor Create(const Method, Header, ContentType, URI: string);
     destructor Destroy; override;
-    function Send: IHTTPResult;
+    function Send: IHTTPResponse;
   end;
 
 implementation
 
-{ THTTPResult }
+{ THTTPResponse }
 
-constructor THTTPResult.Create(ResultCode: Integer; const ResultHeader,
+constructor THTTPResponse.Create(ResultCode: Integer; const ResultHeader,
   ResultText: string);
 begin
   FResultCode := ResultCode;
@@ -72,22 +72,22 @@ begin
   FResultText := ResultText;
 end;
 
-constructor THTTPResult.Create(Origin: IHTTPResult);
+constructor THTTPResponse.Create(Origin: IHTTPResponse);
 begin
   Create(Origin.ResultCode, Origin.ResultHeader, Origin.ResultText);
 end;
 
-function THTTPResult.ResultCode: Integer;
+function THTTPResponse.ResultCode: Integer;
 begin
   Result := FResultCode;
 end;
 
-function THTTPResult.ResultHeader: string;
+function THTTPResponse.ResultHeader: string;
 begin
   Result := FResultHeader;
 end;
 
-function THTTPResult.ResultText: string;
+function THTTPResponse.ResultText: string;
 begin
   Result := FResultText;
 end;
@@ -111,14 +111,14 @@ begin
   inherited Destroy;
 end;
 
-function THTTPSender.Send: IHTTPResult;
+function THTTPSender.Send: IHTTPResponse;
 begin
   FSender.Clear;
   FSender.Headers.Add(FHeader);
   if FContentType <> '' then
     FSender.MimeType := FContentType;
   FSender.HTTPMethod(FMethod, FURI);
-  Result := THTTPResult.Create(
+  Result := THTTPResponse.Create(
     FSender.ResultCode,
     FSender.Headers.Text,
     FSender.ResultString);

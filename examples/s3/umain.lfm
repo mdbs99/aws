@@ -2,11 +2,11 @@ object frmMain: TfrmMain
   Left = 323
   Height = 323
   Top = 144
-  Width = 773
+  Width = 461
   BorderStyle = bsDialog
   Caption = 'AWS S3 Demo'
   ClientHeight = 323
-  ClientWidth = 773
+  ClientWidth = 461
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poScreenCenter
@@ -214,34 +214,5 @@ object frmMain: TfrmMain
     Top = 26
     Width = 218
     TabOrder = 1
-  end
-  object mmoResult: TMemo
-    Left = 472
-    Height = 288
-    Top = 24
-    Width = 287
-    Font.CharSet = ANSI_CHARSET
-    Font.Height = -11
-    Font.Name = 'Arial Narrow'
-    Font.Pitch = fpVariable
-    Font.Quality = fqDraft
-    ParentFont = False
-    ScrollBars = ssAutoBoth
-    TabOrder = 4
-  end
-  object Label8: TLabel
-    Left = 472
-    Height = 15
-    Top = 8
-    Width = 64
-    Caption = 'Server result'
-    ParentColor = False
-  end
-  object Bevel2: TBevel
-    Left = 458
-    Height = 304
-    Top = 8
-    Width = 14
-    Shape = bsLeftLine
   end
 end

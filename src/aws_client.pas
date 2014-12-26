@@ -18,6 +18,7 @@ interface
 uses
   //rtl
   sysutils,
+  classes,
   //synapse
   synacode,
   synautil,
@@ -26,22 +27,48 @@ uses
   aws_http;
 
 type
-  IAWSResult = interface(IHTTPResult)
-    function Success: Boolean;
+  IAWSResponse = IHTTPResponse;
+
+  IAWSRequest = interface(IInterface)
+    function Method: string;
+    function Resource: string;
+    function SubResource: string;
+    function ContentType: string;
+    function ContentMD5: string;
+    function CanonicalizedAmzHeaders: string;
+    function CanonicalizedResource: string;
+    function ToString: string;
   end;
 
   IAWSClient = interface(IInterface)
-    function Send(const SuccessCode: Integer;
-      const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): IAWSResult;
+    function Send(Request: IAWSRequest): IAWSResponse;
   end;
 
-  TAWSResult = class(THTTPResult, IAWSResult)
+  TAWSResponse = THTTPResponse;
+
+  TAWSRequest = class(TInterfacedObject, IAWSRequest)
   private
-    FSuccess: Boolean;
+    FMethod: string;
+    FResource: string;
+    FSubResource: string;
+    FContentType: string;
+    FContentMD5: string;
+    FCanonicalizedAmzHeaders: string;
+    FCanonicalizedResource: string;
   public
-    constructor Create(const SuccessCode: Integer; Origin: IHTTPResult);
-    function Success: Boolean;
+    constructor Create(const Method, Resource, SubResource, ContentType, ContentMD5,
+      CanonicalizedAmzHeaders, CanonicalizedResource: string);
+    constructor Create(const Method, Resource, SubResource, CanonicalizedResource: string);
+    constructor Create(const Method, Resource, CanonicalizedResource: string);
+    constructor Create(const Method, CanonicalizedResource: string);
+    function Method: string;
+    function Resource: string;
+    function SubResource: string;
+    function ContentType: string;
+    function ContentMD5: string;
+    function CanonicalizedAmzHeaders: string;
+    function CanonicalizedResource: string;
+    function ToString: string; override;
   end;
 
   TAWSClient = class sealed(TInterfacedObject, IAWSClient)
@@ -55,24 +82,93 @@ type
       CanonicalizedAmzHeaders, CanonicalizedResource: string): string;
   public
     constructor Create(const Credentials: IAWSCredentials);
-    function Send(const SuccessCode: Integer;
-      const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): IAWSResult;
+    function Send(Request: IAWSRequest): IAWSResponse;
   end;
 
 implementation
 
-{ IAWSResult }
+{ TAWSRequest }
 
-constructor TAWSResult.Create(const SuccessCode: Integer; Origin: IHTTPResult);
+constructor TAWSRequest.Create(const Method, Resource, SubResource,
+  ContentType, ContentMD5, CanonicalizedAmzHeaders,
+  CanonicalizedResource: string);
 begin
-  inherited Create(Origin);
-  FSuccess := SuccessCode = Origin.ResultCode;
+  FMethod := Method;
+  FResource := Resource;
+  FSubResource := SubResource;
+  FContentType := ContentType;
+  FContentMD5 := ContentMD5;
+  FCanonicalizedAmzHeaders := CanonicalizedAmzHeaders;
+  FCanonicalizedResource := CanonicalizedResource;
 end;
 
-function TAWSResult.Success: Boolean;
+constructor TAWSRequest.Create(const Method, Resource, SubResource,
+  CanonicalizedResource: string);
 begin
-  Result := FSuccess;
+  Create(Method, Resource, SubResource, '', '', '', CanonicalizedResource);
+end;
+
+constructor TAWSRequest.Create(const Method, Resource,
+  CanonicalizedResource: string);
+begin
+  Create(Method, Resource, '', '', '', '', CanonicalizedResource);
+end;
+
+constructor TAWSRequest.Create(const Method, CanonicalizedResource: string);
+begin
+  Create(Method, '', '', '', '', '', CanonicalizedResource);
+end;
+
+function TAWSRequest.Method: string;
+begin
+  Result := FMethod;
+end;
+
+function TAWSRequest.Resource: string;
+begin
+  Result := FResource;
+end;
+
+function TAWSRequest.SubResource: string;
+begin
+  Result := FSubResource;
+end;
+
+function TAWSRequest.ContentType: string;
+begin
+  Result := FContentType;
+end;
+
+function TAWSRequest.ContentMD5: string;
+begin
+  Result := FContentMD5;
+end;
+
+function TAWSRequest.CanonicalizedAmzHeaders: string;
+begin
+  Result := FCanonicalizedAmzHeaders;
+end;
+
+function TAWSRequest.CanonicalizedResource: string;
+begin
+  Result := FCanonicalizedResource;
+end;
+
+function TAWSRequest.ToString: string;
+begin
+  with TStringList.Create do
+  try
+    Add('Method=' + FMethod);
+    Add('Resource=' + FResource);
+    Add('SubResource=' + FSubResource);
+    Add('ContentType=' + FContentType);
+    Add('ContentMD5=' + FContentMD5);
+    Add('CanonicalizedAmzHeaders=' + FCanonicalizedAmzHeaders);
+    Add('CanonicalizedResource=' + FCanonicalizedResource);
+    Result := Text;
+  finally
+    Free;
+  end;
 end;
 
 { TAWSClient }
@@ -113,19 +209,17 @@ begin
   FCredentials := Credentials;
 end;
 
-function TAWSClient.Send(const SuccessCode: Integer; const Method, Resource,
-  SubResource, ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string): IAWSResult;
+function TAWSClient.Send(Request: IAWSRequest): IAWSResponse;
 var
   H: string;
   Snd: IHTTPSender;
 begin
   H := MakeAuthHeader(
-    Method, ContentType, ContentMD5,
-    CanonicalizedAmzHeaders, CanonicalizedResource);
+    Request.Method, Request.ContentType, Request.ContentMD5,
+    Request.CanonicalizedAmzHeaders, Request.CanonicalizedResource);
   Snd := THTTPSender.Create(
-    Method, H, ContentType, MakeURI(Resource, SubResource));
-  Result := TAWSResult.Create(SuccessCode, Snd.Send);
+    Request.Method, H, Request.ContentType, MakeURI(Request.Resource, Request.SubResource));
+  Result := Snd.Send;
 end;
 
 end.
