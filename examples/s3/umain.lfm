@@ -65,12 +65,12 @@ object frmMain: TfrmMain
       Left = 22
       Height = 23
       Top = 35
-      Width = 130
+      Width = 152
       CharCase = ecLowerCase
       TabOrder = 0
     end
     object btnBucketCheck: TButton
-      Left = 202
+      Left = 22
       Height = 25
       Top = 64
       Width = 75
@@ -107,6 +107,7 @@ object frmMain: TfrmMain
       NumGlyphs = 1
       MaxLength = 0
       TabOrder = 7
+      OnChange = fneFileChange
     end
     object btnFileUpload: TButton
       Left = 357
@@ -128,22 +129,22 @@ object frmMain: TfrmMain
     object btnObjectDelete: TButton
       Left = 359
       Height = 25
-      Top = 128
+      Top = 131
       Width = 75
       Caption = 'Delete'
       OnClick = btnObjectDeleteClick
       TabOrder = 6
     end
-    object edtResource: TEdit
-      Left = 153
+    object edtBucketResource: TEdit
+      Left = 176
       Height = 23
       Top = 35
-      Width = 279
+      Width = 256
       CharCase = ecLowerCase
       TabOrder = 1
     end
     object Label5: TLabel
-      Left = 153
+      Left = 176
       Height = 15
       Top = 16
       Width = 48
@@ -154,7 +155,7 @@ object frmMain: TfrmMain
       Left = 22
       Height = 23
       Top = 131
-      Width = 130
+      Width = 152
       CharCase = ecLowerCase
       TabOrder = 5
     end
@@ -181,22 +182,30 @@ object frmMain: TfrmMain
       Caption = 'File'
       ParentColor = False
     end
-    object edtResource1: TEdit
-      Left = 153
+    object edtObjectResource: TEdit
+      Left = 177
       Height = 23
       Top = 131
-      Width = 202
+      Width = 178
       CharCase = ecLowerCase
       TabOrder = 10
-      Text = '/'
     end
     object Label9: TLabel
-      Left = 153
+      Left = 176
       Height = 15
       Top = 112
       Width = 48
       Caption = 'Resource'
       ParentColor = False
+    end
+    object btnBucketGet: TButton
+      Left = 99
+      Height = 25
+      Top = 64
+      Width = 75
+      Caption = 'Get'
+      OnClick = btnBucketGetClick
+      TabOrder = 11
     end
   end
   object edtSecretKey: TEdit

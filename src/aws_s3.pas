@@ -29,6 +29,8 @@ uses
   aws_client, aws_http;
 
 type
+  ES3Error = class(Exception);
+
   IS3Result = IAWSResult;
 
   IS3Object = interface(IInterface)
@@ -39,8 +41,8 @@ type
     function Get(const AName, AFileName: string): IS3Result;
     function Get(const AName: string; AStream: TStream): IS3Result;
     function Delete(const AName: string): IS3Result;
-    function Put(const AName, ContentType, AFileName: string): IS3Result;
-    function Put(const AName, ContentType: string; AStream: TStream): IS3Result;
+    function Put(const AName, ContentType, AFileName: string; const Resources: string): IS3Result;
+    function Put(const AName, ContentType: string; AStream: TStream; const Resources: string): IS3Result;
   end;
 
   IS3Bucket = interface(IInterface)
@@ -70,8 +72,8 @@ type
     function Get(const AName, AFileName: string): IS3Result;
     function Get(const AName: string; AStream: TStream): IS3Result;
     function Delete(const AName: string): IS3Result;
-    function Put(const AName, ContentType, AFileName: string): IS3Result;
-    function Put(const AName, ContentType: string; AStream: TStream): IS3Result;
+    function Put(const AName, ContentType, AFileName: string; const Resources: string): IS3Result;
+    function Put(const AName, ContentType: string; AStream: TStream; const Resources: string): IS3Result;
   end;
 
   TS3Region = class;
@@ -180,12 +182,14 @@ begin
 
 end;
 
-function TS3Objects.Put(const AName, ContentType, AFileName: string): IS3Result;
+function TS3Objects.Put(const AName, ContentType, AFileName: string;
+  const Resources: string): IS3Result;
 begin
 
 end;
 
-function TS3Objects.Put(const AName, ContentType: string; AStream: TStream): IS3Result;
+function TS3Objects.Put(const AName, ContentType: string; AStream: TStream;
+  const Resources: string): IS3Result;
 begin
 
 end;
@@ -221,8 +225,10 @@ end;
 
 function TS3Buckets.Get(const AName, Resources: string): IS3Result;
 begin
-  // TODO
-  Result := nil;
+  Result := FRegion.Client.Send(200, 'GET', AName, Resources, '', '', '', '/' + AName + '/' + Resources);
+  if not Result.Success then
+    raise ES3Error.CreateFmt('Bucket error: %d', [Result.ResultCode]);
+ // Result := TS3Bucket.Create(AName);
 end;
 
 function TS3Buckets.Delete(const AName, Resources: string): IS3Result;
