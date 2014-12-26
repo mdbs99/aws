@@ -1,6 +1,6 @@
 #AWS Lib
 
-AWS Lib is a minimalistic Pascal implementation of Amazon REST API for [Free Pascal](http://freepascal.org/).
+AWS Lib is a minimalistic Object Pascal implementation of Amazon REST API for [Free Pascal](http://freepascal.org/).
 
 This project is fully **object-oriented**, **interface-based** and all objects are **immutable objects**.
 
