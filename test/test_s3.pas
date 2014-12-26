@@ -23,17 +23,19 @@ uses
   testregistry,
   //aws
   aws_auth,
+  aws_http,
   aws_client,
   aws_s3;
 
 type
-  THttpClientMocker = class(TInterfacedObject, IAWSClient)
+  TAWSClientMocker = class(TInterfacedObject, IAWSClient)
   private
     FLog: TStrings;
   public
     constructor Create(Log: TStrings);
-    function Send(const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): IS3Result;
+    function Send(const SuccessCode: Integer; const Method, Resource, SubResource,
+      ContentType, ContentMD5, CanonicalizedAmzHeaders,
+      CanonicalizedResource: string): IAWSResult;
   end;
 
   TS3Test = class abstract(TTestCase)
@@ -92,18 +94,18 @@ implementation
 
 uses IniFiles;
 
-{ THttpClientMocker }
+{ TAWSClientMocker }
 
-constructor THttpClientMocker.Create(Log: TStrings);
+constructor TAWSClientMocker.Create(Log: TStrings);
 begin
   FLog := Log;
 end;
 
-function THttpClientMocker.Send(const Method, Resource, SubResource,
-  ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string): IS3Result;
+function TAWSClientMocker.Send(const SuccessCode: Integer; const Method,
+  Resource, SubResource, ContentType, ContentMD5, CanonicalizedAmzHeaders,
+  CanonicalizedResource: string): IAWSResult;
 var
-  Code: TResultCode;
+  ResultCode: Integer;
   Body: TStrings;
 begin
   FLog.Add('Method=' + Method);
@@ -113,34 +115,34 @@ begin
   FLog.Add('ContentMD5=' + ContentMD5);
   FLog.Add('CanonicalizedAmzHeaders=' + CanonicalizedAmzHeaders);
   FLog.Add('CanonicalizedResource=' + CanonicalizedResource);
-  Code := -1;
+  ResultCode := -1;
   Body := TStringList.Create;
   try
     // GET service
     if (Method = 'GET') and (CanonicalizedResource = '/') then
     begin
-      Code := 200;
+      ResultCode := 200;
       Body.LoadFromFile('get-service.txt');
     end;
     // HEAD bucket
     if (Method = 'HEAD') and (CanonicalizedResource = '/myawsbucket/') then
     begin
-      Code := 200;
+      ResultCode := 200;
       Body.LoadFromFile('head-bucket.txt');
     end;
     // DELETE bucket
     if (Method = 'DELETE') and (CanonicalizedResource = '/quotes/') then
     begin
-      Code := 204;
+      ResultCode := 204;
       Body.LoadFromFile('delete-bucket.txt');
     end;
     // PUT bucket
     if (Method = 'PUT') and (CanonicalizedResource = '/colorpictures/') then
     begin
-      Code := 200;
+      ResultCode := 200;
       Body.LoadFromFile('put-bucket.txt');
     end;
-    Result := THTTPResult.Create(Code, Body.Text);
+    Result := TAWSResult.Create(SuccessCode, THTTPResult.Create(ResultCode, Body.Text));
   finally
     Body.Free;
   end;
@@ -153,7 +155,7 @@ begin
   inherited SetUp;
   FLog := TStringList.Create;
   FCredentials := TAWSCredentials.Create('dummy_key', 'dummy_secret', False);
-  FClient := THttpClientMocker.Create(FLog);
+  FClient := TAWSClientMocker.Create(FLog);
 end;
 
 procedure TS3Test.TearDown;
@@ -184,8 +186,8 @@ begin
   Body := TStringList.Create;
   try
     Res := R.Buckets.All;
-    Body.Text := Res.GetBody;
-    AssertEquals(200, Res.GetCode);
+    Body.Text := Res.ResultText;
+    AssertEquals(200, Res.ResultCode);
     AssertEquals(Body[1], '<ListAllMyBucketsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01"');
   finally
     Body.Free;
@@ -201,8 +203,8 @@ var
 begin
   R := TS3Region.Create(FClient);
   Res := R.Buckets.Check('myawsbucket');
-  AssertEquals('Bucket invalid', 200, Res.GetCode);
-  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.GetBody));
+  AssertEquals('Bucket invalid', 200, Res.ResultCode);
+  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.ResultText));
 end;
 
 procedure TS3BucketsTest.TestDelete;
@@ -212,8 +214,8 @@ var
 begin
   R := TS3Region.Create(FClient);
   Res := R.Buckets.Delete('quotes', '/');
-  AssertEquals('Bucket not found', 204, Res.GetCode);
-  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 204 No Content', Res.GetBody));
+  AssertEquals('Bucket not found', 204, Res.ResultCode);
+  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 204 No Content', Res.ResultText));
 end;
 
 procedure TS3BucketsTest.TestPut;
@@ -223,8 +225,8 @@ var
 begin
   R := TS3Region.Create(FClient);
   Res := R.Buckets.Put('colorpictures', '/');
-  AssertEquals('ResultCode invalid', 200, Res.GetCode);
-  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.GetBody));
+  AssertEquals('ResultCode invalid', 200, Res.ResultCode);
+  AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.ResultText));
 end;
 
 { TS3ObjectsTest }

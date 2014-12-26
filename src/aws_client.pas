@@ -31,15 +31,16 @@ type
   end;
 
   IAWSClient = interface(IInterface)
-    function Send(const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): IHTTPResult;
+    function Send(const SuccessCode: Integer;
+      const Method, Resource, SubResource, ContentType, ContentMD5,
+      CanonicalizedAmzHeaders, CanonicalizedResource: string): IAWSResult;
   end;
 
   TAWSResult = class(THTTPResult, IAWSResult)
   private
     FSuccess: Boolean;
   public
-    constructor Create(const Origin: IHTTPResult; Success: Boolean);
+    constructor Create(const SuccessCode: Integer; Origin: IHTTPResult);
     function Success: Boolean;
   end;
 
@@ -54,18 +55,19 @@ type
       CanonicalizedAmzHeaders, CanonicalizedResource: string): string;
   public
     constructor Create(const Credentials: IAWSCredentials);
-    function Send(const Method, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): IHTTPResult;
+    function Send(const SuccessCode: Integer;
+      const Method, Resource, SubResource, ContentType, ContentMD5,
+      CanonicalizedAmzHeaders, CanonicalizedResource: string): IAWSResult;
   end;
 
 implementation
 
 { IAWSResult }
 
-constructor TAWSResult.Create(const Origin: IHTTPResult; Success: Boolean);
+constructor TAWSResult.Create(const SuccessCode: Integer; Origin: IHTTPResult);
 begin
   inherited Create(Origin);
-  FSuccess := Success;
+  FSuccess := SuccessCode = Origin.ResultCode;
 end;
 
 function TAWSResult.Success: Boolean;
@@ -111,18 +113,19 @@ begin
   FCredentials := Credentials;
 end;
 
-function TAWSClient.Send(const Method, Resource, SubResource, ContentType,
-  ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource: string): IHTTPResult;
+function TAWSClient.Send(const SuccessCode: Integer; const Method, Resource,
+  SubResource, ContentType, ContentMD5, CanonicalizedAmzHeaders,
+  CanonicalizedResource: string): IAWSResult;
 var
-  H: string;
+  Hdr: string;
   Snd: IHTTPSender;
 begin
-  H := MakeAuthHeader(
+  Hdr := MakeAuthHeader(
     Method, ContentType, ContentMD5,
     CanonicalizedAmzHeaders, CanonicalizedResource);
   Snd := THTTPSender.Create(
-    Method, H, ContentType, MakeURI(Resource, SubResource));
-  Result := Snd.Send;
+    Method, Hdr, ContentType, MakeURI(Resource, SubResource));
+  Result := TAWSResult.Create(SuccessCode, Snd.Send);
 end;
 
 end.

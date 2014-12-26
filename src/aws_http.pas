@@ -39,12 +39,12 @@ type
     FResultText: string;
   public
     constructor Create(ResultCode: Integer; const ResultText: string);
-    constructor Create(const Origin: IHTTPResult);
+    constructor Create(Origin: IHTTPResult);
     function ResultCode: Integer;
     function ResultText: string;
   end;
 
-  THTTPSender = class sealed(TInterfacedObject, IHTTPSender)
+  THTTPSender = class(TInterfacedObject, IHTTPSender)
   private
     FSender: THTTPSend;
     FMethod: string;
@@ -52,7 +52,7 @@ type
     FContentType: string;
     FURI: string;
   public
-    constructor Create(const Method, Header, ContentType, URI: string); reintroduce;
+    constructor Create(const Method, Header, ContentType, URI: string);
     destructor Destroy; override;
     function Send: IHTTPResult;
   end;
@@ -67,7 +67,7 @@ begin
   FResultText := ResultText;
 end;
 
-constructor THTTPResult.Create(const Origin: IHTTPResult);
+constructor THTTPResult.Create(Origin: IHTTPResult);
 begin
   Create(Origin.ResultCode, Origin.ResultText);
 end;

@@ -215,11 +215,8 @@ begin
 end;
 
 function TS3Buckets.Check(const AName: string): IS3Result;
-var
-  Res: IHTTPResult;
 begin
-  Res := FRegion.Client.Send('HEAD', AName, '', '', '', '', '/' + AName + '/');
-  Result := TAWSResult.Create(Res, 200=Res.ResultCode);
+  Result := FRegion.Client.Send(200, 'HEAD', AName, '', '', '', '', '/' + AName + '/');
 end;
 
 function TS3Buckets.Get(const AName, Resources: string): IS3Result;
@@ -229,27 +226,18 @@ begin
 end;
 
 function TS3Buckets.Delete(const AName, Resources: string): IS3Result;
-var
-  Res: IHTTPResult;
 begin
-  Res := FRegion.Client.Send('DELETE', AName, Resources, '', '', '', '/' + AName + Resources);
-  Result := TAWSResult.Create(Res, 204=Res.ResultCode);;
+  Result := FRegion.Client.Send(204, 'DELETE', AName, Resources, '', '', '', '/' + AName + Resources);
 end;
 
 function TS3Buckets.Put(const AName, Resources: string): IS3Result;
-var
-  Res: IHTTPResult;
 begin
-  Res := FRegion.Client.Send('PUT', AName, Resources, '', '', '', '/' + AName + Resources);
-  Result := TAWSResult.Create(Res, 200=Res.ResultCode);
+  Result := FRegion.Client.Send(200, 'PUT', AName, Resources, '', '', '', '/' + AName + Resources);
 end;
 
 function TS3Buckets.All: IS3Result;
-var
-  Res: IHTTPResult;
 begin
-  Res := FRegion.Client.Send('GET', '', '', '', '', '', '/');
-  Result := TAWSResult.Create(Res, 200=Res.ResultCode);
+  Result := FRegion.Client.Send(200, 'GET', '', '', '', '', '', '/');
 end;
 
 { TS3Region }
@@ -268,7 +256,7 @@ end;
 
 function TS3Region.IsOnline: Boolean;
 begin
-  Result := Client.Send('GET', '', '', '', '', '', '/').ResultCode = 200;
+  Result := Client.Send(200, 'GET', '', '', '', '', '', '/').Success;
 end;
 
 function TS3Region.Buckets: IS3Buckets;
