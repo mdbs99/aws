@@ -26,7 +26,7 @@ uses
   ssl_openssl,
   //aws
   aws_sys,
-  aws_client, aws_http;
+  aws_client;
 
 type
   ES3Error = class(Exception);
@@ -38,11 +38,11 @@ type
   end;
 
   IS3Objects = interface(IInterface)
-    function Get(const AName, AFileName: string): IS3Response;
-    function Get(const AName: string; AStream: TStream): IS3Response;
-    function Delete(const AName: string): IS3Response;
-    function Put(const AName, ContentType, AFileName: string; const Resources: string): IS3Response;
-    function Put(const AName, ContentType: string; AStream: TStream; const Resources: string): IS3Response;
+    function Get(const AName, AFileName: string): IS3Object;
+    function Get(const AName: string; AStream: TStream): IS3Object;
+    procedure Delete(const AName: string);
+    function Put(const AName, ContentType, AFileName: string; const Resources: string): IS3Object;
+    function Put(const AName, ContentType: string; AStream: TStream; const Resources: string): IS3Object;
   end;
 
   IS3Bucket = interface(IInterface)
@@ -70,11 +70,11 @@ type
     FBucket: IS3Bucket;
   public
     constructor Create(Bucket: IS3Bucket);
-    function Get(const AName, AFileName: string): IS3Response;
-    function Get(const AName: string; AStream: TStream): IS3Response;
-    function Delete(const AName: string): IS3Response;
-    function Put(const AName, ContentType, AFileName: string; const Resources: string): IS3Response;
-    function Put(const AName, ContentType: string; AStream: TStream; const Resources: string): IS3Response;
+    function Get(const AName, AFileName: string): IS3Object;
+    function Get(const AName: string; AStream: TStream): IS3Object;
+    procedure Delete(const AName: string);
+    function Put(const AName, ContentType, AFileName: string; const Resources: string): IS3Object;
+    function Put(const AName, ContentType: string; AStream: TStream; const Resources: string): IS3Object;
   end;
 
   TS3Region = class;
@@ -168,31 +168,31 @@ begin
   SetWeak(@FBucket, Bucket);
 end;
 
-function TS3Objects.Get(const AName, AFileName: string): IS3Response;
+function TS3Objects.Get(const AName, AFileName: string): IS3Object;
 begin
-
+  Result := nil;
 end;
 
-function TS3Objects.Get(const AName: string; AStream: TStream): IS3Response;
+function TS3Objects.Get(const AName: string; AStream: TStream): IS3Object;
 begin
-
+  Result := nil;
 end;
 
-function TS3Objects.Delete(const AName: string): IS3Response;
+procedure TS3Objects.Delete(const AName: string);
 begin
 
 end;
 
 function TS3Objects.Put(const AName, ContentType, AFileName: string;
-  const Resources: string): IS3Response;
+  const Resources: string): IS3Object;
 begin
-
+  Result := nil;
 end;
 
 function TS3Objects.Put(const AName, ContentType: string; AStream: TStream;
-  const Resources: string): IS3Response;
+  const Resources: string): IS3Object;
 begin
-
+  Result := nil;
 end;
 
 { TS3Bucket }
@@ -266,6 +266,7 @@ begin
   );
   if 200 <> Res.ResultCode then
     raise ES3Error.CreateFmt('Put error: %d', [Res.ResultCode]);
+  Result := TS3Bucket.Create(AName);
 end;
 
 function TS3Buckets.All: IS3Response;

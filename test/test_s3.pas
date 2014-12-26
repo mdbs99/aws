@@ -118,8 +118,8 @@ begin
         Text := 'No Content';
       end;
   end;
-  Result := TAWSResponse.Create(Code, Header, Text);
-  FResponse := Result;
+  FResponse := TAWSResponse.Create(Code, Header, Text);
+  Result := FResponse;
 end;
 
 function TAWSClientMocker.Request: IAWSRequest;
