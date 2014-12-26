@@ -19,23 +19,15 @@ uses
   //rtl
   sysutils,
   //synapse
-  httpsend,
   synacode,
   synautil,
-  ssl_openssl,
   //aws
-  aws_auth;
+  aws_auth,
+  aws_http;
 
 type
-  TResultCode = type Integer;
-
-  IHTTPResult = interface(IInterface)
-    function GetCode: TResultCode;
-    function GetBody: string;
-  end;
-
-  IHTTPSender = interface(IInterface)
-    function Send: IHTTPResult;
+  IAWSResult = interface(IHTTPResult)
+    function Success: Boolean;
   end;
 
   IAWSClient = interface(IInterface)
@@ -43,27 +35,12 @@ type
       CanonicalizedAmzHeaders, CanonicalizedResource: string): IHTTPResult;
   end;
 
-  THTTPResult = class sealed(TInterfacedObject, IHTTPResult)
+  TAWSResult = class(THTTPResult, IAWSResult)
   private
-    FCode: Integer;
-    FBody: string;
+    FSuccess: Boolean;
   public
-    constructor Create(Code: Integer; const Body: string);
-    function GetCode: TResultCode;
-    function GetBody: string;
-  end;
-
-  THTTPSender = class sealed(TInterfacedObject, IHTTPSender)
-  private
-    FSender: THTTPSend;
-    FMethod: string;
-    FHeader: string;
-    FContentType: string;
-    FURI: string;
-  public
-    constructor Create(const Method, Header, ContentType, URI: string); reintroduce;
-    destructor Destroy; override;
-    function Send: IHTTPResult;
+    constructor Create(const Origin: IHTTPResult; Success: Boolean);
+    function Success: Boolean;
   end;
 
   TAWSClient = class sealed(TInterfacedObject, IAWSClient)
@@ -83,51 +60,17 @@ type
 
 implementation
 
-{ THTTPResult }
+{ IAWSResult }
 
-constructor THTTPResult.Create(Code: Integer; const Body: string);
+constructor TAWSResult.Create(const Origin: IHTTPResult; Success: Boolean);
 begin
-  FCode := Code;
-  FBody := Body;
+  inherited Create(Origin);
+  FSuccess := Success;
 end;
 
-function THTTPResult.GetCode: TResultCode;
+function TAWSResult.Success: Boolean;
 begin
-  Result := FCode;
-end;
-
-function THTTPResult.GetBody: string;
-begin
-  Result := FBody;
-end;
-
-{ THTTPSender }
-
-constructor THTTPSender.Create(const Method, Header, ContentType, URI: string);
-begin
-  inherited Create;
-  FMethod := Method;
-  FHeader := Header;
-  FContentType := ContentType;
-  FURI := URI;
-  FSender := THTTPSend.Create;
-  FSender.Protocol := '1.0';
-end;
-
-destructor THTTPSender.Destroy;
-begin
-  FSender.Free;
-  inherited Destroy;
-end;
-
-function THTTPSender.Send: IHTTPResult;
-begin
-  FSender.Clear;
-  FSender.Headers.Add(FHeader);
-  if FContentType <> '' then
-    FSender.MimeType := FContentType;
-  FSender.HTTPMethod(FMethod, FURI);
-  Result := THTTPResult.Create(FSender.ResultCode, FSender.ResultString);
+  Result := FSuccess;
 end;
 
 { TAWSClient }

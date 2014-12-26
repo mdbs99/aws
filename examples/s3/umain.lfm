@@ -1,55 +1,55 @@
 object frmMain: TfrmMain
-  Left = 408
-  Height = 370
-  Top = 181
-  Width = 523
+  Left = 323
+  Height = 366
+  Top = 144
+  Width = 754
   Caption = 'AWS S3 Demo'
-  ClientHeight = 370
-  ClientWidth = 523
+  ClientHeight = 366
+  ClientWidth = 754
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '1.3'
   object edtAcessKeyId: TEdit
-    Left = 31
+    Left = 8
     Height = 23
-    Top = 35
+    Top = 26
     Width = 441
     TabOrder = 0
   end
   object Label1: TLabel
-    Left = 31
+    Left = 8
     Height = 15
-    Top = 17
-    Width = 99
-    Caption = 'AWS Access Key Id'
+    Top = 8
+    Width = 71
+    Caption = 'Access Key Id'
     ParentColor = False
   end
   object Label2: TLabel
-    Left = 31
+    Left = 8
     Height = 15
-    Top = 64
-    Width = 82
-    Caption = 'AWS Secret Key'
+    Top = 55
+    Width = 54
+    Caption = 'Secret Key'
     ParentColor = False
   end
-  object BitBtn1: TBitBtn
-    Left = 152
+  object btnTestAccess: TBitBtn
+    Left = 129
     Height = 30
-    Top = 112
+    Top = 103
     Width = 200
-    Caption = 'Test access (GETService)'
-    OnClick = BitBtn1Click
-    TabOrder = 1
+    Caption = 'Test access'
+    OnClick = btnTestAccessClick
+    TabOrder = 2
   end
   object pnlServices: TPanel
-    Left = 32
-    Height = 189
-    Top = 152
+    Left = 9
+    Height = 216
+    Top = 143
     Width = 441
     BevelInner = bvLowered
-    ClientHeight = 189
+    ClientHeight = 216
     ClientWidth = 441
-    TabOrder = 2
+    TabOrder = 3
     Visible = False
     object Label3: TLabel
       Left = 22
@@ -63,89 +63,151 @@ object frmMain: TfrmMain
       Left = 22
       Height = 23
       Top = 35
-      Width = 163
+      Width = 130
       CharCase = ecLowerCase
       TabOrder = 0
     end
     object btnBucketCheck: TButton
-      Left = 193
+      Left = 208
       Height = 25
-      Top = 35
+      Top = 64
       Width = 75
       Caption = 'Check'
       OnClick = btnBucketCheckClick
-      TabOrder = 1
+      TabOrder = 2
     end
     object btnBucketCreate: TButton
-      Left = 273
+      Left = 288
       Height = 25
-      Top = 35
+      Top = 64
       Width = 75
       Caption = 'Create'
       OnClick = btnBucketCreateClick
-      TabOrder = 2
+      TabOrder = 3
     end
     object btnBucketDelete: TButton
-      Left = 353
+      Left = 361
       Height = 25
-      Top = 35
+      Top = 64
       Width = 75
       Caption = 'Delete'
       OnClick = btnBucketDeleteClick
-      TabOrder = 3
+      TabOrder = 4
     end
     object Label4: TLabel
-      Left = 22
+      Left = 280
       Height = 15
-      Top = 72
-      Width = 51
-      Caption = 'File name'
+      Top = 160
+      Width = 43
+      Caption = 'Content'
       ParentColor = False
     end
     object fneFile: TFileNameEdit
       Left = 22
       Height = 23
-      Top = 88
-      Width = 138
+      Top = 176
+      Width = 251
       FilterIndex = 0
       HideDirectories = False
       ButtonWidth = 23
       NumGlyphs = 1
       MaxLength = 0
-      TabOrder = 4
+      TabOrder = 7
     end
     object btnFileUpload: TButton
-      Left = 273
+      Left = 359
       Height = 25
-      Top = 86
+      Top = 174
       Width = 75
       Caption = 'Upload'
       OnClick = btnFileUploadClick
-      TabOrder = 5
+      TabOrder = 9
     end
     object edtContentType: TEdit
-      Left = 193
+      Left = 280
       Height = 23
-      Top = 88
+      Top = 176
       Width = 73
-      TabOrder = 6
+      TabOrder = 8
       Text = 'text/plan'
     end
-    object btnFileDelete: TButton
-      Left = 353
+    object btnObjectDelete: TButton
+      Left = 359
       Height = 25
-      Top = 86
+      Top = 129
       Width = 75
       Caption = 'Delete'
-      OnClick = btnFileDeleteClick
-      TabOrder = 7
+      OnClick = btnObjectDeleteClick
+      TabOrder = 6
+    end
+    object edtResource: TEdit
+      Left = 160
+      Height = 23
+      Top = 35
+      Width = 276
+      CharCase = ecLowerCase
+      TabOrder = 1
+      Text = '/'
+    end
+    object Label5: TLabel
+      Left = 160
+      Height = 15
+      Top = 16
+      Width = 48
+      Caption = 'Resource'
+      ParentColor = False
+    end
+    object edtObject: TEdit
+      Left = 22
+      Height = 23
+      Top = 131
+      Width = 128
+      CharCase = ecLowerCase
+      TabOrder = 5
+    end
+    object Label6: TLabel
+      Left = 22
+      Height = 15
+      Top = 112
+      Width = 35
+      Caption = 'Object'
+      ParentColor = False
+    end
+    object Bevel1: TBevel
+      Left = 18
+      Height = 10
+      Top = 96
+      Width = 416
+      Shape = bsBottomLine
+    end
+    object Label7: TLabel
+      Left = 22
+      Height = 15
+      Top = 160
+      Width = 18
+      Caption = 'File'
+      ParentColor = False
     end
   end
   object edtSecretKey: TEdit
-    Left = 31
+    Left = 8
     Height = 23
-    Top = 82
+    Top = 73
     Width = 441
-    TabOrder = 3
+    TabOrder = 1
+  end
+  object mmoResult: TMemo
+    Left = 457
+    Height = 333
+    Top = 26
+    Width = 287
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -11
+    Font.Name = 'Arial Narrow'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+    ScrollBars = ssAutoBoth
+    TabOrder = 4
   end
 end

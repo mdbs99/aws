@@ -26,10 +26,10 @@ uses
   ssl_openssl,
   //aws
   aws_sys,
-  aws_client;
+  aws_client, aws_http;
 
 type
-  IS3Result = IHTTPResult;
+  IS3Result = IAWSResult;
 
   IS3Object = interface(IInterface)
     function Name: string;
@@ -215,8 +215,11 @@ begin
 end;
 
 function TS3Buckets.Check(const AName: string): IS3Result;
+var
+  Res: IHTTPResult;
 begin
-  Result := FRegion.Client.Send('HEAD', AName, '', '', '', '', '/' + AName + '/');
+  Res := FRegion.Client.Send('HEAD', AName, '', '', '', '', '/' + AName + '/');
+  Result := TAWSResult.Create(Res, 200=Res.ResultCode);
 end;
 
 function TS3Buckets.Get(const AName, Resources: string): IS3Result;
@@ -226,18 +229,27 @@ begin
 end;
 
 function TS3Buckets.Delete(const AName, Resources: string): IS3Result;
+var
+  Res: IHTTPResult;
 begin
-  Result := FRegion.Client.Send('DELETE', AName, Resources, '', '', '', '/' + AName + Resources);
+  Res := FRegion.Client.Send('DELETE', AName, Resources, '', '', '', '/' + AName + Resources);
+  Result := TAWSResult.Create(Res, 204=Res.ResultCode);;
 end;
 
 function TS3Buckets.Put(const AName, Resources: string): IS3Result;
+var
+  Res: IHTTPResult;
 begin
-  Result := FRegion.Client.Send('PUT', AName, Resources, '', '', '', '/' + AName + Resources);
+  Res := FRegion.Client.Send('PUT', AName, Resources, '', '', '', '/' + AName + Resources);
+  Result := TAWSResult.Create(Res, 200=Res.ResultCode);
 end;
 
 function TS3Buckets.All: IS3Result;
+var
+  Res: IHTTPResult;
 begin
-  Result := FRegion.Client.Send('GET', '', '', '', '', '', '/');
+  Res := FRegion.Client.Send('GET', '', '', '', '', '', '/');
+  Result := TAWSResult.Create(Res, 200=Res.ResultCode);
 end;
 
 { TS3Region }
@@ -256,7 +268,7 @@ end;
 
 function TS3Region.IsOnline: Boolean;
 begin
-  Result := Client.Send('GET', '', '', '', '', '', '/').GetCode = 200;
+  Result := Client.Send('GET', '', '', '', '', '', '/').ResultCode = 200;
 end;
 
 function TS3Region.Buckets: IS3Buckets;

@@ -54,8 +54,15 @@ type
 
   TS3BucketsTest = class(TS3Test)
   published
-    procedure TestAccess;
+    procedure TestCheck;
     //procedure TestGet;
+    procedure TestDelete;
+    procedure TestPut;
+  end;
+
+  TS3ObjectsTest = class(TS3Test)
+  published
+    procedure TestGet;
     procedure TestDelete;
     procedure TestPut;
   end;
@@ -187,7 +194,7 @@ end;
 
 { TS3BucketsTest }
 
-procedure TS3BucketsTest.TestAccess;
+procedure TS3BucketsTest.TestCheck;
 var
   R: IS3Region;
   Res: IS3Result;
@@ -219,6 +226,29 @@ begin
   AssertEquals('ResultCode invalid', 200, Res.GetCode);
   AssertEquals('Invalid body', 1, Pos('HTTP/1.1 200 OK', Res.GetBody));
 end;
+
+{ TS3ObjectsTest }
+
+procedure TS3ObjectsTest.TestGet;
+var
+  R: IS3Region;
+  Res: IS3Result;
+begin
+  R := TS3Region.Create(FClient);
+  //Res := R.Buckets.;
+end;
+
+procedure TS3ObjectsTest.TestDelete;
+begin
+
+end;
+
+procedure TS3ObjectsTest.TestPut;
+begin
+
+end;
+
+{ TAWSS3Test }
 
 procedure TAWSS3Test.SetUp;
 const
