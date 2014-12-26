@@ -26,6 +26,7 @@ uses
 type
   IHTTPResult = interface(IInterface)
     function ResultCode: Integer;
+    function ResultHeader: string;
     function ResultText: string;
   end;
 
@@ -36,11 +37,13 @@ type
   THTTPResult = class(TInterfacedObject, IHTTPResult)
   private
     FResultCode: Integer;
+    FResultHeader: string;
     FResultText: string;
   public
-    constructor Create(ResultCode: Integer; const ResultText: string);
+    constructor Create(ResultCode: Integer; const ResultHeader, ResultText: string);
     constructor Create(Origin: IHTTPResult);
     function ResultCode: Integer;
+    function ResultHeader: string;
     function ResultText: string;
   end;
 
@@ -61,20 +64,27 @@ implementation
 
 { THTTPResult }
 
-constructor THTTPResult.Create(ResultCode: Integer; const ResultText: string);
+constructor THTTPResult.Create(ResultCode: Integer; const ResultHeader,
+  ResultText: string);
 begin
   FResultCode := ResultCode;
+  FResultHeader := ResultHeader;
   FResultText := ResultText;
 end;
 
 constructor THTTPResult.Create(Origin: IHTTPResult);
 begin
-  Create(Origin.ResultCode, Origin.ResultText);
+  Create(Origin.ResultCode, Origin.ResultHeader, Origin.ResultText);
 end;
 
 function THTTPResult.ResultCode: Integer;
 begin
   Result := FResultCode;
+end;
+
+function THTTPResult.ResultHeader: string;
+begin
+  Result := FResultHeader;
 end;
 
 function THTTPResult.ResultText: string;
@@ -110,6 +120,7 @@ begin
   FSender.HTTPMethod(FMethod, FURI);
   Result := THTTPResult.Create(
     FSender.ResultCode,
+    FSender.Headers.Text,
     FSender.ResultString);
 end;
 

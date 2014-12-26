@@ -117,14 +117,14 @@ function TAWSClient.Send(const SuccessCode: Integer; const Method, Resource,
   SubResource, ContentType, ContentMD5, CanonicalizedAmzHeaders,
   CanonicalizedResource: string): IAWSResult;
 var
-  Hdr: string;
+  H: string;
   Snd: IHTTPSender;
 begin
-  Hdr := MakeAuthHeader(
+  H := MakeAuthHeader(
     Method, ContentType, ContentMD5,
     CanonicalizedAmzHeaders, CanonicalizedResource);
   Snd := THTTPSender.Create(
-    Method, Hdr, ContentType, MakeURI(Resource, SubResource));
+    Method, H, ContentType, MakeURI(Resource, SubResource));
   Result := TAWSResult.Create(SuccessCode, Snd.Send);
 end;
 

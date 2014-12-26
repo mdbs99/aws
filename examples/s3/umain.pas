@@ -25,7 +25,6 @@ type
     btnBucketCreate: TButton;
     edtSecretKey: TEdit;
     btnBucketDelete: TButton;
-    Label4: TLabel;
     fneFile: TFileNameEdit;
     btnFileUpload: TButton;
     edtContentType: TEdit;
@@ -37,6 +36,10 @@ type
     Bevel1: TBevel;
     Label7: TLabel;
     mmoResult: TMemo;
+    Label8: TLabel;
+    Bevel2: TBevel;
+    edtResource1: TEdit;
+    Label9: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnTestAccessClick(Sender: TObject);
@@ -95,6 +98,7 @@ var
   Res: IS3Result;
 begin
   Res := FRegion.Buckets.Check(edtBucketName.Text);
+  mmoResult.Text := Res.ResultHeader + Res.ResultText;
   if Res.Success then
     ShowMessage('The bucket exists and you have access!')
   else
@@ -106,8 +110,9 @@ var
   Res: IS3Result;
 begin
   Res := FRegion.Buckets.Put(edtBucketName.Text, edtResource.Text);
+  mmoResult.Text := Res.ResultHeader + Res.ResultText;
   if Res.Success then
-    ShowMessage('Bucket was created!')
+    ShowMessage('Success!')
   else
     ShowMessage('Error: ' + IntToStr(Res.ResultCode));
 end;
@@ -117,8 +122,9 @@ var
   Res: IS3Result;
 begin
   Res := FRegion.Buckets.Delete(edtBucketName.Text, edtResource.Text);
+  mmoResult.Text := Res.ResultHeader + Res.ResultText;
   if Res.Success then
-    ShowMessage('Bucket was deleted!')
+    ShowMessage('Success!')
   else
     ShowMessage('Error: ' + IntToStr(Res.ResultCode));
 end;
