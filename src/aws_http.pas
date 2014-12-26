@@ -11,7 +11,7 @@
 }
 unit aws_http;
 
-{$mode objfpc}{$H+}
+{$i aws.inc}
 
 interface
 

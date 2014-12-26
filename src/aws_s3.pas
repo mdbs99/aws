@@ -66,7 +66,7 @@ type
   private
     FBucket: IS3Bucket;
   public
-    constructor Create(const Bucket: IS3Bucket);
+    constructor Create(Bucket: IS3Bucket);
     function Get(const AName, AFileName: string): IS3Result;
     function Get(const AName: string; AStream: TStream): IS3Result;
     function Delete(const AName: string): IS3Result;
@@ -89,7 +89,7 @@ type
   private
     FRegion: IS3Region;
   public
-    constructor Create(const Region: IS3Region);
+    constructor Create(Region: IS3Region);
     function Check(const AName: string): IS3Result;
     function Get(const AName, Resources: string): IS3Result;
     function Delete(const AName, Resources: string): IS3Result;
@@ -102,7 +102,7 @@ type
     FClient: IAWSClient;
     FBuckets: IS3Buckets;
   public
-    constructor Create(const AClient: IAWSClient);
+    constructor Create(AClient: IAWSClient);
     function Client: IAWSClient;
     function IsOnline: Boolean;
     function Buckets: IS3Buckets;
@@ -160,7 +160,7 @@ implementation
 
 { TS3Objects }
 
-constructor TS3Objects.Create(const Bucket: IS3Bucket);
+constructor TS3Objects.Create(Bucket: IS3Bucket);
 begin
   SetWeak(@FBucket, Bucket);
 end;
@@ -209,7 +209,7 @@ end;
 
 { TS3Buckets }
 
-constructor TS3Buckets.Create(const Region: IS3Region);
+constructor TS3Buckets.Create(Region: IS3Region);
 begin
   SetWeak(@FRegion, Region);
 end;
@@ -242,7 +242,7 @@ end;
 
 { TS3Region }
 
-constructor TS3Region.Create(const AClient: IAWSClient);
+constructor TS3Region.Create(AClient: IAWSClient);
 begin
   inherited Create;
   FClient := AClient;
