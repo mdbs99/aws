@@ -13,7 +13,6 @@ program awstest;
 {$mode objfpc}{$H+}
 uses
   sysutils,
-  aws_auth,
   aws_client,  
   aws_s3;
 var
