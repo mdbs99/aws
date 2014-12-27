@@ -7,8 +7,6 @@ object frmMain: TfrmMain
   Caption = 'AWS S3 Demo'
   ClientHeight = 323
   ClientWidth = 461
-  OnCreate = FormCreate
-  OnDestroy = FormDestroy
   Position = poScreenCenter
   LCLVersion = '1.3'
   object edtAcessKeyId: TEdit

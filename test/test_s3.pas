@@ -56,14 +56,14 @@ type
   TS3BucketsTest = class(TS3Test)
   published
     procedure TestCheck;
-    //procedure TestGet;
+    procedure TestGet;
     procedure TestDelete;
     procedure TestPut;
   end;
 
   TS3ObjectsTest = class(TS3Test)
   published
-    procedure TestGet;
+    //procedure TestGet;
     procedure TestDelete;
     procedure TestPut;
   end;
@@ -182,6 +182,20 @@ begin
   AssertEquals('OK', ClientMock.Response.ResultText);
 end;
 
+procedure TS3BucketsTest.TestGet;
+var
+  R: IS3Region;
+  Bkt: IS3Bucket;
+begin
+  R := TS3Region.Create(FClient);
+  Bkt := R.Buckets.Get('myawsbucket', '');
+  AssertEquals('myawsbucket', Bkt.Name);
+  AssertEquals('GET', ClientMock.Request.Method);
+  AssertEquals(200, ClientMock.Response.ResultCode);
+  AssertEquals('HTTP/1.1 200 OK', ClientMock.Response.ResultHeader);
+  AssertEquals('OK', ClientMock.Response.ResultText);
+end;
+
 procedure TS3BucketsTest.TestDelete;
 var
   R: IS3Region;
@@ -208,19 +222,30 @@ end;
 
 { TS3ObjectsTest }
 
-procedure TS3ObjectsTest.TestGet;
-begin
-
-end;
-
 procedure TS3ObjectsTest.TestDelete;
+var
+  R: IS3Region;
+  Bkt: IS3Bucket;
 begin
-
+  R := TS3Region.Create(FClient);
+  Bkt := R.Buckets.Get('myawsbucket', '');
+  Bkt.Objects.Delete('myawsbucket');
+  AssertEquals(204, ClientMock.Response.ResultCode);
+  AssertEquals('HTTP/1.1 204 No Content', ClientMock.Response.ResultHeader);
+  AssertEquals('No Content', ClientMock.Response.ResultText);
 end;
 
 procedure TS3ObjectsTest.TestPut;
+var
+  R: IS3Region;
+  Bkt: IS3Bucket;
 begin
-
+  R := TS3Region.Create(FClient);
+  Bkt := R.Buckets.Get('myawsbucket', '');
+  Bkt.Objects.Put('myawsbucket', 'text/plain', nil, '');
+  AssertEquals(200, ClientMock.Response.ResultCode);
+  AssertEquals('HTTP/1.1 200 OK', ClientMock.Response.ResultHeader);
+  AssertEquals('OK', ClientMock.Response.ResultText);
 end;
 
 { TAWSS3Test }

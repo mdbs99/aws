@@ -31,12 +31,14 @@ type
 
   IAWSRequest = interface(IInterface)
     function Method: string;
+    function Name: string;
     function Resource: string;
     function SubResource: string;
     function ContentType: string;
     function ContentMD5: string;
     function CanonicalizedAmzHeaders: string;
     function CanonicalizedResource: string;
+    function Stream: TStream;
     function ToString: string;
   end;
 
@@ -49,25 +51,31 @@ type
   TAWSRequest = class(TInterfacedObject, IAWSRequest)
   private
     FMethod: string;
+    FName: string;
     FResource: string;
     FSubResource: string;
     FContentType: string;
     FContentMD5: string;
     FCanonicalizedAmzHeaders: string;
     FCanonicalizedResource: string;
+    FStream: TStream;
   public
-    constructor Create(const Method, Resource, SubResource, ContentType, ContentMD5,
+    constructor Create(const Method, AName, Resource, SubResource, ContentType, ContentMD5,
+      CanonicalizedAmzHeaders, CanonicalizedResource: string; Stream: TStream);
+    constructor Create(const Method, AName, Resource, SubResource, ContentType, ContentMD5,
       CanonicalizedAmzHeaders, CanonicalizedResource: string);
-    constructor Create(const Method, Resource, SubResource, CanonicalizedResource: string);
-    constructor Create(const Method, Resource, CanonicalizedResource: string);
-    constructor Create(const Method, CanonicalizedResource: string);
+    constructor Create(const Method, AName, Resource, SubResource, CanonicalizedResource: string);
+    constructor Create(const Method, AName, Resource, CanonicalizedResource: string);
+    constructor Create(const Method, AName, CanonicalizedResource: string);
     function Method: string;
+    function Name: string;
     function Resource: string;
     function SubResource: string;
     function ContentType: string;
     function ContentMD5: string;
     function CanonicalizedAmzHeaders: string;
     function CanonicalizedResource: string;
+    function Stream: TStream;
     function ToString: string; override;
   end;
 
@@ -77,7 +85,7 @@ type
   private
     FCredentials: IAWSCredentials;
   protected
-    function MakeURI(const Resource, SubResource: string): string;
+    function MakeURI(const AName, Query: string): string;
     function MakeAuthHeader(const Method, ContentType, ContentMD5,
       CanonicalizedAmzHeaders, CanonicalizedResource: string): string;
   public
@@ -89,39 +97,55 @@ implementation
 
 { TAWSRequest }
 
-constructor TAWSRequest.Create(const Method, Resource, SubResource,
+constructor TAWSRequest.Create(const Method, AName, Resource, SubResource,
   ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string);
+  CanonicalizedResource: string; Stream: TStream);
 begin
   FMethod := Method;
+  FName := AName;
   FResource := Resource;
   FSubResource := SubResource;
   FContentType := ContentType;
   FContentMD5 := ContentMD5;
   FCanonicalizedAmzHeaders := CanonicalizedAmzHeaders;
   FCanonicalizedResource := CanonicalizedResource;
+  FStream := Stream;
 end;
 
-constructor TAWSRequest.Create(const Method, Resource, SubResource,
+constructor TAWSRequest.Create(const Method, AName, Resource, SubResource,
+  ContentType, ContentMD5, CanonicalizedAmzHeaders,
   CanonicalizedResource: string);
 begin
-  Create(Method, Resource, SubResource, '', '', '', CanonicalizedResource);
+  Create(
+    Method, AName, Resource, SubResource, ContentType,
+    ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource, nil);
 end;
 
-constructor TAWSRequest.Create(const Method, Resource,
+constructor TAWSRequest.Create(const Method, AName, Resource, SubResource,
   CanonicalizedResource: string);
 begin
-  Create(Method, Resource, '', '', '', '', CanonicalizedResource);
+  Create(Method, AName, Resource, SubResource, '', '', '', CanonicalizedResource, nil);
 end;
 
-constructor TAWSRequest.Create(const Method, CanonicalizedResource: string);
+constructor TAWSRequest.Create(const Method, AName, Resource,
+  CanonicalizedResource: string);
 begin
-  Create(Method, '', '', '', '', '', CanonicalizedResource);
+  Create(Method, AName, Resource, '', '', '', '', CanonicalizedResource, nil);
+end;
+
+constructor TAWSRequest.Create(const Method, AName, CanonicalizedResource: string);
+begin
+  Create(Method, AName, '', '', '', '', '', CanonicalizedResource, nil);
 end;
 
 function TAWSRequest.Method: string;
 begin
   Result := FMethod;
+end;
+
+function TAWSRequest.Name: string;
+begin
+  Result := FName;
 end;
 
 function TAWSRequest.Resource: string;
@@ -154,6 +178,11 @@ begin
   Result := FCanonicalizedResource;
 end;
 
+function TAWSRequest.Stream: TStream;
+begin
+  Result := FStream;
+end;
+
 function TAWSRequest.ToString: string;
 begin
   with TStringList.Create do
@@ -173,16 +202,16 @@ end;
 
 { TAWSClient }
 
-function TAWSClient.MakeURI(const Resource, SubResource: string): string;
+function TAWSClient.MakeURI(const AName, Query: string): string;
 begin
   Result := '';
   if FCredentials.UseSSL then
     Result += 'https://'
   else
     Result += 'http://';
-  if Resource <> '' then
-    Result += Resource + '.';
-  Result += AWS_URI + SubResource;
+  if AName <> '' then
+    Result += AName + '.';
+  Result += AWS_URI + Query;
 end;
 
 function TAWSClient.MakeAuthHeader(const Method, ContentType, ContentMD5,
@@ -218,7 +247,9 @@ begin
     Request.Method, Request.ContentType, Request.ContentMD5,
     Request.CanonicalizedAmzHeaders, Request.CanonicalizedResource);
   Snd := THTTPSender.Create(
-    Request.Method, H, Request.ContentType, MakeURI(Request.Resource, Request.SubResource));
+    Request.Method, H, Request.ContentType,
+    MakeURI(Request.Name, Request.Resource),
+    Request.Stream);
   Result := Snd.Send;
 end;
 

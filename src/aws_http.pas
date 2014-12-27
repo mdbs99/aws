@@ -18,6 +18,7 @@ interface
 uses
   //rtl
   sysutils,
+  classes,
   //synapse
   httpsend,
   synautil,
@@ -54,8 +55,9 @@ type
     FHeader: string;
     FContentType: string;
     FURI: string;
+    FStream: TStream;
   public
-    constructor Create(const Method, Header, ContentType, URI: string);
+    constructor Create(const Method, Header, ContentType, URI: string; Stream: TStream);
     destructor Destroy; override;
     function Send: IHTTPResponse;
   end;
@@ -94,15 +96,17 @@ end;
 
 { THTTPSender }
 
-constructor THTTPSender.Create(const Method, Header, ContentType, URI: string);
+constructor THTTPSender.Create(const Method, Header, ContentType, URI: string;
+  Stream: TStream);
 begin
   inherited Create;
+  FSender := THTTPSend.Create;
+  FSender.Protocol := '1.0';
   FMethod := Method;
   FHeader := Header;
   FContentType := ContentType;
   FURI := URI;
-  FSender := THTTPSend.Create;
-  FSender.Protocol := '1.0';
+  FStream := Stream;
 end;
 
 destructor THTTPSender.Destroy;
@@ -117,6 +121,8 @@ begin
   FSender.Headers.Add(FHeader);
   if FContentType <> '' then
     FSender.MimeType := FContentType;
+  if Assigned(FStream) then
+    FSender.Document.LoadFromStream(FStream);
   FSender.HTTPMethod(FMethod, FURI);
   Result := THTTPResponse.Create(
     FSender.ResultCode,

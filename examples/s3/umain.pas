@@ -38,8 +38,6 @@ type
     edtObjectResource: TEdit;
     Label9: TLabel;
     btnBucketGet: TButton;
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure btnTestAccessClick(Sender: TObject);
     procedure btnBucketCheckClick(Sender: TObject);
     procedure btnBucketCreateClick(Sender: TObject);
@@ -49,9 +47,7 @@ type
     procedure fneFileChange(Sender: TObject);
     procedure btnBucketGetClick(Sender: TObject);
   private
-    FS3Client: TAWSS3Client;
     FRegion: IS3Region;
-    procedure ShowLastError(const AMsg: string);
   end;
 
 var
@@ -63,16 +59,6 @@ implementation
 
 { TfrmMain }
 
-procedure TfrmMain.FormCreate(Sender: TObject);
-begin
-  FS3Client := TAWSS3Client.Create;
-end;
-
-procedure TfrmMain.FormDestroy(Sender: TObject);
-begin
-  FS3Client.Free;
-end;
-
 procedure TfrmMain.btnTestAccessClick(Sender: TObject);
 var
   Cred: IAWSCredentials;
@@ -80,16 +66,16 @@ var
 begin
   Cred := TAWSCredentials.Create(edtAcessKeyId.Text, edtSecretKey.Text, True);
   Client := TAWSClient.Create(Cred);
+  FRegion := nil;
   FRegion := TS3Region.Create(Client);
   if FRegion.IsOnline then
   begin
     pnlServices.Visible := True;
-    ShowMessage('Ok!');
   end
   else
   begin
     pnlServices.Visible := False;
-    ShowLastError('Access denied.');
+    ShowMessage('Access denied.');
   end;
 end;
 
@@ -114,6 +100,8 @@ begin
 end;
 
 procedure TfrmMain.btnFileUploadClick(Sender: TObject);
+var
+  Bkt: IS3Bucket;
 begin
   if edtBucketName.Text = '' then
   begin
@@ -129,22 +117,14 @@ begin
     Exit;
   end;
 
-  //Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketResource.Text);
-  //Res := Bkt.Objects.Put(edtObject.Text, edtContentType.Text, fneFile.FileName, edtObjectResource.Text);
-  //mmoResult.Text := Res.ResultHeader + Res.ResultText;
-  //if Res.Success then
-  //  ShowMessage('Success!')
-  //else
-  //  ShowMessage('Error: ' + IntToStr(Res.ResultCode));
-
-  FS3Client.PUTObject(edtBucketName.Text, edtContentType.Text, ExtractFileName(fneFile.FileName), fneFile.FileName);
-  if FS3Client.HTTP.ResultCode = 200 then
-    ShowMessage('The file was uploaded!')
-  else
-    ShowLastError('The file wasn''t uploaded.');
+  Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketResource.Text);
+  Bkt.Objects.Put(edtObject.Text, edtContentType.Text, fneFile.FileName, edtObjectResource.Text);
+  ShowMessage('Success!')
 end;
 
 procedure TfrmMain.btnObjectDeleteClick(Sender: TObject);
+var
+  Bkt: IS3Bucket;
 begin
   if edtBucketName.Text = '' then
   begin
@@ -153,31 +133,20 @@ begin
     Exit;
   end;
 
-  FS3Client.DELETEObject(edtBucketName.Text, ExtractFileName(fneFile.FileName));
-  if FS3Client.HTTP.ResultCode = 204 then  // No Content response
-    ShowMessage('The file was deleted!')
-  else
-    ShowLastError('The file wasn''t deleted.');
+  Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketResource.Text);
+  Bkt.Objects.Delete(edtObject.Text);
+  ShowMessage('Success!');
 end;
 
 procedure TfrmMain.fneFileChange(Sender: TObject);
 begin
-  edtObject.Text:= '/' + ExtractFileName(fneFile.FileName);
+  edtObject.Text:= ExtractFileName(fneFile.FileName);
 end;
 
 procedure TfrmMain.btnBucketGetClick(Sender: TObject);
 begin
   FRegion.Buckets.Get(edtBucketName.Text, edtBucketResource.Text);
   ShowMessage('The bucket exists and you have access!')
-end;
-
-procedure TfrmMain.ShowLastError(const AMsg: string);
-var
-  S: string;
-begin
-  with FS3Client.HTTP do
-    S := AMsg + #13#13 + Format('ERROR: #%d %s', [ResultCode, ResultString]);
-  ShowMessage(S);
 end;
 
 end.
