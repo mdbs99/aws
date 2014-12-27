@@ -29,15 +29,16 @@ type
     btnFileUpload: TButton;
     edtContentType: TEdit;
     btnObjectDelete: TButton;
-    edtBucketResource: TEdit;
+    edtBucketSubResource: TEdit;
     Label5: TLabel;
-    edtObject: TEdit;
+    edtObjectName: TEdit;
     Label6: TLabel;
     Bevel1: TBevel;
     Label7: TLabel;
-    edtObjectResource: TEdit;
+    edtObjectSubResource: TEdit;
     Label9: TLabel;
     btnBucketGet: TButton;
+    btnObjectCreate: TButton;
     procedure btnTestAccessClick(Sender: TObject);
     procedure btnBucketCheckClick(Sender: TObject);
     procedure btnBucketCreateClick(Sender: TObject);
@@ -46,6 +47,7 @@ type
     procedure btnObjectDeleteClick(Sender: TObject);
     procedure fneFileChange(Sender: TObject);
     procedure btnBucketGetClick(Sender: TObject);
+    procedure btnObjectCreateClick(Sender: TObject);
   private
     FRegion: IS3Region;
   end;
@@ -89,13 +91,13 @@ end;
 
 procedure TfrmMain.btnBucketCreateClick(Sender: TObject);
 begin
-  FRegion.Buckets.Put(edtBucketName.Text, edtBucketResource.Text);
+  FRegion.Buckets.Put(edtBucketName.Text, edtBucketSubResource.Text);
   ShowMessage('Success!')
 end;
 
 procedure TfrmMain.btnBucketDeleteClick(Sender: TObject);
 begin
-  FRegion.Buckets.Delete(edtBucketName.Text, edtBucketResource.Text);
+  FRegion.Buckets.Delete(edtBucketName.Text, edtBucketSubResource.Text);
   ShowMessage('Success!')
 end;
 
@@ -117,8 +119,24 @@ begin
     Exit;
   end;
 
-  Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketResource.Text);
-  Bkt.Objects.Put(edtObject.Text, edtContentType.Text, fneFile.FileName, edtObjectResource.Text);
+  Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketSubResource.Text);
+  Bkt.Objects.Put(edtObjectName.Text, edtContentType.Text, fneFile.FileName, edtObjectSubResource.Text);
+  ShowMessage('Success!')
+end;
+
+procedure TfrmMain.btnObjectCreateClick(Sender: TObject);
+var
+  Bkt: IS3Bucket;
+begin
+  if edtBucketName.Text = '' then
+  begin
+    ShowMessage('Define a Bucket.');
+    edtBucketName.SetFocus;
+    Exit;
+  end;
+
+  Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketSubResource.Text);
+  Bkt.Objects.Put(edtObjectName.Text, edtObjectSubResource.Text);
   ShowMessage('Success!')
 end;
 
@@ -133,19 +151,19 @@ begin
     Exit;
   end;
 
-  Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketResource.Text);
-  Bkt.Objects.Delete(edtObject.Text);
+  Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketSubResource.Text);
+  Bkt.Objects.Delete(edtObjectName.Text);
   ShowMessage('Success!');
 end;
 
 procedure TfrmMain.fneFileChange(Sender: TObject);
 begin
-  edtObject.Text:= ExtractFileName(fneFile.FileName);
+  edtObjectName.Text:= ExtractFileName(fneFile.FileName);
 end;
 
 procedure TfrmMain.btnBucketGetClick(Sender: TObject);
 begin
-  FRegion.Buckets.Get(edtBucketName.Text, edtBucketResource.Text);
+  FRegion.Buckets.Get(edtBucketName.Text, edtBucketSubResource.Text);
   ShowMessage('The bucket exists and you have access!')
 end;
 

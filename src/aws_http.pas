@@ -119,8 +119,7 @@ function THTTPSender.Send: IHTTPResponse;
 begin
   FSender.Clear;
   FSender.Headers.Add(FHeader);
-  if FContentType <> '' then
-    FSender.MimeType := FContentType;
+  FSender.MimeType := FContentType;
   if Assigned(FStream) then
     FSender.Document.LoadFromStream(FStream);
   FSender.HTTPMethod(FMethod, FURI);
