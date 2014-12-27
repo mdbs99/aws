@@ -31,7 +31,7 @@ type
     function ResultCode: Integer;
     function ResultHeader: string;
     function ResultText: string;
-    function ResultStream: TStream;
+    function ResultStream: TMemoryStream;
   end;
 
   IHTTPSender = interface(IInterface)
@@ -52,7 +52,7 @@ type
     function ResultCode: Integer;
     function ResultHeader: string;
     function ResultText: string;
-    function ResultStream: TStream;
+    function ResultStream: TMemoryStream;
   end;
 
   THTTPSender = class(TInterfacedObject, IHTTPSender)
@@ -115,7 +115,7 @@ begin
   Result := FResultText;
 end;
 
-function THTTPResponse.ResultStream: TStream;
+function THTTPResponse.ResultStream: TMemoryStream;
 begin
   Result := FStream;
 end;

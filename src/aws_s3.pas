@@ -166,9 +166,10 @@ var
 begin
   Res := FBucket.Region.Client.Send(
     TAWSRequest.Create(
-      'GET', FBucket.Name, '/' + AName, '/' + FBucket.Name + '/' + AName + SubResources, Stream
+      'GET', FBucket.Name, '/' + AName, '/' + FBucket.Name + '/' + AName + SubResources
     )
   );
+  Res.ResultStream.SaveToStream(Stream);
   if 200 <> Res.ResultCode then
     raise ES3Error.CreateFmt('Get error: %d', [Res.ResultCode]);
   Result := TS3Object.Create(FBucket, AName);
