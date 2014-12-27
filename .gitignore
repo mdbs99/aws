@@ -9,6 +9,7 @@
 *.bat
 *.compiled
 *.ini
+bin/
 test/lib/
 examples/s3/lib/
 
