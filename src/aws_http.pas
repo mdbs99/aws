@@ -22,9 +22,7 @@ uses
   //synapse
   httpsend,
   synautil,
-  ssl_openssl,
-  //aws
-  aws_sys;
+  ssl_openssl;
 
 type
   IHTTPResponse = interface(IInterface)

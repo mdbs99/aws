@@ -23,11 +23,16 @@ uses
   synacode,
   synautil,
   //aws
-  aws_auth,
   aws_http;
 
 type
   IAWSResponse = IHTTPResponse;
+
+  IAWSCredentials = interface(IInterface)
+    function GetAccessKeyId: string;
+    function GetSecretKey: string;
+    function UseSSL: Boolean;
+  end;
 
   IAWSRequest = interface(IInterface)
     function Method: string;
@@ -47,6 +52,18 @@ type
   end;
 
   TAWSResponse = THTTPResponse;
+
+  TAWSCredentials = class(TInterfacedObject, IAWSCredentials)
+  private
+    FAccessKeyId: string;
+    FSecretKey: string;
+    FSSL: Boolean;
+  public
+    constructor Create(const AccessKeyId, SecretKey: string; UseSSL: Boolean); reintroduce;
+    function GetAccessKeyId: string;
+    function GetSecretKey: string;
+    function UseSSL: Boolean;
+  end;
 
   TAWSRequest = class(TInterfacedObject, IAWSRequest)
   private
@@ -95,6 +112,31 @@ type
   end;
 
 implementation
+
+{ TAWSCredentials }
+
+constructor TAWSCredentials.Create(const AccessKeyId, SecretKey: string;
+  UseSSL: Boolean);
+begin
+  FAccessKeyId := AccessKeyId;
+  FSecretKey := SecretKey;
+  FSSL := UseSSL;
+end;
+
+function TAWSCredentials.GetAccessKeyId: string;
+begin
+  Result := FAccessKeyId;
+end;
+
+function TAWSCredentials.GetSecretKey: string;
+begin
+  Result := FSecretKey;
+end;
+
+function TAWSCredentials.UseSSL: Boolean;
+begin
+  Result := FSSL;
+end;
 
 { TAWSRequest }
 

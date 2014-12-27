@@ -21,7 +21,7 @@
     <Description Value="AWS runtime package."/>
     <License Value="See the file LICENSE, included in this distribution, for details about the copyright."/>
     <Version Minor="2"/>
-    <Files Count="6">
+    <Files Count="5">
       <Item1>
         <Filename Value="..\src\aws.inc"/>
         <Type Value="Include"/>
@@ -31,21 +31,17 @@
         <UnitName Value="aws_s3"/>
       </Item2>
       <Item3>
-        <Filename Value="..\src\aws_auth.pas"/>
-        <UnitName Value="aws_auth"/>
-      </Item3>
-      <Item4>
         <Filename Value="..\src\aws_client.pas"/>
         <UnitName Value="aws_client"/>
-      </Item4>
-      <Item5>
+      </Item3>
+      <Item4>
         <Filename Value="..\src\aws_sys.pas"/>
         <UnitName Value="aws_sys"/>
-      </Item5>
-      <Item6>
+      </Item4>
+      <Item5>
         <Filename Value="..\src\aws_http.pas"/>
         <UnitName Value="aws_http"/>
-      </Item6>
+      </Item5>
     </Files>
     <Type Value="RunTimeOnly"/>
     <RequiredPkgs Count="2">

@@ -8,7 +8,6 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   Buttons, ExtCtrls, EditBtn,
   //aws
-  aws_auth,
   aws_client,
   aws_s3;
 
