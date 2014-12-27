@@ -22,13 +22,16 @@ uses
   //synapse
   httpsend,
   synautil,
-  ssl_openssl;
+  ssl_openssl,
+  //aws
+  aws_sys;
 
 type
   IHTTPResponse = interface(IInterface)
     function ResultCode: Integer;
     function ResultHeader: string;
     function ResultText: string;
+    function ResultStream: TStream;
   end;
 
   IHTTPSender = interface(IInterface)
@@ -40,12 +43,16 @@ type
     FResultCode: Integer;
     FResultHeader: string;
     FResultText: string;
+    FStream: TMemoryStream;
   public
+    constructor Create(ResultCode: Integer; const ResultHeader, ResultText: string; Stream: TStream);
     constructor Create(ResultCode: Integer; const ResultHeader, ResultText: string);
     constructor Create(Origin: IHTTPResponse);
+    destructor Destroy; override;
     function ResultCode: Integer;
     function ResultHeader: string;
     function ResultText: string;
+    function ResultStream: TStream;
   end;
 
   THTTPSender = class(TInterfacedObject, IHTTPSender)
@@ -67,16 +74,30 @@ implementation
 { THTTPResponse }
 
 constructor THTTPResponse.Create(ResultCode: Integer; const ResultHeader,
-  ResultText: string);
+  ResultText: string; Stream: TStream);
 begin
   FResultCode := ResultCode;
   FResultHeader := ResultHeader;
   FResultText := ResultText;
+  FStream := TMemoryStream.Create;
+  FStream.LoadFromStream(Stream);
+end;
+
+constructor THTTPResponse.Create(ResultCode: Integer; const ResultHeader,
+  ResultText: string);
+begin
+  Create(ResultCode, ResultHeader, ResultText, nil);
 end;
 
 constructor THTTPResponse.Create(Origin: IHTTPResponse);
 begin
-  Create(Origin.ResultCode, Origin.ResultHeader, Origin.ResultText);
+  Create(Origin.ResultCode, Origin.ResultHeader, Origin.ResultText, Origin.ResultStream);
+end;
+
+destructor THTTPResponse.Destroy;
+begin
+  FStream.Free;
+  inherited Destroy;
 end;
 
 function THTTPResponse.ResultCode: Integer;
@@ -92,6 +113,11 @@ end;
 function THTTPResponse.ResultText: string;
 begin
   Result := FResultText;
+end;
+
+function THTTPResponse.ResultStream: TStream;
+begin
+  Result := FStream;
 end;
 
 { THTTPSender }
@@ -126,7 +152,8 @@ begin
   Result := THTTPResponse.Create(
     FSender.ResultCode,
     FSender.Headers.Text,
-    FSender.ResultString);
+    FSender.ResultString,
+    FSender.Document);
 end;
 
 end.

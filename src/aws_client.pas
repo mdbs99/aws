@@ -66,6 +66,7 @@ type
       CanonicalizedAmzHeaders, CanonicalizedResource: string);
     constructor Create(const Method, AName, Resource, SubResource, CanonicalizedResource: string);
     constructor Create(const Method, AName, Resource, CanonicalizedResource: string);
+    constructor Create(const Method, AName, Resource, CanonicalizedResource: string; Stream: TStream);
     constructor Create(const Method, AName, CanonicalizedResource: string);
     function Method: string;
     function Name: string;
@@ -131,6 +132,12 @@ constructor TAWSRequest.Create(const Method, AName, Resource,
   CanonicalizedResource: string);
 begin
   Create(Method, AName, Resource, '', '', '', '', CanonicalizedResource, nil);
+end;
+
+constructor TAWSRequest.Create(const Method, AName, Resource,
+  CanonicalizedResource: string; Stream: TStream);
+begin
+  Create(Method, AName, Resource, '', '', '', '', CanonicalizedResource, Stream);
 end;
 
 constructor TAWSRequest.Create(const Method, AName, CanonicalizedResource: string);

@@ -41,6 +41,7 @@ type
   IS3Objects = interface(IInterface)
     function Get(const AName: string; Stream: TStream; const SubResources: string): IS3Object;
     function Get(const AName, AFileName: string; const SubResources: string): IS3Object;
+    function Get(const AName: string; const SubResources: string): IS3Object;
     procedure Delete(const AName: string);
     function Put(const AName, ContentType: string; Stream: TStream; const SubResources: string): IS3Object;
     function Put(const AName, ContentType, AFileName, SubResources: string): IS3Object;
@@ -85,6 +86,7 @@ type
     constructor Create(Bucket: IS3Bucket);
     function Get(const AName: string; Stream: TStream; const SubResources: string): IS3Object;
     function Get(const AName, AFileName: string; const SubResources: string): IS3Object;
+    function Get(const AName: string; const SubResources: string): IS3Object;
     procedure Delete(const AName: string);
     function Put(const AName, ContentType: string; Stream: TStream; const SubResources: string): IS3Object;
     function Put(const AName, ContentType, AFileName, SubResources: string): IS3Object;
@@ -159,9 +161,17 @@ end;
 
 function TS3Objects.Get(const AName: string; Stream: TStream;
   const SubResources: string): IS3Object;
+var
+  Res: IAWSResponse;
 begin
-  { TODO :  }
-  Result := nil;
+  Res := FBucket.Region.Client.Send(
+    TAWSRequest.Create(
+      'GET', FBucket.Name, '/' + AName, '/' + FBucket.Name + '/' + AName + SubResources, Stream
+    )
+  );
+  if 200 <> Res.ResultCode then
+    raise ES3Error.CreateFmt('Get error: %d', [Res.ResultCode]);
+  Result := TS3Object.Create(FBucket, AName);
 end;
 
 function TS3Objects.Get(const AName, AFileName: string;
@@ -175,6 +185,11 @@ begin
   finally
     Buf.Free;
   end;
+end;
+
+function TS3Objects.Get(const AName: string; const SubResources: string): IS3Object;
+begin
+  Result := Get(AName, nil, SubResources);
 end;
 
 procedure TS3Objects.Delete(const AName: string);

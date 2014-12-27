@@ -39,6 +39,7 @@ type
     Label9: TLabel;
     btnBucketGet: TButton;
     btnObjectCreate: TButton;
+    btnFileDownload: TButton;
     procedure btnTestAccessClick(Sender: TObject);
     procedure btnBucketCheckClick(Sender: TObject);
     procedure btnBucketCreateClick(Sender: TObject);
@@ -48,6 +49,7 @@ type
     procedure fneFileChange(Sender: TObject);
     procedure btnBucketGetClick(Sender: TObject);
     procedure btnObjectCreateClick(Sender: TObject);
+    procedure btnFileDownloadClick(Sender: TObject);
   private
     FRegion: IS3Region;
   end;
@@ -121,6 +123,22 @@ begin
 
   Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketSubResource.Text);
   Bkt.Objects.Put(edtObjectName.Text, edtContentType.Text, fneFile.FileName, edtObjectSubResource.Text);
+  ShowMessage('Success!')
+end;
+
+procedure TfrmMain.btnFileDownloadClick(Sender: TObject);
+var
+  Bkt: IS3Bucket;
+begin
+  if edtBucketName.Text = '' then
+  begin
+    ShowMessage('Define a Bucket.');
+    edtBucketName.SetFocus;
+    Exit;
+  end;
+
+  Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketSubResource.Text);
+  Bkt.Objects.Get(edtObjectName.Text, fneFile.FileName, edtObjectSubResource.Text);
   ShowMessage('Success!')
 end;
 

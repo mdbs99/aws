@@ -42,7 +42,7 @@ object frmMain: TfrmMain
     TabOrder = 2
   end
   object pnlServices: TPanel
-    Left = 8
+    Left = 9
     Height = 216
     Top = 96
     Width = 441
@@ -98,7 +98,7 @@ object frmMain: TfrmMain
       Left = 96
       Height = 23
       Top = 176
-      Width = 259
+      Width = 179
       FilterIndex = 0
       HideDirectories = False
       ButtonWidth = 23
@@ -108,7 +108,7 @@ object frmMain: TfrmMain
       OnChange = fneFileChange
     end
     object btnFileUpload: TButton
-      Left = 357
+      Left = 281
       Height = 25
       Top = 174
       Width = 75
@@ -213,6 +213,15 @@ object frmMain: TfrmMain
       Caption = 'Create'
       OnClick = btnObjectCreateClick
       TabOrder = 12
+    end
+    object btnFileDownload: TButton
+      Left = 359
+      Height = 25
+      Top = 174
+      Width = 75
+      Caption = 'Download'
+      OnClick = btnFileDownloadClick
+      TabOrder = 13
     end
   end
   object edtSecretKey: TEdit
