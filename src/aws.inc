@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013-2014  -  Marcos Douglas B. dos Santos
+    Copyright (C) 2013-2014 by mdbs99
 
     See the file LICENSE.txt, included in this distribution,
     for details about the copyright.
@@ -11,5 +11,4 @@
 }
 
 {$mode objfpc}{$H+}
-{.$interfaces corba}
 
