@@ -65,6 +65,7 @@ type
     procedure TestGet;
     procedure TestDelete;
     procedure TestPut;
+    procedure TestOptions;
   end;
 
 implementation
@@ -82,7 +83,7 @@ begin
   Header := '';
   Text := '';
   case Request.Method of
-    'GET', 'HEAD', 'PUT':
+    'GET', 'HEAD', 'PUT', 'OPTIONS':
       begin
         Code := 200;
         Header := 'HTTP/1.1 200 OK';
@@ -217,7 +218,7 @@ begin
   Bkt := R.Buckets.Get('myawsbucket', '');
   Stream := TMemoryStream.Create;
   try
-    Bkt.Objects.Get('myawsbucket', Stream, '');
+    Bkt.Objects.Get('myobj', Stream, '');
     AssertEquals(200, Client.Response.ResultCode);
     AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
     AssertEquals('OK', Client.Response.ResultText);
@@ -234,7 +235,7 @@ var
 begin
   R := TS3Region.Create(FClient);
   Bkt := R.Buckets.Get('myawsbucket', '');
-  Bkt.Objects.Delete('myawsbucket');
+  Bkt.Objects.Delete('myobj');
   AssertEquals(204, Client.Response.ResultCode);
   AssertEquals('HTTP/1.1 204 No Content', Client.Response.ResultHeader);
   AssertEquals('No Content', Client.Response.ResultText);
@@ -247,7 +248,20 @@ var
 begin
   R := TS3Region.Create(FClient);
   Bkt := R.Buckets.Get('myawsbucket', '');
-  Bkt.Objects.Put('myawsbucket', 'text/plain', nil, '');
+  Bkt.Objects.Put('myobj', 'text/plain', nil, '');
+  AssertEquals(200, Client.Response.ResultCode);
+  AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
+  AssertEquals('OK', Client.Response.ResultText);
+end;
+
+procedure TS3ObjectsTest.TestOptions;
+var
+  R: IS3Region;
+  Bkt: IS3Bucket;
+begin
+  R := TS3Region.Create(FClient);
+  Bkt := R.Buckets.Get('myawsbucket', '');
+  Bkt.Objects.Options('myobj');
   AssertEquals(200, Client.Response.ResultCode);
   AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
   AssertEquals('OK', Client.Response.ResultText);
@@ -255,7 +269,8 @@ end;
 
 initialization
   RegisterTest('s3.region', TS3RegionTest);
-  RegisterTest('s3.bucket', TS3BucketsTest);
+  RegisterTest('s3.buckets', TS3BucketsTest);
+  RegisterTest('s3.objects', TS3ObjectsTest);
 
 end.
 

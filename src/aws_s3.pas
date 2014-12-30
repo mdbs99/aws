@@ -48,6 +48,7 @@ type
     function Put(const AName, ContentType: string; Stream: TStream; const SubResources: string): IS3Object;
     function Put(const AName, ContentType, AFileName, SubResources: string): IS3Object;
     function Put(const AName, SubResources: string): IS3Object;
+    function Options(const AName: string): IS3Object;
   end;
 
   IS3Bucket = interface(IInterface)
@@ -96,6 +97,7 @@ type
     function Put(const AName, ContentType: string; Stream: TStream; const SubResources: string): IS3Object;
     function Put(const AName, ContentType, AFileName, SubResources: string): IS3Object;
     function Put(const AName, SubResources: string): IS3Object;
+    function Options(const AName: string): IS3Object;
   end;
 
   TS3Region = class;
@@ -252,6 +254,21 @@ begin
   finally
     Buf.Free;
   end;
+end;
+
+function TS3Objects.Options(const AName: string): IS3Object;
+var
+  Res: IAWSResponse;
+begin
+  { TODO : Not working properly yet. }
+  Res := FBucket.Region.Client.Send(
+    TAWSRequest.Create(
+      'OPTIONS', FBucket.Name, '/' + AName, '/' + FBucket.Name + '/' + AName
+    )
+  );
+  if 200 <> Res.ResultCode then
+    raise ES3Error.CreateFmt('Get error: %d', [Res.ResultCode]);
+  Result := TS3Object.Create(FBucket, AName);
 end;
 
 { TS3Bucket }
