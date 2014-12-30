@@ -26,6 +26,7 @@ uses
 
 type
   IHTTPResponse = interface(IInterface)
+  ['{6E7E8524-88B5-48B1-95FF-30D0DF40D8F7}']
     function ResultCode: Integer;
     function ResultHeader: string;
     function ResultText: string;
@@ -33,6 +34,7 @@ type
   end;
 
   IHTTPSender = interface(IInterface)
+  ['{DF9B2674-D60C-4F40-AD6A-AE158091212D}']
     function Send: IHTTPResponse;
   end;
 

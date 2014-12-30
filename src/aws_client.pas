@@ -29,12 +29,14 @@ type
   IAWSResponse = IHTTPResponse;
 
   IAWSCredentials = interface(IInterface)
+  ['{AC6EA523-F2FF-4BD0-8C87-C27E9846FA40}']
     function GetAccessKeyId: string;
     function GetSecretKey: string;
     function UseSSL: Boolean;
   end;
 
   IAWSRequest = interface(IInterface)
+  ['{12744C05-22B6-45BF-B47A-49813F6B64B6}']
     function Method: string;
     function Name: string;
     function Resource: string;
@@ -48,6 +50,7 @@ type
   end;
 
   IAWSClient = interface(IInterface)
+  ['{9CE71A17-9ADC-4FC1-96ED-8E9C704A988C}']
     function Send(Request: IAWSRequest): IAWSResponse;
   end;
 

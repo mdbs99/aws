@@ -34,11 +34,13 @@ type
   IS3Bucket = interface;
 
   IS3Object = interface(IInterface)
+  ['{FF865D65-97EE-46BC-A1A6-9D9FFE6310A4}']
     function Bucket: IS3Bucket;
     function Name: string;
   end;
 
   IS3Objects = interface(IInterface)
+  ['{0CDE7D8E-BA30-4FD4-8FC0-F8291131652E}']
     function Get(const AName: string; Stream: TStream; const SubResources: string): IS3Object;
     function Get(const AName, AFileName: string; const SubResources: string): IS3Object;
     function Get(const AName: string; const SubResources: string): IS3Object;
@@ -49,12 +51,14 @@ type
   end;
 
   IS3Bucket = interface(IInterface)
+  ['{7E7FA31D-7F54-4BE0-8587-3A72E7D24164}']
     function Region: IS3Region;
     function Name: string;
     function Objects: IS3Objects;
   end;
 
   IS3Buckets = interface(IInterface)
+  ['{8F994521-57A1-4FA6-9F9F-3931E834EFE2}']
     function Check(const AName: string): Boolean;
     function Get(const AName, SubResources: string): IS3Bucket;
     procedure Delete(const AName, SubResources: string);
@@ -64,6 +68,7 @@ type
   end;
 
   IS3Region = interface(IInterface)
+  ['{B192DB11-4080-477A-80D4-41698832F492}']
     function Client: IAWSClient;
     function IsOnline: Boolean;
     function Buckets: IS3Buckets;
