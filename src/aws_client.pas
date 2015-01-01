@@ -25,6 +25,9 @@ uses
   //aws
   aws_http;
 
+const
+  AWS_URI = 's3.amazonaws.com';
+
 type
   IAWSResponse = IHTTPResponse;
 
@@ -101,8 +104,6 @@ type
   end;
 
   TAWSClient = class sealed(TInterfacedObject, IAWSClient)
-  private const
-    AWS_URI = 's3.amazonaws.com';
   private
     FCredentials: IAWSCredentials;
   protected
