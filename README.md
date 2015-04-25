@@ -16,13 +16,13 @@ uses
   aws_client,  
   aws_s3;
 var
-  Cred: IAWSCredentials;
-  Client: IAWSClient;
   Region: IS3Region;
 begin
-  Cred := TAWSCredentials.Create('access_key', 'secret_key', True);
-  Client := TAWSClient.Create(Cred);
-  Region := TS3Region.Create(Client);
+  Region := TS3Region.Create(
+    TAWSClient.Create(
+	  TAWSCredentials.Create('access_key', 'secret_key', True)
+	)
+  );
   if Region.IsOnline then
   begin
     // create a new bucket

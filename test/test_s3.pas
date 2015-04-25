@@ -26,7 +26,7 @@ uses
   aws_s3;
 
 type
-  TAWSClientMocker = class(TInterfacedObject, IAWSClient)
+  TAWSFakeClient = class(TInterfacedObject, IAWSClient)
   strict private
     FRequest: IAWSRequest;
     FResponse: IAWSResponse;
@@ -43,7 +43,7 @@ type
   protected
     procedure SetUp; override;
     procedure TearDown; override;
-    function Client: TAWSClientMocker;
+    function Client: TAWSFakeClient;
   end;
 
   TS3RegionTest = class(TS3Test)
@@ -70,9 +70,9 @@ type
 
 implementation
 
-{ TAWSClientMocker }
+{ TAWSFakeClient }
 
-function TAWSClientMocker.Send(Request: IAWSRequest): IAWSResponse;
+function TAWSFakeClient.Send(Request: IAWSRequest): IAWSResponse;
 var
   Code: Integer;
   Header, Text: string;
@@ -105,12 +105,12 @@ begin
   end;
 end;
 
-function TAWSClientMocker.Request: IAWSRequest;
+function TAWSFakeClient.Request: IAWSRequest;
 begin
   Result := FRequest;
 end;
 
-function TAWSClientMocker.Response: IAWSResponse;
+function TAWSFakeClient.Response: IAWSResponse;
 begin
   Result := FResponse;
 end;
@@ -121,7 +121,7 @@ procedure TS3Test.SetUp;
 begin
   inherited SetUp;
   FCredentials := TAWSCredentials.Create('dummy_key', 'dummy_secret', False);
-  FClient := TAWSClientMocker.Create;
+  FClient := TAWSFakeClient.Create;
 end;
 
 procedure TS3Test.TearDown;
@@ -129,9 +129,9 @@ begin
   inherited TearDown;
 end;
 
-function TS3Test.Client: TAWSClientMocker;
+function TS3Test.Client: TAWSFakeClient;
 begin
-  Result := FClient as TAWSClientMocker;
+  Result := FClient as TAWSFakeClient;
 end;
 
 { TS3RegionTest }
