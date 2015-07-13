@@ -11,7 +11,9 @@ This project is fully **object-oriented**, **interface-based** and all objects a
 ## A "Bigger" Example
 
 First you need create a Region object -- this is your connection to the Amazon services.
+
 Second, using just one line, the app creates a new Bucket and put a new file on it.
+
 Because all return types are interfaces, the final return to an variable is necessary to release the memory automatically.
 
 ``` pascal
@@ -32,3 +34,9 @@ begin
   O := R.Buckets.Put('mys3examplebucket', '/').Objects.Put('foo.txt', 'plain', 'foo.txt', '');
 end.
 ```
+
+That's all.
+
+You can get/put/delete Buckets and Objects using this API.
+
+No need to release memory!
