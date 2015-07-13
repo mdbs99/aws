@@ -40,3 +40,9 @@ That's all.
 You can get/put/delete Buckets and Objects using this API.
 
 No need to release memory!
+
+## Got questions?
+
+If you have questions or general suggestions, don't hesitate to submit
+a new [Github issue](https://github.com/mdbs99/AWS/issues/new).
+
