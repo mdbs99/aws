@@ -4,31 +4,31 @@ AWS Lib is a minimalistic Object Pascal implementation for the Amazon Web Servic
 
 This project is fully **object-oriented**, **interface-based** and all objects are **immutable objects**.
 
-###Amazon S3
+## Amazon S3 Documentation
 * [REST API](http://docs.aws.amazon.com/AmazonS3/latest/API/APIRest.html)
 * [Error responses](http://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html)
 
+## A "Bigger" Example
+
+First you need create a Region object -- this is your connection to the Amazon services.
+Second, using just one line, the app creates a new Bucket and put a new file on it.
+Because all return types are interfaces, the final return to an variable is necessary to release the memory automatically.
+
 ``` pascal
-program awstest;
+program s3;
 {$mode objfpc}{$H+}
 uses
-  sysutils,
-  aws_client,  
+  aws_client,
   aws_s3;
 var
-  Region: IS3Region;
+  R: IS3Region;
+  O: IS3Object;
 begin
-  Region := TS3Region.Create(
+  R := TS3Region.Create(
     TAWSClient.Create(
-	  TAWSCredentials.Create('access_key', 'secret_key', True)
-	)
+      TAWSCredentials.Create('YOUR_access_key', 'YOUR_secret_key', True)
+    )
   );
-  if Region.IsOnline then
-  begin
-    // create a new bucket
-    Region.Buckets.Put('colorpictures', '/');
-    // delete the new bucket
-    Region.Buckets.Delete('colorpictures', '/');
-  end;
-end.  
+  O := R.Buckets.Put('mys3examplebucket', '/').Objects.Put('foo.txt', 'plain', 'foo.txt', '');
+end.
 ```
