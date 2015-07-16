@@ -77,7 +77,6 @@
       <Unit1>
         <Filename Value="test_s3.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="test_s3"/>
       </Unit1>
     </Units>
   </ProjectOptions>
