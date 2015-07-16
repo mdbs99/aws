@@ -42,7 +42,6 @@ type
     FClient: IAWSClient;
   protected
     procedure SetUp; override;
-    procedure TearDown; override;
     function Client: TAWSFakeClient;
   end;
 
@@ -60,12 +59,18 @@ type
     procedure TestPut;
   end;
 
+  TS3BucketTest = class(TS3Test)
+  published
+    procedure TestImmutable;
+  end;
+
   TS3ObjectsTest = class(TS3Test)
   published
     procedure TestGet;
     procedure TestDelete;
     procedure TestPut;
     procedure TestOptions;
+    procedure TestImmutable;
   end;
 
 implementation
@@ -124,11 +129,6 @@ begin
   FClient := TAWSFakeClient.Create;
 end;
 
-procedure TS3Test.TearDown;
-begin
-  inherited TearDown;
-end;
-
 function TS3Test.Client: TAWSFakeClient;
 begin
   Result := FClient as TAWSFakeClient;
@@ -152,6 +152,7 @@ var
 begin
   R := TS3Region.Create(FClient);
   AssertNotNull('Buckets not alive', R.Buckets);
+  AssertNotSame(R.Buckets, R.Buckets);
 end;
 
 { TS3BucketsTest }
@@ -204,6 +205,18 @@ begin
   AssertEquals(200, Client.Response.ResultCode);
   AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
   AssertEquals('OK', Client.Response.ResultText);
+end;
+
+{ TS3BucketTest }
+
+procedure TS3BucketTest.TestImmutable;
+var
+  R: IS3Region;
+  Bkt: IS3Bucket;
+begin
+  R := TS3Region.Create(FClient);
+  Bkt := R.Buckets.Get('myawsbucket', '');
+  AssertNotSame(Bkt.Region, Bkt.Region);
 end;
 
 { TS3ObjectsTest }
@@ -267,9 +280,20 @@ begin
   AssertEquals('OK', Client.Response.ResultText);
 end;
 
+procedure TS3ObjectsTest.TestImmutable;
+var
+  R: IS3Region;
+  Bkt: IS3Bucket;
+begin
+  R := TS3Region.Create(FClient);
+  Bkt := R.Buckets.Get('myawsbucket', '');
+  AssertNotSame(Bkt.Objects, Bkt.Objects);
+end;
+
 initialization
   RegisterTest('s3.region', TS3RegionTest);
   RegisterTest('s3.buckets', TS3BucketsTest);
+  RegisterTest('s3.buckets', TS3BucketTest);
   RegisterTest('s3.objects', TS3ObjectsTest);
 
 end.

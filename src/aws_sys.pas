@@ -18,6 +18,10 @@ interface
 type
   PIInterface = ^IInterface;
 
+  generic ICloneable<T> = interface(IInterface)
+    function Clone: T;
+  end;
+
 procedure SetWeak(InterfaceField: PIInterface; const Value: IInterface);
 
 implementation

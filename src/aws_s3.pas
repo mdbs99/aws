@@ -68,7 +68,9 @@ type
     function All: IS3Response;
   end;
 
-  IS3Region = interface(IInterface)
+  IS3RegionClonable = specialize ICloneable<IS3Region>;
+
+  IS3Region = interface(IS3RegionClonable)
   ['{B192DB11-4080-477A-80D4-41698832F492}']
     function Client: IAWSClient;
     function Online: Boolean;
@@ -106,7 +108,6 @@ type
   private
     FRegion: IS3Region;
     FName: string;
-    FObjects: IS3Objects;
   public
     constructor Create(Region: IS3Region; const AName: string);
     function Region: IS3Region;
@@ -129,9 +130,9 @@ type
   TS3Region = class sealed(TInterfacedObject, IS3Region)
   private
     FClient: IAWSClient;
-    FBuckets: IS3Buckets;
   public
     constructor Create(AClient: IAWSClient);
+    function Clone: IS3Region;
     function Client: IAWSClient;
     function Online: Boolean;
     function Buckets: IS3Buckets;
@@ -163,7 +164,8 @@ end;
 constructor TS3Objects.Create(Bucket: IS3Bucket);
 begin
   inherited Create;
-  SetWeak(@FBucket, Bucket);
+  FBucket := Bucket;
+  //SetWeak(@FBucket, Bucket);
 end;
 
 function TS3Objects.Get(const AName: string; Stream: TStream;
@@ -278,12 +280,11 @@ begin
   inherited Create;
   FRegion := Region;
   FName := AName;
-  FObjects := TS3Objects.Create(Self);
 end;
 
 function TS3Bucket.Region: IS3Region;
 begin
-  Result := FRegion;
+  Result := FRegion.Clone;
 end;
 
 function TS3Bucket.Name: string;
@@ -293,7 +294,7 @@ end;
 
 function TS3Bucket.Objects: IS3Objects;
 begin
-  Result := FObjects;
+  Result := TS3Objects.Create(Self);
 end;
 
 { TS3Buckets }
@@ -301,7 +302,7 @@ end;
 constructor TS3Buckets.Create(Region: IS3Region);
 begin
   inherited Create;
-  SetWeak(@FRegion, Region);
+  FRegion := Region;
 end;
 
 function TS3Buckets.Check(const AName: string): Boolean;
@@ -367,7 +368,11 @@ constructor TS3Region.Create(AClient: IAWSClient);
 begin
   inherited Create;
   FClient := AClient;
-  FBuckets := TS3Buckets.Create(Self);
+end;
+
+function TS3Region.Clone: IS3Region;
+begin
+  Result := TS3Region.Create(FClient);
 end;
 
 function TS3Region.Client: IAWSClient;
@@ -386,7 +391,7 @@ end;
 
 function TS3Region.Buckets: IS3Buckets;
 begin
-  Result := FBuckets;
+  Result := TS3Buckets.Create(Self);
 end;
 
 end.
