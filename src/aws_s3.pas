@@ -71,7 +71,7 @@ type
   IS3Region = interface(IInterface)
   ['{B192DB11-4080-477A-80D4-41698832F492}']
     function Client: IAWSClient;
-    function IsOnline: Boolean;
+    function Online: Boolean;
     function Buckets: IS3Buckets;
   end;
 
@@ -133,7 +133,7 @@ type
   public
     constructor Create(AClient: IAWSClient);
     function Client: IAWSClient;
-    function IsOnline: Boolean;
+    function Online: Boolean;
     function Buckets: IS3Buckets;
   end;
 
@@ -248,7 +248,7 @@ var
 begin
   Buf := TMemoryStream.Create;
   try
-    // hack to synapse add Content-Length
+    // hack Synapse to add Content-Length
     Buf.WriteBuffer('', 1);
     Result := Put(AName, '', Buf, SubResources);
   finally
@@ -356,7 +356,9 @@ end;
 
 function TS3Buckets.All: IS3Response;
 begin
-  Result := FRegion.Client.Send(TAWSRequest.Create('GET', '','', '', '', '', '', '/'));
+  Result := FRegion.Client.Send(
+    TAWSRequest.Create('GET', '','', '', '', '', '', '/')
+  );
 end;
 
 { TS3Region }
@@ -373,7 +375,7 @@ begin
   Result := FClient;
 end;
 
-function TS3Region.IsOnline: Boolean;
+function TS3Region.Online: Boolean;
 begin
   Result := Client.Send(
     TAWSRequest.Create(

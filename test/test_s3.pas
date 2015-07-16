@@ -49,7 +49,7 @@ type
   TS3RegionTest = class(TS3Test)
   published
     procedure TestIsOnline;
-    procedure TestBuckets;
+    procedure TestImmutableBuckets;
   end;
 
   TS3BucketsTest = class(TS3Test)
@@ -141,12 +141,12 @@ var
   R: IS3Region;
 begin
   R := TS3Region.Create(FClient);
-  AssertTrue('Service denied', R.IsOnline);
+  AssertTrue('Service denied', R.Online);
   AssertEquals('GET', Client.Request.Method);
   AssertEquals('/', Client.Request.CanonicalizedResource);
 end;
 
-procedure TS3RegionTest.TestBuckets;
+procedure TS3RegionTest.TestImmutableBuckets;
 var
   R: IS3Region;
 begin

@@ -3,6 +3,7 @@
   <Package Version="4">
     <PathDelim Value="\"/>
     <Name Value="AWS"/>
+    <Type Value="RunTimeOnly"/>
     <Author Value="mdbs99"/>
     <CompilerOptions>
       <Version Value="11"/>
@@ -20,7 +21,7 @@
     </CompilerOptions>
     <Description Value="AWS runtime package."/>
     <License Value="See the file LICENSE, included in this distribution, for details about the copyright."/>
-    <Version Minor="2"/>
+    <Version Minor="3" Release="1"/>
     <Files Count="5">
       <Item1>
         <Filename Value="..\src\aws.inc"/>
@@ -43,7 +44,6 @@
         <UnitName Value="aws_http"/>
       </Item5>
     </Files>
-    <Type Value="RunTimeOnly"/>
     <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="laz_synapse"/>
