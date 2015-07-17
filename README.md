@@ -41,6 +41,12 @@ You can get/put/delete Buckets and Objects using this API.
 
 No need to release memory!
 
+## Dependencies 
+
+There is only one dependency: [Synapse](http://synapse.ararat.cz/doku.php/download)
+
+Synapse is used as HTTP client.  You can customize or create a new client using another lib like lNet, fpHttp, whatever.
+
 ## Got questions?
 
 If you have questions or general suggestions, don't hesitate to submit
