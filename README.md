@@ -23,19 +23,37 @@ uses
   aws_client,
   aws_s3;
 var
-  R: IS3Region;
-  O: IS3Object;
+  Rg: IS3Region;
+  Ob: IS3Object;
 begin
-  R := TS3Region.Create(
+  Rg := TS3Region.Create(
     TAWSClient.Create(
       TAWSCredentials.Create('YOUR_access_key', 'YOUR_secret_key', True)
     )
   );
-  O := R.Buckets.Put('mys3examplebucket', '/').Objects.Put('foo.txt', 'plain', 'foo.txt', '');
+  Ob := R.Buckets.Put('mys3examplebucket', '/').Objects.Put('foo.txt', 'plain', 'foo.txt', '');
 end.
 ```
 
 That's all.
+
+### Explanation step-by-step
+- you create a Region object, that need a Client object;
+- so R.Buckets.Put(...) will creates a new Bucket on the server and the return is an instance of Bucket;
+- the Bucket created have the method Objects, so Objects.Put(...) will put a new file on the server.
+
+That is the same:
+``` pascal
+var
+  Rg: IS3Region;
+  Bk: IS3Bucket;
+  Ob: IS3Object;
+begin
+  R := TS3Region.Create(...);
+  Bk := R.Buckets.Put('mys3examplebucket', '/');
+  Ob := Bk.Objects.Put('foo.txt', 'plain', 'foo.txt', '');
+end;
+```
 
 You can get/put/delete Buckets and Objects using this API.
 
