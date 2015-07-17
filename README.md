@@ -31,7 +31,7 @@ begin
       TAWSCredentials.Create('YOUR_access_key', 'YOUR_secret_key', True)
     )
   );
-  Ob := R.Buckets.Put('mys3examplebucket', '/').Objects.Put('foo.txt', 'plain', 'foo.txt', '');
+  Ob := Rg.Buckets.Put('mys3examplebucket', '/').Objects.Put('foo.txt', 'plain', 'foo.txt', '');
 end.
 ```
 
@@ -49,8 +49,8 @@ var
   Bk: IS3Bucket;
   Ob: IS3Object;
 begin
-  R := TS3Region.Create(...);
-  Bk := R.Buckets.Put('mys3examplebucket', '/');
+  Rg := TS3Region.Create(...);
+  Bk := Rg.Buckets.Put('mys3examplebucket', '/');
   Ob := Bk.Objects.Put('foo.txt', 'plain', 'foo.txt', '');
 end;
 ```
