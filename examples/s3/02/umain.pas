@@ -5,8 +5,8 @@ unit umain;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  Buttons, ExtCtrls, EditBtn,
+  Classes, SysUtils, FileUtil, LazFileUtils, Forms, Controls, Graphics, Dialogs,
+  StdCtrls, Buttons, ExtCtrls, EditBtn,
   //aws
   aws_client,
   aws_s3;
@@ -71,7 +71,7 @@ begin
   Client := TAWSClient.Create(Cred);
   FRegion := nil;
   FRegion := TS3Region.Create(Client);
-  if FRegion.IsOnline then
+  if FRegion.Online then
   begin
     pnlServices.Visible := True;
   end
@@ -113,7 +113,7 @@ begin
     Exit;
   end;
 
-  if not FileExistsUTF8(fneFile.FileName) then
+  if not LazFileUtils.FileExistsUTF8(fneFile.FileName) then
   begin
     ShowMessage('File not exists');
     fneFile.SetFocus;

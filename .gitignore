@@ -11,7 +11,8 @@
 *.ini
 bin/
 test/lib/
-examples/s3/lib/
+examples/s3/01/lib/
+examples/s3/02/lib/
 
 
 

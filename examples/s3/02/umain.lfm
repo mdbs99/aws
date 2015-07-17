@@ -8,7 +8,7 @@ object frmMain: TfrmMain
   ClientHeight = 323
   ClientWidth = 461
   Position = poScreenCenter
-  LCLVersion = '1.3'
+  LCLVersion = '1.5'
   object edtAcessKeyId: TEdit
     Left = 8
     Height = 23
