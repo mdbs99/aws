@@ -22,7 +22,6 @@ uses
   //synapse
   synautil,
   //aws
-  aws_sys,
   aws_client;
 
 type
@@ -68,9 +67,7 @@ type
     function All: IS3Response;
   end;
 
-  IS3RegionClonable = specialize ICloneable<IS3Region>;
-
-  IS3Region = interface(IS3RegionClonable)
+  IS3Region = interface(IInterface)
   ['{B192DB11-4080-477A-80D4-41698832F492}']
     function Client: IAWSClient;
     function Online: Boolean;
@@ -165,7 +162,6 @@ constructor TS3Objects.Create(Bucket: IS3Bucket);
 begin
   inherited Create;
   FBucket := Bucket;
-  //SetWeak(@FBucket, Bucket);
 end;
 
 function TS3Objects.Get(const AName: string; Stream: TStream;
@@ -284,7 +280,7 @@ end;
 
 function TS3Bucket.Region: IS3Region;
 begin
-  Result := FRegion.Clone;
+  Result := FRegion;
 end;
 
 function TS3Bucket.Name: string;
