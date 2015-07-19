@@ -1,8 +1,8 @@
 #AWS Lib
 
-AWS Lib a minimalist implementation for Amazon Web Services.
+It's a minimalist implementation for Amazon Web Services.
 
-This project is fully **object-oriented**, **interface-based** and all objects are **immutable objects**.
+Fully **object-oriented**, **interface-based** and all objects are **immutable**.
 
 ## Amazon S3 Documentation
 * [REST API](http://docs.aws.amazon.com/AmazonS3/latest/API/APIRest.html)
