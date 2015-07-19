@@ -52,7 +52,6 @@ type
 
   IS3Bucket = interface(IInterface)
   ['{7E7FA31D-7F54-4BE0-8587-3A72E7D24164}']
-    function Region: IS3Region;
     function Name: string;
     function Objects: IS3Objects;
   end;
@@ -69,7 +68,6 @@ type
 
   IS3Region = interface(IInterface)
   ['{B192DB11-4080-477A-80D4-41698832F492}']
-    function Client: IAWSClient;
     function Online: Boolean;
     function Buckets: IS3Buckets;
   end;
@@ -86,9 +84,10 @@ type
 
   TS3Objects = class sealed(TInterfacedObject, IS3Objects)
   private
+    FClient: IAWSClient;
     FBucket: IS3Bucket;
   public
-    constructor Create(Bucket: IS3Bucket);
+    constructor Create(Client: IAWSClient; Bucket: IS3Bucket);
     function Get(const AName: string; Stream: TStream; const SubResources: string): IS3Object;
     function Get(const AName, AFileName: string; const SubResources: string): IS3Object;
     function Get(const AName: string; const SubResources: string): IS3Object;
@@ -103,20 +102,19 @@ type
 
   TS3Bucket = class sealed(TInterfacedObject, IS3Bucket)
   private
-    FRegion: IS3Region;
+    FClient: IAWSClient;
     FName: string;
   public
-    constructor Create(Region: IS3Region; const AName: string);
-    function Region: IS3Region;
+    constructor Create(Client: IAWSClient; const AName: string);
     function Name: string;
     function Objects: IS3Objects;
   end;
 
   TS3Buckets = class sealed(TInterfacedObject, IS3Buckets)
   private
-    FRegion: IS3Region;
+    FClient: IAWSClient;
   public
-    constructor Create(Region: IS3Region);
+    constructor Create(Client: IAWSClient);
     function Check(const AName: string): Boolean;
     function Get(const AName, SubResources: string): IS3Bucket;
     procedure Delete(const AName, SubResources: string);
@@ -128,9 +126,7 @@ type
   private
     FClient: IAWSClient;
   public
-    constructor Create(AClient: IAWSClient);
-    function Clone: IS3Region;
-    function Client: IAWSClient;
+    constructor Create(Client: IAWSClient);
     function Online: Boolean;
     function Buckets: IS3Buckets;
   end;
@@ -158,9 +154,10 @@ end;
 
 { TS3Objects }
 
-constructor TS3Objects.Create(Bucket: IS3Bucket);
+constructor TS3Objects.Create(Client: IAWSClient; Bucket: IS3Bucket);
 begin
   inherited Create;
+  FClient := Client;
   FBucket := Bucket;
 end;
 
@@ -169,7 +166,7 @@ function TS3Objects.Get(const AName: string; Stream: TStream;
 var
   Res: IAWSResponse;
 begin
-  Res := FBucket.Region.Client.Send(
+  Res := FClient.Send(
     TAWSRequest.Create(
       'GET', FBucket.Name, '/' + AName, '/' + FBucket.Name + '/' + AName + SubResources
     )
@@ -202,7 +199,7 @@ procedure TS3Objects.Delete(const AName: string);
 var
   Res: IAWSResponse;
 begin
-  Res := FBucket.Region.Client.Send(
+  Res := FClient.Send(
     TAWSRequest.Create(
       'DELETE', FBucket.Name, '/' + AName, '/' + FBucket.Name + '/' + AName
     )
@@ -216,7 +213,7 @@ function TS3Objects.Put(const AName, ContentType: string; Stream: TStream;
 var
   Res: IAWSResponse;
 begin
-  Res := FBucket.Region.Client.Send(
+  Res := FClient.Send(
     TAWSRequest.Create(
       'PUT', FBucket.Name, '/' + AName, SubResources, ContentType, '', '',
       '/' + FBucket.Name + '/' + AName, Stream
@@ -259,7 +256,7 @@ var
   Res: IAWSResponse;
 begin
   { TODO : Not working properly yet. }
-  Res := FBucket.Region.Client.Send(
+  Res := FClient.Send(
     TAWSRequest.Create(
       'OPTIONS', FBucket.Name, '/' + AName, '/' + FBucket.Name + '/' + AName
     )
@@ -271,16 +268,11 @@ end;
 
 { TS3Bucket }
 
-constructor TS3Bucket.Create(Region: IS3Region; const AName: string);
+constructor TS3Bucket.Create(Client: IAWSClient; const AName: string);
 begin
   inherited Create;
-  FRegion := Region;
+  FClient := Client;
   FName := AName;
-end;
-
-function TS3Bucket.Region: IS3Region;
-begin
-  Result := FRegion;
 end;
 
 function TS3Bucket.Name: string;
@@ -290,20 +282,20 @@ end;
 
 function TS3Bucket.Objects: IS3Objects;
 begin
-  Result := TS3Objects.Create(Self);
+  Result := TS3Objects.Create(FClient, Self);
 end;
 
 { TS3Buckets }
 
-constructor TS3Buckets.Create(Region: IS3Region);
+constructor TS3Buckets.Create(Client: IAWSClient);
 begin
   inherited Create;
-  FRegion := Region;
+  FClient := Client;
 end;
 
 function TS3Buckets.Check(const AName: string): Boolean;
 begin
-  Result := FRegion.Client.Send(
+  Result := FClient.Send(
     TAWSRequest.Create(
       'HEAD', AName, '', '', '', '', '', '/' + AName + '/'
     )
@@ -314,21 +306,21 @@ function TS3Buckets.Get(const AName, SubResources: string): IS3Bucket;
 var
   Res: IAWSResponse;
 begin
-  Res := FRegion.Client.Send(
+  Res := FClient.Send(
     TAWSRequest.Create(
       'GET', AName, '', SubResources, '', '', '', '/' + AName + '/' + SubResources
     )
   );
   if 200 <> Res.ResultCode then
     raise ES3Error.CreateFmt('Get error: %d', [Res.ResultCode]);
-  Result := TS3Bucket.Create(FRegion, AName);
+  Result := TS3Bucket.Create(FClient, AName);
 end;
 
 procedure TS3Buckets.Delete(const AName, SubResources: string);
 var
   Res: IAWSResponse;
 begin
-  Res := FRegion.Client.Send(
+  Res := FClient.Send(
     TAWSRequest.Create(
       'DELETE', AName, '', SubResources, '', '', '', '/' + AName + SubResources
     )
@@ -341,44 +333,34 @@ function TS3Buckets.Put(const AName, SubResources: string): IS3Bucket;
 var
   Res: IAWSResponse;
 begin
-  Res := FRegion.Client.Send(
+  Res := FClient.Send(
     TAWSRequest.Create(
       'PUT', AName, '', SubResources, '', '', '', '/' + AName + SubResources
     )
   );
   if 200 <> Res.ResultCode then
     raise ES3Error.CreateFmt('Put error: %d', [Res.ResultCode]);
-  Result := TS3Bucket.Create(FRegion, AName);
+  Result := TS3Bucket.Create(FClient, AName);
 end;
 
 function TS3Buckets.All: IS3Response;
 begin
-  Result := FRegion.Client.Send(
+  Result := FClient.Send(
     TAWSRequest.Create('GET', '','', '', '', '', '', '/')
   );
 end;
 
 { TS3Region }
 
-constructor TS3Region.Create(AClient: IAWSClient);
+constructor TS3Region.Create(Client: IAWSClient);
 begin
   inherited Create;
-  FClient := AClient;
-end;
-
-function TS3Region.Clone: IS3Region;
-begin
-  Result := TS3Region.Create(FClient);
-end;
-
-function TS3Region.Client: IAWSClient;
-begin
-  Result := FClient;
+  FClient := Client;
 end;
 
 function TS3Region.Online: Boolean;
 begin
-  Result := Client.Send(
+  Result := FClient.Send(
     TAWSRequest.Create(
       'GET', '', '', '', '', '', '', '/'
     )
@@ -387,7 +369,7 @@ end;
 
 function TS3Region.Buckets: IS3Buckets;
 begin
-  Result := TS3Buckets.Create(Self);
+  Result := TS3Buckets.Create(FClient);
 end;
 
 end.
