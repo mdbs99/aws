@@ -57,10 +57,6 @@ type
     procedure TestGet;
     procedure TestDelete;
     procedure TestPut;
-  end;
-
-  TS3BucketTest = class(TS3Test)
-  published
     procedure TestImmutable;
   end;
 
@@ -207,9 +203,7 @@ begin
   AssertEquals('OK', Client.Response.ResultText);
 end;
 
-{ TS3BucketTest }
-
-procedure TS3BucketTest.TestImmutable;
+procedure TS3BucketsTest.TestImmutable;
 var
   Rgn: IS3Region;
   Bkt: IS3Bucket;
@@ -293,7 +287,6 @@ end;
 initialization
   RegisterTest('s3.region', TS3RegionTest);
   RegisterTest('s3.buckets', TS3BucketsTest);
-  RegisterTest('s3.buckets', TS3BucketTest);
   RegisterTest('s3.objects', TS3ObjectsTest);
 
 end.

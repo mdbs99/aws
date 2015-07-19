@@ -108,8 +108,7 @@ type
     FCredentials: IAWSCredentials;
   protected
     function MakeURI(const AName, Query: string): string;
-    function MakeAuthHeader(const Method, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string): string;
+    function MakeAuthHeader(Request: IAWSRequest): string;
   public
     constructor Create(const Credentials: IAWSCredentials);
     function Send(Request: IAWSRequest): IAWSResponse;
@@ -267,19 +266,18 @@ begin
   Result += AWS_URI + Query;
 end;
 
-function TAWSClient.MakeAuthHeader(const Method, ContentType, ContentMD5,
-  CanonicalizedAmzHeaders, CanonicalizedResource: string): string;
+function TAWSClient.MakeAuthHeader(Request: IAWSRequest): string;
 var
   H: string;
   DateFmt: string;
 begin
   DateFmt := RFC822DateTime(Now);
-  H := Method + #10
-     + ContentMD5 + #10
-     + ContentType + #10
+  H := Request.Method + #10
+     + Request.ContentMD5 + #10
+     + Request.ContentType + #10
      + DateFmt + #10
-     + CanonicalizedAmzHeaders
-     + CanonicalizedResource;
+     + Request.CanonicalizedAmzHeaders
+     + Request.CanonicalizedResource;
   Result := 'Date: ' + DateFmt + #10
           + 'Authorization: AWS '
           + FCredentials.GetAccessKeyId + ':' + EncodeBase64(HMAC_SHA1(H, FCredentials.GetSecretKey));
@@ -293,16 +291,15 @@ end;
 
 function TAWSClient.Send(Request: IAWSRequest): IAWSResponse;
 var
-  H: string;
   Snd: IHTTPSender;
 begin
-  H := MakeAuthHeader(
-    Request.Method, Request.ContentType, Request.ContentMD5,
-    Request.CanonicalizedAmzHeaders, Request.CanonicalizedResource);
   Snd := THTTPSender.Create(
-    Request.Method, H, Request.ContentType,
+    Request.Method,
+    MakeAuthHeader(Request),
+    Request.ContentType,
     MakeURI(Request.Name, Request.Resource),
-    Request.Stream);
+    Request.Stream
+  );
   Result := Snd.Send;
 end;
 
