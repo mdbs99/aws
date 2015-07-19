@@ -219,20 +219,15 @@ procedure TS3ObjectsTest.TestGet;
 var
   Rgn: IS3Region;
   Bkt: IS3Bucket;
-  Stm: TMemoryStream;
+  Obj: IS3Object;
 begin
   Rgn := TS3Region.Create(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
-  Stm := TMemoryStream.Create;
-  try
-    Bkt.Objects.Get('myobj', Stm, '');
-    AssertEquals(200, Client.Response.ResultCode);
-    AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
-    AssertEquals('OK', Client.Response.ResultText);
-    AssertTrue('Stream size is zero', Stm.Size > 0);
-  finally
-    Stm.Free;
-  end;
+  Obj := Bkt.Objects.Get('foo.txt', '');
+  AssertEquals(200, Client.Response.ResultCode);
+  AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
+  AssertEquals('OK', Client.Response.ResultText);
+  AssertTrue('Stream size is zero', Obj.Stream.Size > 0);
 end;
 
 procedure TS3ObjectsTest.TestDelete;

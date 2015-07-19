@@ -36,12 +36,12 @@ type
   ['{FF865D65-97EE-46BC-A1A6-9D9FFE6310A4}']
     function Bucket: IS3Bucket;
     function Name: string;
+    { TODO : Implement a new IAWSStream interface to return }
+    function Stream: TMemoryStream;
   end;
 
   IS3Objects = interface(IInterface)
   ['{0CDE7D8E-BA30-4FD4-8FC0-F8291131652E}']
-    function Get(const AName: string; Stream: TStream; const SubResources: string): IS3Object;
-    function Get(const AName, AFileName: string; const SubResources: string): IS3Object;
     function Get(const AName: string; const SubResources: string): IS3Object;
     procedure Delete(const AName: string);
     function Put(const AName, ContentType: string; Stream: TStream; const SubResources: string): IS3Object;
@@ -76,10 +76,13 @@ type
   private
     FBucket: IS3Bucket;
     FName: string;
+    FStream: TMemoryStream;
   public
-    constructor Create(Bucket: IS3Bucket; const AName: string);
+    constructor Create(Bucket: IS3Bucket; const AName: string; Stream: TMemoryStream);
+    destructor Destroy; override;
     function Bucket: IS3Bucket;
     function Name: string;
+    function Stream: TMemoryStream;
   end;
 
   TS3Objects = class sealed(TInterfacedObject, IS3Objects)
@@ -88,8 +91,6 @@ type
     FBucket: IS3Bucket;
   public
     constructor Create(Client: IAWSClient; Bucket: IS3Bucket);
-    function Get(const AName: string; Stream: TStream; const SubResources: string): IS3Object;
-    function Get(const AName, AFileName: string; const SubResources: string): IS3Object;
     function Get(const AName: string; const SubResources: string): IS3Object;
     procedure Delete(const AName: string);
     function Put(const AName, ContentType: string; Stream: TStream; const SubResources: string): IS3Object;
@@ -135,11 +136,21 @@ implementation
 
 { TS3Object }
 
-constructor TS3Object.Create(Bucket: IS3Bucket; const AName: string);
+constructor TS3Object.Create(Bucket: IS3Bucket; const AName: string;
+  Stream: TMemoryStream);
 begin
   inherited Create;
   FBucket := Bucket;
   FName := AName;
+  FStream := TMemoryStream.Create;
+  if Assigned(Stream) then
+    FStream.LoadFromStream(Stream);
+end;
+
+destructor TS3Object.Destroy;
+begin
+  FStream.Free;
+  inherited Destroy;
 end;
 
 function TS3Object.Bucket: IS3Bucket;
@@ -152,6 +163,11 @@ begin
   Result := FName;
 end;
 
+function TS3Object.Stream: TMemoryStream;
+begin
+  Result := FStream;
+end;
+
 { TS3Objects }
 
 constructor TS3Objects.Create(Client: IAWSClient; Bucket: IS3Bucket);
@@ -161,8 +177,7 @@ begin
   FBucket := Bucket;
 end;
 
-function TS3Objects.Get(const AName: string; Stream: TStream;
-  const SubResources: string): IS3Object;
+function TS3Objects.Get(const AName: string; const SubResources: string): IS3Object;
 var
   Res: IAWSResponse;
 begin
@@ -171,28 +186,9 @@ begin
       'GET', FBucket.Name, '/' + AName, '/' + FBucket.Name + '/' + AName + SubResources
     )
   );
-  Res.ResultStream.SaveToStream(Stream);
   if 200 <> Res.ResultCode then
     raise ES3Error.CreateFmt('Get error: %d', [Res.ResultCode]);
-  Result := TS3Object.Create(FBucket, AName);
-end;
-
-function TS3Objects.Get(const AName, AFileName: string;
-  const SubResources: string): IS3Object;
-var
-  Buf: TFileStream;
-begin
-  Buf := TFileStream.Create(AFileName, fmCreate);
-  try
-    Result := Get(AName, Buf, SubResources);
-  finally
-    Buf.Free;
-  end;
-end;
-
-function TS3Objects.Get(const AName: string; const SubResources: string): IS3Object;
-begin
-  Result := Get(AName, nil, SubResources);
+  Result := TS3Object.Create(FBucket, AName, Res.ResultStream);
 end;
 
 procedure TS3Objects.Delete(const AName: string);
@@ -221,7 +217,7 @@ begin
   );
   if 200 <> Res.ResultCode then
     raise ES3Error.CreateFmt('Put error: %d', [Res.ResultCode]);
-  Result := TS3Object.Create(FBucket, AName);
+  Result := TS3Object.Create(FBucket, AName, Res.ResultStream);
 end;
 
 function TS3Objects.Put(const AName, ContentType, AFileName,
@@ -263,7 +259,7 @@ begin
   );
   if 200 <> Res.ResultCode then
     raise ES3Error.CreateFmt('Get error: %d', [Res.ResultCode]);
-  Result := TS3Object.Create(FBucket, AName);
+  Result := TS3Object.Create(FBucket, AName, Res.ResultStream);
 end;
 
 { TS3Bucket }

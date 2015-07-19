@@ -137,7 +137,10 @@ begin
   end;
 
   Bkt := FRegion.Buckets.Get(edtBucketName.Text, edtBucketSubResource.Text);
-  Bkt.Objects.Get(edtObjectName.Text, fneFile.FileName, edtObjectSubResource.Text);
+  Bkt.Objects.Get(
+    edtObjectName.Text,
+    edtObjectSubResource.Text
+  ).Stream.SaveToFile(fneFile.FileName);
   ShowMessage('Success!')
 end;
 
