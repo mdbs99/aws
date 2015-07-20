@@ -22,6 +22,7 @@ uses
   //synapse
   synautil,
   //aws
+  aws_base,
   aws_client;
 
 type
@@ -36,8 +37,7 @@ type
   ['{FF865D65-97EE-46BC-A1A6-9D9FFE6310A4}']
     function Bucket: IS3Bucket;
     function Name: string;
-    { TODO : Implement a new IAWSStream interface to return }
-    function Stream: TMemoryStream;
+    function Stream: IAWSStream;
   end;
 
   IS3Objects = interface(IInterface)
@@ -76,13 +76,12 @@ type
   private
     FBucket: IS3Bucket;
     FName: string;
-    FStream: TMemoryStream;
+    FStream: IAWSStream;
   public
     constructor Create(Bucket: IS3Bucket; const AName: string; Stream: TMemoryStream);
-    destructor Destroy; override;
     function Bucket: IS3Bucket;
     function Name: string;
-    function Stream: TMemoryStream;
+    function Stream: IAWSStream;
   end;
 
   TS3Objects = class sealed(TInterfacedObject, IS3Objects)
@@ -142,15 +141,7 @@ begin
   inherited Create;
   FBucket := Bucket;
   FName := AName;
-  FStream := TMemoryStream.Create;
-  if Assigned(Stream) then
-    FStream.LoadFromStream(Stream);
-end;
-
-destructor TS3Object.Destroy;
-begin
-  FStream.Free;
-  inherited Destroy;
+  FStream := TAWSStream.Create(Stream);
 end;
 
 function TS3Object.Bucket: IS3Bucket;
@@ -163,7 +154,7 @@ begin
   Result := FName;
 end;
 
-function TS3Object.Stream: TMemoryStream;
+function TS3Object.Stream: IAWSStream;
 begin
   Result := FStream;
 end;
