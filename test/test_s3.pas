@@ -22,6 +22,7 @@ uses
   fpcunit,
   testregistry,
   //aws
+  aws_base,
   aws_client,
   aws_s3;
 
@@ -99,7 +100,9 @@ begin
   end;
   Stream := TStringStream.Create(Header + #13 + Text);
   try
-    FResponse := TAWSResponse.Create(Code, Header, Text, Stream);
+    FResponse := TAWSResponse.Create(
+      Code, Header, Text, TAWSStream.Create(Stream)
+    );
     Result := FResponse;
   finally
     Stream.Free;

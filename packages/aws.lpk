@@ -21,7 +21,7 @@
     </CompilerOptions>
     <Description Value="AWS runtime package."/>
     <License Value="See the file LICENSE, included in this distribution, for details about the copyright."/>
-    <Version Minor="3" Release="2"/>
+    <Version Minor="3" Release="3"/>
     <Files Count="5">
       <Item1>
         <Filename Value="..\src\aws.inc"/>

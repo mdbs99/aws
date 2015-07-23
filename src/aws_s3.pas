@@ -44,7 +44,7 @@ type
   ['{0CDE7D8E-BA30-4FD4-8FC0-F8291131652E}']
     function Get(const AName: string; const SubResources: string): IS3Object;
     procedure Delete(const AName: string);
-    function Put(const AName, ContentType: string; Stream: TStream; const SubResources: string): IS3Object;
+    function Put(const AName, ContentType: string; Stream: IAWSStream; const SubResources: string): IS3Object;
     function Put(const AName, ContentType, AFileName, SubResources: string): IS3Object;
     function Put(const AName, SubResources: string): IS3Object;
     function Options(const AName: string): IS3Object;
@@ -78,7 +78,7 @@ type
     FName: string;
     FStream: IAWSStream;
   public
-    constructor Create(Bucket: IS3Bucket; const AName: string; Stream: TMemoryStream);
+    constructor Create(Bucket: IS3Bucket; const AName: string; Stream: IAWSStream);
     function Bucket: IS3Bucket;
     function Name: string;
     function Stream: IAWSStream;
@@ -92,7 +92,7 @@ type
     constructor Create(Client: IAWSClient; Bucket: IS3Bucket);
     function Get(const AName: string; const SubResources: string): IS3Object;
     procedure Delete(const AName: string);
-    function Put(const AName, ContentType: string; Stream: TStream; const SubResources: string): IS3Object;
+    function Put(const AName, ContentType: string; Stream: IAWSStream; const SubResources: string): IS3Object;
     function Put(const AName, ContentType, AFileName, SubResources: string): IS3Object;
     function Put(const AName, SubResources: string): IS3Object;
     function Options(const AName: string): IS3Object;
@@ -136,12 +136,12 @@ implementation
 { TS3Object }
 
 constructor TS3Object.Create(Bucket: IS3Bucket; const AName: string;
-  Stream: TMemoryStream);
+  Stream: IAWSStream);
 begin
   inherited Create;
   FBucket := Bucket;
   FName := AName;
-  FStream := TAWSStream.Create(Stream);
+  FStream := Stream;
 end;
 
 function TS3Object.Bucket: IS3Bucket;
@@ -195,7 +195,7 @@ begin
     raise ES3Error.CreateFmt('Delete error: %d', [Res.ResultCode]);
 end;
 
-function TS3Objects.Put(const AName, ContentType: string; Stream: TStream;
+function TS3Objects.Put(const AName, ContentType: string; Stream: IAWSStream;
   const SubResources: string): IS3Object;
 var
   Res: IAWSResponse;
@@ -218,7 +218,7 @@ var
 begin
   Buf := TFileStream.Create(AFileName, fmOpenRead);
   try
-    Result := Put(AName, ContentType, Buf, SubResources);
+    Result := Put(AName, ContentType, TAWSStream.Create(Buf), SubResources);
   finally
     Buf.Free;
   end;
@@ -232,7 +232,7 @@ begin
   try
     // hack Synapse to add Content-Length
     Buf.WriteBuffer('', 1);
-    Result := Put(AName, '', Buf, SubResources);
+    Result := Put(AName, '', TAWSStream.Create(Buf), SubResources);
   finally
     Buf.Free;
   end;

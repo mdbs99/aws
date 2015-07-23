@@ -23,6 +23,7 @@ uses
   synacode,
   synautil,
   //aws
+  aws_base,
   aws_http;
 
 const
@@ -48,7 +49,7 @@ type
     function ContentMD5: string;
     function CanonicalizedAmzHeaders: string;
     function CanonicalizedResource: string;
-    function Stream: TStream;
+    function Stream: IAWSStream;
     function ToString: string;
   end;
 
@@ -81,15 +82,15 @@ type
     FContentMD5: string;
     FCanonicalizedAmzHeaders: string;
     FCanonicalizedResource: string;
-    FStream: TStream;
+    FStream: IAWSStream;
   public
     constructor Create(const Method, AName, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string; Stream: TStream);
+      CanonicalizedAmzHeaders, CanonicalizedResource: string; Stream: IAWSStream);
     constructor Create(const Method, AName, Resource, SubResource, ContentType, ContentMD5,
       CanonicalizedAmzHeaders, CanonicalizedResource: string);
     constructor Create(const Method, AName, Resource, SubResource, CanonicalizedResource: string);
     constructor Create(const Method, AName, Resource, CanonicalizedResource: string);
-    constructor Create(const Method, AName, Resource, CanonicalizedResource: string; Stream: TStream);
+    constructor Create(const Method, AName, Resource, CanonicalizedResource: string; Stream: IAWSStream);
     constructor Create(const Method, AName, CanonicalizedResource: string);
     function Method: string;
     function Name: string;
@@ -99,7 +100,7 @@ type
     function ContentMD5: string;
     function CanonicalizedAmzHeaders: string;
     function CanonicalizedResource: string;
-    function Stream: TStream;
+    function Stream: IAWSStream;
     function ToString: string; override;
   end;
 
@@ -145,7 +146,7 @@ end;
 
 constructor TAWSRequest.Create(const Method, AName, Resource, SubResource,
   ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string; Stream: TStream);
+  CanonicalizedResource: string; Stream: IAWSStream);
 begin
   FMethod := Method;
   FName := AName;
@@ -180,7 +181,7 @@ begin
 end;
 
 constructor TAWSRequest.Create(const Method, AName, Resource,
-  CanonicalizedResource: string; Stream: TStream);
+  CanonicalizedResource: string; Stream: IAWSStream);
 begin
   Create(Method, AName, Resource, '', '', '', '', CanonicalizedResource, Stream);
 end;
@@ -230,7 +231,7 @@ begin
   Result := FCanonicalizedResource;
 end;
 
-function TAWSRequest.Stream: TStream;
+function TAWSRequest.Stream: IAWSStream;
 begin
   Result := FStream;
 end;

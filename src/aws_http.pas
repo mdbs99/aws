@@ -22,7 +22,9 @@ uses
   //synapse
   httpsend,
   synautil,
-  ssl_openssl;
+  ssl_openssl,
+  //aws
+  aws_base;
 
 type
   IHTTPResponse = interface(IInterface)
@@ -30,7 +32,7 @@ type
     function ResultCode: Integer;
     function ResultHeader: string;
     function ResultText: string;
-    function ResultStream: TMemoryStream;
+    function ResultStream: IAWSStream;
   end;
 
   IHTTPSender = interface(IInterface)
@@ -43,16 +45,16 @@ type
     FResultCode: Integer;
     FResultHeader: string;
     FResultText: string;
-    FStream: TMemoryStream;
+    FStream: IAWSStream;
   public
-    constructor Create(ResultCode: Integer; const ResultHeader, ResultText: string; Stream: TStream);
+    constructor Create(ResultCode: Integer; const ResultHeader, ResultText: string; Stream: IAWSStream);
     constructor Create(ResultCode: Integer; const ResultHeader, ResultText: string);
     constructor Create(Origin: IHTTPResponse);
     destructor Destroy; override;
     function ResultCode: Integer;
     function ResultHeader: string;
     function ResultText: string;
-    function ResultStream: TMemoryStream;
+    function ResultStream: IAWSStream;
   end;
 
   THTTPSender = class(TInterfacedObject, IHTTPSender)
@@ -62,9 +64,9 @@ type
     FHeader: string;
     FContentType: string;
     FURI: string;
-    FStream: TStream;
+    FStream: IAWSStream;
   public
-    constructor Create(const Method, Header, ContentType, URI: string; Stream: TStream);
+    constructor Create(const Method, Header, ContentType, URI: string; Stream: IAWSStream);
     destructor Destroy; override;
     function Send: IHTTPResponse;
   end;
@@ -74,13 +76,12 @@ implementation
 { THTTPResponse }
 
 constructor THTTPResponse.Create(ResultCode: Integer; const ResultHeader,
-  ResultText: string; Stream: TStream);
+  ResultText: string; Stream: IAWSStream);
 begin
   FResultCode := ResultCode;
   FResultHeader := ResultHeader;
   FResultText := ResultText;
-  FStream := TMemoryStream.Create;
-  FStream.LoadFromStream(Stream);
+  FStream := Stream;
 end;
 
 constructor THTTPResponse.Create(ResultCode: Integer; const ResultHeader,
@@ -96,7 +97,6 @@ end;
 
 destructor THTTPResponse.Destroy;
 begin
-  FStream.Free;
   inherited Destroy;
 end;
 
@@ -115,7 +115,7 @@ begin
   Result := FResultText;
 end;
 
-function THTTPResponse.ResultStream: TMemoryStream;
+function THTTPResponse.ResultStream: IAWSStream;
 begin
   Result := FStream;
 end;
@@ -123,7 +123,7 @@ end;
 { THTTPSender }
 
 constructor THTTPSender.Create(const Method, Header, ContentType, URI: string;
-  Stream: TStream);
+  Stream: IAWSStream);
 begin
   inherited Create;
   FSender := THTTPSend.Create;
@@ -146,14 +146,14 @@ begin
   FSender.Clear;
   FSender.Headers.Add(FHeader);
   FSender.MimeType := FContentType;
-  if Assigned(FStream) then
-    FSender.Document.LoadFromStream(FStream);
+  FStream.SaveToStream(FSender.Document);
   FSender.HTTPMethod(FMethod, FURI);
   Result := THTTPResponse.Create(
     FSender.ResultCode,
     FSender.Headers.Text,
     FSender.ResultString,
-    FSender.Document);
+    TAWSStream.Create(FSender.Document)
+  );
 end;
 
 end.
