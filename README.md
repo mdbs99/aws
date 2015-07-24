@@ -37,9 +37,9 @@ end.
 
 That's all.
 
-### Explanation step-by-step
+### Step-by-step
 - you create a Region object, that need a Client object;
-- so R.Buckets.Put(...) will creates a new Bucket on the server and the return is an instance of Bucket;
+- so Rg.Buckets.Put(...) will creates a new Bucket on the server and the return is an instance of Bucket;
 - the Bucket created have the method Objects, so Objects.Put(...) will put a new file on the server.
 
 That is the same:
