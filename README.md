@@ -47,7 +47,7 @@ begin
       TAWSCredentials.Create('YOUR_access_key', 'YOUR_secret_key', True)
     )
   );
-  Obj := Rg.Buckets.Get('mys3examplebucket', '/').Objects.Get('foo.txt', '/');
+  Obj := Rgn.Buckets.Get('mys3examplebucket', '/').Objects.Get('foo.txt', '/');
   Obj.Stream.SaveToFile('foo.txt');
 end.
 ```
@@ -55,7 +55,7 @@ end.
 You can use this syntax too, without an Obj variable:
 
 ``` pascal
-Rg.Buckets.Get('mys3examplebucket', '/')
+Rgn.Buckets.Get('mys3examplebucket', '/')
   .Objects.Get('foo.txt', '/')
   .Stream.SaveToFile('foo.txt');
 ```
@@ -63,14 +63,13 @@ Rg.Buckets.Get('mys3examplebucket', '/')
 To delete this file on server, use the code:
 
 ``` pascal
-begin
-  Rgn := TS3Region.Create(
-    TAWSClient.Create(
-      TAWSCredentials.Create('YOUR_access_key', 'YOUR_secret_key', True)
-    )
-  );
-  Rg.Buckets.Get('mys3examplebucket', '/').Objects.Delete('foo.txt');
-end.
+Rgn.Buckets.Get('mys3examplebucket', '/').Objects.Delete('foo.txt');
+```
+
+If you needs to know if the region is online, just use:
+``` pascal
+if Rgn.Online then
+  writeln('Server is online!');
 ```
 
 ## Dependencies 
