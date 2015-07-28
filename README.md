@@ -25,7 +25,7 @@ begin
       TAWSCredentials.Create('YOUR_access_key', 'YOUR_secret_key', True)
     )
   );
-  Rgn.Buckets.Put('mys3examplebucket', '/').Objects.Put('foo.txt', 'plain', 'foo.txt', '');
+  Rgn.Buckets.Put('mys3examplebucket', '/').Objects.Put('foo.txt', 'plain', './foo.txt', '');
 end.
 ```
 
@@ -48,7 +48,7 @@ begin
     )
   );
   Obj := Rgn.Buckets.Get('mys3examplebucket', '/').Objects.Get('foo.txt', '/');
-  Obj.Stream.SaveToFile('foo.txt');
+  Obj.Stream.SaveToFile('./foo.txt');
 end.
 ```
 
@@ -57,7 +57,7 @@ You can also use a fluent syntax, without an Obj variable:
 ``` pascal
 Rgn.Buckets.Get('mys3examplebucket', '/')
   .Objects.Get('foo.txt', '/')
-  .Stream.SaveToFile('foo.txt');
+  .Stream.SaveToFile('./foo.txt');
 ```
 
 To delete this file on server, use the code:
@@ -76,7 +76,7 @@ if Rgn.Online then
 
 There is only one dependency: [Synapse](http://synapse.ararat.cz/doku.php/download)
 
-Synapse is used as HTTP client.  You can customize or create a new client using another lib like lNet, fpHttp, whatever.
+Synapse is used as HTTP client.  You can customize or create a new client using another lib like lNet, fpHttpClient, whatever.
 
 ## Got questions?
 
