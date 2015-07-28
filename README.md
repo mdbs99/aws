@@ -1,4 +1,4 @@
-**AWS Lib** is minimalist, **object-oriented**, **interface-based** and **immutable** for Amazon Web Services (S3).
+**AWS Lib** is minimalist implementation, truly **object-oriented** and **interface-based** with **immutable** objects, for Amazon Web Services (S3).
 
 The code have some principles:
  1. all classes are sealed
@@ -52,7 +52,7 @@ begin
 end.
 ```
 
-You can use this syntax too, without an Obj variable:
+You can also use a fluent syntax, without an Obj variable:
 
 ``` pascal
 Rgn.Buckets.Get('mys3examplebucket', '/')
