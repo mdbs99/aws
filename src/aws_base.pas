@@ -27,7 +27,7 @@ type
     function Size: Int64;
   end;
 
-  TAWSStream = class(TInterfacedObject, IAWSStream)
+  TAWSStream = class sealed(TInterfacedObject, IAWSStream)
   private
     FStream: TMemoryStream;
   public
