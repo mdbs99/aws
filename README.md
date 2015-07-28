@@ -4,7 +4,8 @@ The code have some principles:
  1. all classes are sealed
  2. all methods return an interface or primitive type
  3. all public methods are implementations to methods of an interface
- 4. memory is released automatically 
+ 4. all instances are immutable
+ 5. memory is released automatically 
 
 ## A "Bigger" Example
 
@@ -17,14 +18,14 @@ uses
   aws_client,
   aws_s3;
 var
-  Rg: IS3Region;
+  Rgn: IS3Region;
 begin
-  Rg := TS3Region.Create(
+  Rgn := TS3Region.Create(
     TAWSClient.Create(
       TAWSCredentials.Create('YOUR_access_key', 'YOUR_secret_key', True)
     )
   );
-  Rg.Buckets.Put('mys3examplebucket', '/').Objects.Put('foo.txt', 'plain', 'foo.txt', '');
+  Rgn.Buckets.Put('mys3examplebucket', '/').Objects.Put('foo.txt', 'plain', 'foo.txt', '');
 end.
 ```
 
@@ -34,7 +35,43 @@ Second, using just one line, the code creates a new Bucket and put a new file on
 
 No need to release memory!
 
-You can get/put/delete Buckets and Objects using this API.
+To get this file that was sent, use the code:
+
+``` pascal
+var
+  Rgn: IS3Region;
+  Obj: IS3Object;
+begin
+  Rgn := TS3Region.Create(
+    TAWSClient.Create(
+      TAWSCredentials.Create('YOUR_access_key', 'YOUR_secret_key', True)
+    )
+  );
+  Obj := Rg.Buckets.Get('mys3examplebucket', '/').Objects.Get('foo.txt', '/');
+  Obj.Stream.SaveToFile('foo.txt');
+end.
+```
+
+You can use this syntax too, without an Obj variable:
+
+``` pascal
+Rg.Buckets.Get('mys3examplebucket', '/')
+  .Objects.Get('foo.txt', '/')
+  .Stream.SaveToFile('foo.txt');
+```
+
+To delete this file on server, use the code:
+
+``` pascal
+begin
+  Rgn := TS3Region.Create(
+    TAWSClient.Create(
+      TAWSCredentials.Create('YOUR_access_key', 'YOUR_secret_key', True)
+    )
+  );
+  Rg.Buckets.Get('mys3examplebucket', '/').Objects.Delete('foo.txt');
+end.
+```
 
 ## Dependencies 
 
