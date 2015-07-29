@@ -32,6 +32,7 @@ type
     FStream: TMemoryStream;
   public
     constructor Create(Stream: TStream);
+    constructor Create;
     destructor Destroy; override;
     procedure SaveToStream(Stream: TStream);
     procedure SaveToFile(const FileName: string);
@@ -47,6 +48,11 @@ begin
   FStream := TMemoryStream.Create;
   if Assigned(Stream) then
     FStream.LoadFromStream(Stream);
+end;
+
+constructor TAWSStream.Create;
+begin
+  Create(nil);
 end;
 
 destructor TAWSStream.Destroy;

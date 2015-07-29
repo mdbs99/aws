@@ -111,7 +111,7 @@ type
     function MakeURI(const AName, Query: string): string;
     function MakeAuthHeader(Request: IAWSRequest): string;
   public
-    constructor Create(const Credentials: IAWSCredentials);
+    constructor Create(Credentials: IAWSCredentials);
     function Send(Request: IAWSRequest): IAWSResponse;
   end;
 
@@ -156,7 +156,7 @@ begin
   FContentMD5 := ContentMD5;
   FCanonicalizedAmzHeaders := CanonicalizedAmzHeaders;
   FCanonicalizedResource := CanonicalizedResource;
-  FStream := Stream;
+  FStream := Stream
 end;
 
 constructor TAWSRequest.Create(const Method, AName, Resource, SubResource,
@@ -165,19 +165,19 @@ constructor TAWSRequest.Create(const Method, AName, Resource, SubResource,
 begin
   Create(
     Method, AName, Resource, SubResource, ContentType,
-    ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource, nil);
+    ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource, TAWSStream.Create);
 end;
 
 constructor TAWSRequest.Create(const Method, AName, Resource, SubResource,
   CanonicalizedResource: string);
 begin
-  Create(Method, AName, Resource, SubResource, '', '', '', CanonicalizedResource, nil);
+  Create(Method, AName, Resource, SubResource, '', '', '', CanonicalizedResource, TAWSStream.Create);
 end;
 
 constructor TAWSRequest.Create(const Method, AName, Resource,
   CanonicalizedResource: string);
 begin
-  Create(Method, AName, Resource, '', '', '', '', CanonicalizedResource, nil);
+  Create(Method, AName, Resource, '', '', '', '', CanonicalizedResource, TAWSStream.Create);
 end;
 
 constructor TAWSRequest.Create(const Method, AName, Resource,
@@ -188,7 +188,7 @@ end;
 
 constructor TAWSRequest.Create(const Method, AName, CanonicalizedResource: string);
 begin
-  Create(Method, AName, '', '', '', '', '', CanonicalizedResource, nil);
+  Create(Method, AName, '', '', '', '', '', CanonicalizedResource, TAWSStream.Create);
 end;
 
 function TAWSRequest.Method: string;
@@ -284,7 +284,7 @@ begin
           + FCredentials.GetAccessKeyId + ':' + EncodeBase64(HMAC_SHA1(H, FCredentials.GetSecretKey));
 end;
 
-constructor TAWSClient.Create(const Credentials: IAWSCredentials);
+constructor TAWSClient.Create(Credentials: IAWSCredentials);
 begin
   inherited Create;
   FCredentials := Credentials;
