@@ -63,14 +63,12 @@ implementation
 { TfrmMain }
 
 procedure TfrmMain.btnTestAccessClick(Sender: TObject);
-var
-  Cred: IAWSCredentials;
-  Client: IAWSClient;
 begin
-  Cred := TAWSCredentials.Create(edtAcessKeyId.Text, edtSecretKey.Text, True);
-  Client := TAWSClient.Create(Cred);
-  FRegion := nil;
-  FRegion := TS3Region.Create(Client);
+  FRegion := TS3Region.Create(
+    TAWSClient.Create(
+      TAWSCredentials.Create(edtAcessKeyId.Text, edtSecretKey.Text, True)
+    )
+  );
   if FRegion.Online then
   begin
     pnlServices.Visible := True;
