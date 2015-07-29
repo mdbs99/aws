@@ -171,14 +171,13 @@ begin
   FBucket := Bucket;
 end;
 
-function TS3Objects.Get(const ObjectName: string; const SubResources: string
-  ): IS3Object;
+function TS3Objects.Get(const ObjectName: string; const SubResources: string): IS3Object;
 var
   Res: IAWSResponse;
 begin
   Res := FClient.Send(
     TAWSRequest.Create(
-      'GET', FBucket.Name, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName + SubResources
+      'GET', FBucket.Name, AWS_S3_URL, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName + SubResources
     )
   );
   if 200 <> Res.Code then
@@ -192,7 +191,7 @@ var
 begin
   Res := FClient.Send(
     TAWSRequest.Create(
-      'DELETE', FBucket.Name, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName
+      'DELETE', FBucket.Name, AWS_S3_URL, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName
     )
   );
   if 204 <> Res.Code then
@@ -249,7 +248,7 @@ begin
   { TODO : Not working properly yet. }
   Res := FClient.Send(
     TAWSRequest.Create(
-      'OPTIONS', FBucket.Name, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName
+      'OPTIONS', FBucket.Name, AWS_S3_URL, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName
     )
   );
   if 200 <> Res.Code then
@@ -337,7 +336,7 @@ end;
 function TS3Buckets.All: IS3Response;
 begin
   Result := FClient.Send(
-    TAWSRequest.Create('GET', '',AWS_S3_URL, '', '', '', '', '', '/')
+    TAWSRequest.Create('GET', '', AWS_S3_URL, '', '', '', '', '', '/')
   );
 end;
 
