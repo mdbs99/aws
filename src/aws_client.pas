@@ -26,23 +26,21 @@ uses
   aws_base,
   aws_http;
 
-const
-  AWS_URI = 's3.amazonaws.com';
-
 type
   IAWSResponse = IHTTPResponse;
 
   IAWSCredentials = interface(IInterface)
   ['{AC6EA523-F2FF-4BD0-8C87-C27E9846FA40}']
-    function GetAccessKeyId: string;
-    function GetSecretKey: string;
+    function AccessKeyId: string;
+    function SecretKey: string;
     function UseSSL: Boolean;
   end;
 
   IAWSRequest = interface(IInterface)
   ['{12744C05-22B6-45BF-B47A-49813F6B64B6}']
     function Method: string;
-    function Name: string;
+    function SubDomain: string;
+    function Domain: string;
     function Resource: string;
     function SubResource: string;
     function ContentType: string;
@@ -67,15 +65,16 @@ type
     FSSL: Boolean;
   public
     constructor Create(const AccessKeyId, SecretKey: string; UseSSL: Boolean); reintroduce;
-    function GetAccessKeyId: string;
-    function GetSecretKey: string;
+    function AccessKeyId: string;
+    function SecretKey: string;
     function UseSSL: Boolean;
   end;
 
   TAWSRequest = class(TInterfacedObject, IAWSRequest)
   private
     FMethod: string;
-    FName: string;
+    FSubDomain: string;
+    FDomain: string;
     FResource: string;
     FSubResource: string;
     FContentType: string;
@@ -84,16 +83,17 @@ type
     FCanonicalizedResource: string;
     FStream: IAWSStream;
   public
-    constructor Create(const Method, AName, Resource, SubResource, ContentType, ContentMD5,
+    constructor Create(const Method, SubDomain, Domain, Resource, SubResource, ContentType, ContentMD5,
       CanonicalizedAmzHeaders, CanonicalizedResource: string; Stream: IAWSStream);
-    constructor Create(const Method, AName, Resource, SubResource, ContentType, ContentMD5,
+    constructor Create(const Method, SubDomain, Domain, Resource, SubResource, ContentType, ContentMD5,
       CanonicalizedAmzHeaders, CanonicalizedResource: string);
-    constructor Create(const Method, AName, Resource, SubResource, CanonicalizedResource: string);
-    constructor Create(const Method, AName, Resource, CanonicalizedResource: string);
-    constructor Create(const Method, AName, Resource, CanonicalizedResource: string; Stream: IAWSStream);
-    constructor Create(const Method, AName, CanonicalizedResource: string);
+    constructor Create(const Method, SubDomain, Domain, Resource, SubResource, CanonicalizedResource: string);
+    constructor Create(const Method, SubDomain, Domain, Resource, CanonicalizedResource: string);
+    constructor Create(const Method, SubDomain, Domain, Resource, CanonicalizedResource: string; Stream: IAWSStream);
+    constructor Create(const Method, SubDomain, Domain, CanonicalizedResource: string);
     function Method: string;
-    function Name: string;
+    function SubDomain: string;
+    function Domain: string;
     function Resource: string;
     function SubResource: string;
     function ContentType: string;
@@ -108,7 +108,7 @@ type
   private
     FCredentials: IAWSCredentials;
   protected
-    function MakeURI(const AName, Query: string): string;
+    function MakeURL(const SubDomain, Domain, Query: string): string;
     function MakeAuthHeader(Request: IAWSRequest): string;
   public
     constructor Create(Credentials: IAWSCredentials);
@@ -127,12 +127,12 @@ begin
   FSSL := UseSSL;
 end;
 
-function TAWSCredentials.GetAccessKeyId: string;
+function TAWSCredentials.AccessKeyId: string;
 begin
   Result := FAccessKeyId;
 end;
 
-function TAWSCredentials.GetSecretKey: string;
+function TAWSCredentials.SecretKey: string;
 begin
   Result := FSecretKey;
 end;
@@ -144,12 +144,13 @@ end;
 
 { TAWSRequest }
 
-constructor TAWSRequest.Create(const Method, AName, Resource, SubResource,
+constructor TAWSRequest.Create(const Method, SubDomain, Domain, Resource, SubResource,
   ContentType, ContentMD5, CanonicalizedAmzHeaders,
   CanonicalizedResource: string; Stream: IAWSStream);
 begin
   FMethod := Method;
-  FName := AName;
+  FSubDomain := SubDomain;
+  FDomain := Domain;
   FResource := Resource;
   FSubResource := SubResource;
   FContentType := ContentType;
@@ -159,36 +160,54 @@ begin
   FStream := Stream
 end;
 
-constructor TAWSRequest.Create(const Method, AName, Resource, SubResource,
+constructor TAWSRequest.Create(const Method, SubDomain, Domain, Resource, SubResource,
   ContentType, ContentMD5, CanonicalizedAmzHeaders,
   CanonicalizedResource: string);
 begin
   Create(
-    Method, AName, Resource, SubResource, ContentType,
-    ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource, TAWSStream.Create);
+    Method, SubDomain, Domain, Resource, SubResource, ContentType,
+    ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource,
+    TAWSStream.Create
+  );
 end;
 
-constructor TAWSRequest.Create(const Method, AName, Resource, SubResource,
+constructor TAWSRequest.Create(const Method, SubDomain, Domain, Resource, SubResource,
   CanonicalizedResource: string);
 begin
-  Create(Method, AName, Resource, SubResource, '', '', '', CanonicalizedResource, TAWSStream.Create);
+  Create(
+    Method, SubDomain, Domain, Resource, SubResource, '',
+    '', '', CanonicalizedResource,
+    TAWSStream.Create
+  );
 end;
 
-constructor TAWSRequest.Create(const Method, AName, Resource,
+constructor TAWSRequest.Create(const Method, SubDomain, Domain, Resource,
   CanonicalizedResource: string);
 begin
-  Create(Method, AName, Resource, '', '', '', '', CanonicalizedResource, TAWSStream.Create);
+  Create(
+    Method, SubDomain, Domain, Resource, '', '',
+    '', '', CanonicalizedResource,
+    TAWSStream.Create
+  );
 end;
 
-constructor TAWSRequest.Create(const Method, AName, Resource,
+constructor TAWSRequest.Create(const Method, SubDomain, Domain, Resource,
   CanonicalizedResource: string; Stream: IAWSStream);
 begin
-  Create(Method, AName, Resource, '', '', '', '', CanonicalizedResource, Stream);
+  Create(
+    Method, SubDomain, Domain, Resource, '', '',
+    '', '', CanonicalizedResource,
+    Stream
+  );
 end;
 
-constructor TAWSRequest.Create(const Method, AName, CanonicalizedResource: string);
+constructor TAWSRequest.Create(const Method, SubDomain, Domain, CanonicalizedResource: string);
 begin
-  Create(Method, AName, '', '', '', '', '', CanonicalizedResource, TAWSStream.Create);
+  Create(
+    Method, SubDomain, Domain, '', '', '',
+    '', '', CanonicalizedResource,
+    TAWSStream.Create
+  );
 end;
 
 function TAWSRequest.Method: string;
@@ -196,9 +215,14 @@ begin
   Result := FMethod;
 end;
 
-function TAWSRequest.Name: string;
+function TAWSRequest.SubDomain: string;
 begin
-  Result := FName;
+  Result := FSubDomain;
+end;
+
+function TAWSRequest.Domain: string;
+begin
+  Result := FDomain;
 end;
 
 function TAWSRequest.Resource: string;
@@ -255,16 +279,16 @@ end;
 
 { TAWSClient }
 
-function TAWSClient.MakeURI(const AName, Query: string): string;
+function TAWSClient.MakeURL(const SubDomain, Domain, Query: string): string;
 begin
   Result := '';
   if FCredentials.UseSSL then
     Result += 'https://'
   else
     Result += 'http://';
-  if AName <> '' then
-    Result += AName + '.';
-  Result += AWS_URI + Query;
+  if SubDomain <> '' then
+    Result += SubDomain + '.';
+  Result += Domain + Query;
 end;
 
 function TAWSClient.MakeAuthHeader(Request: IAWSRequest): string;
@@ -281,7 +305,8 @@ begin
      + Request.CanonicalizedResource;
   Result := 'Date: ' + DateFmt + #10
           + 'Authorization: AWS '
-          + FCredentials.GetAccessKeyId + ':' + EncodeBase64(HMAC_SHA1(H, FCredentials.GetSecretKey));
+          + FCredentials.AccessKeyId + ':'
+          + EncodeBase64(HMAC_SHA1(H, FCredentials.SecretKey));
 end;
 
 constructor TAWSClient.Create(Credentials: IAWSCredentials);
@@ -298,7 +323,7 @@ begin
     Request.Method,
     MakeAuthHeader(Request),
     Request.ContentType,
-    MakeURI(Request.Name, Request.Resource),
+    MakeURL(Request.SubDomain, Request.Domain, Request.Resource),
     Request.Stream
   );
   Result := Snd.Send;

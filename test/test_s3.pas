@@ -163,9 +163,9 @@ begin
   Rgn := TS3Region.Create(FClient);
   AssertTrue(Rgn.Buckets.Check('myawsbucket'));
   AssertEquals('HEAD', Client.Request.Method);
-  AssertEquals(200, Client.Response.ResultCode);
-  AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
-  AssertEquals('OK', Client.Response.ResultText);
+  AssertEquals(200, Client.Response.Code);
+  AssertEquals('HTTP/1.1 200 OK', Client.Response.Header);
+  AssertEquals('OK', Client.Response.Text);
 end;
 
 procedure TS3BucketsTest.TestGet;
@@ -177,9 +177,9 @@ begin
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   AssertEquals('myawsbucket', Bkt.Name);
   AssertEquals('GET', Client.Request.Method);
-  AssertEquals(200, Client.Response.ResultCode);
-  AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
-  AssertEquals('OK', Client.Response.ResultText);
+  AssertEquals(200, Client.Response.Code);
+  AssertEquals('HTTP/1.1 200 OK', Client.Response.Header);
+  AssertEquals('OK', Client.Response.Text);
 end;
 
 procedure TS3BucketsTest.TestDelete;
@@ -189,9 +189,9 @@ begin
   Rgn := TS3Region.Create(FClient);
   Rgn.Buckets.Delete('quotes', '/');
   AssertEquals('DELETE', Client.Request.Method);
-  AssertEquals(204, Client.Response.ResultCode);
-  AssertEquals('HTTP/1.1 204 No Content', Client.Response.ResultHeader);
-  AssertEquals('No Content', Client.Response.ResultText);
+  AssertEquals(204, Client.Response.Code);
+  AssertEquals('HTTP/1.1 204 No Content', Client.Response.Header);
+  AssertEquals('No Content', Client.Response.Text);
 end;
 
 procedure TS3BucketsTest.TestPut;
@@ -201,9 +201,9 @@ begin
   Rgn := TS3Region.Create(FClient);
   Rgn.Buckets.Put('colorpictures', '/');
   AssertEquals('PUT', Client.Request.Method);
-  AssertEquals(200, Client.Response.ResultCode);
-  AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
-  AssertEquals('OK', Client.Response.ResultText);
+  AssertEquals(200, Client.Response.Code);
+  AssertEquals('HTTP/1.1 200 OK', Client.Response.Header);
+  AssertEquals('OK', Client.Response.Text);
 end;
 
 procedure TS3BucketsTest.TestImmutable;
@@ -227,9 +227,9 @@ begin
   Rgn := TS3Region.Create(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   Obj := Bkt.Objects.Get('foo.txt', '');
-  AssertEquals(200, Client.Response.ResultCode);
-  AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
-  AssertEquals('OK', Client.Response.ResultText);
+  AssertEquals(200, Client.Response.Code);
+  AssertEquals('HTTP/1.1 200 OK', Client.Response.Header);
+  AssertEquals('OK', Client.Response.Text);
   AssertTrue('Stream size is zero', Obj.Stream.Size > 0);
 end;
 
@@ -241,9 +241,9 @@ begin
   Rgn := TS3Region.Create(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   Bkt.Objects.Delete('myobj');
-  AssertEquals(204, Client.Response.ResultCode);
-  AssertEquals('HTTP/1.1 204 No Content', Client.Response.ResultHeader);
-  AssertEquals('No Content', Client.Response.ResultText);
+  AssertEquals(204, Client.Response.Code);
+  AssertEquals('HTTP/1.1 204 No Content', Client.Response.Header);
+  AssertEquals('No Content', Client.Response.Text);
 end;
 
 procedure TS3ObjectsTest.TestPut;
@@ -254,9 +254,9 @@ begin
   Rgn := TS3Region.Create(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   Bkt.Objects.Put('myobj', 'text/plain', nil, '');
-  AssertEquals(200, Client.Response.ResultCode);
-  AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
-  AssertEquals('OK', Client.Response.ResultText);
+  AssertEquals(200, Client.Response.Code);
+  AssertEquals('HTTP/1.1 200 OK', Client.Response.Header);
+  AssertEquals('OK', Client.Response.Text);
 end;
 
 procedure TS3ObjectsTest.TestOptions;
@@ -267,9 +267,9 @@ begin
   Rgn := TS3Region.Create(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   Bkt.Objects.Options('myobj');
-  AssertEquals(200, Client.Response.ResultCode);
-  AssertEquals('HTTP/1.1 200 OK', Client.Response.ResultHeader);
-  AssertEquals('OK', Client.Response.ResultText);
+  AssertEquals(200, Client.Response.Code);
+  AssertEquals('HTTP/1.1 200 OK', Client.Response.Header);
+  AssertEquals('OK', Client.Response.Text);
 end;
 
 procedure TS3ObjectsTest.TestImmutable;

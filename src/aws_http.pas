@@ -29,10 +29,10 @@ uses
 type
   IHTTPResponse = interface(IInterface)
   ['{6E7E8524-88B5-48B1-95FF-30D0DF40D8F7}']
-    function ResultCode: Integer;
-    function ResultHeader: string;
-    function ResultText: string;
-    function ResultStream: IAWSStream;
+    function Code: Integer;
+    function Header: string;
+    function Text: string;
+    function Stream: IAWSStream;
   end;
 
   IHTTPSender = interface(IInterface)
@@ -42,19 +42,19 @@ type
 
   THTTPResponse = class(TInterfacedObject, IHTTPResponse)
   private
-    FResultCode: Integer;
-    FResultHeader: string;
-    FResultText: string;
+    FCode: Integer;
+    FHeader: string;
+    FText: string;
     FStream: IAWSStream;
   public
-    constructor Create(ResultCode: Integer; const ResultHeader, ResultText: string; Stream: IAWSStream);
-    constructor Create(ResultCode: Integer; const ResultHeader, ResultText: string);
+    constructor Create(Code: Integer; const Header, Text: string; Stream: IAWSStream);
+    constructor Create(Code: Integer; const Header, Text: string);
     constructor Create(Origin: IHTTPResponse);
     destructor Destroy; override;
-    function ResultCode: Integer;
-    function ResultHeader: string;
-    function ResultText: string;
-    function ResultStream: IAWSStream;
+    function Code: Integer;
+    function Header: string;
+    function Text: string;
+    function Stream: IAWSStream;
   end;
 
   THTTPSender = class(TInterfacedObject, IHTTPSender)
@@ -63,10 +63,10 @@ type
     FMethod: string;
     FHeader: string;
     FContentType: string;
-    FURI: string;
+    FURL: string;
     FStream: IAWSStream;
   public
-    constructor Create(const Method, Header, ContentType, URI: string; Stream: IAWSStream);
+    constructor Create(const Method, Header, ContentType, URL: string; Stream: IAWSStream);
     destructor Destroy; override;
     function Send: IHTTPResponse;
   end;
@@ -75,24 +75,23 @@ implementation
 
 { THTTPResponse }
 
-constructor THTTPResponse.Create(ResultCode: Integer; const ResultHeader,
-  ResultText: string; Stream: IAWSStream);
+constructor THTTPResponse.Create(Code: Integer; const Header, Text: string;
+  Stream: IAWSStream);
 begin
-  FResultCode := ResultCode;
-  FResultHeader := ResultHeader;
-  FResultText := ResultText;
+  FCode := Code;
+  FHeader := Header;
+  FText := Text;
   FStream := Stream;
 end;
 
-constructor THTTPResponse.Create(ResultCode: Integer; const ResultHeader,
-  ResultText: string);
+constructor THTTPResponse.Create(Code: Integer; const Header, Text: string);
 begin
-  Create(ResultCode, ResultHeader, ResultText, nil);
+  Create(Code, Header, Text, nil);
 end;
 
 constructor THTTPResponse.Create(Origin: IHTTPResponse);
 begin
-  Create(Origin.ResultCode, Origin.ResultHeader, Origin.ResultText, Origin.ResultStream);
+  Create(Origin.Code, Origin.Header, Origin.Text, Origin.Stream);
 end;
 
 destructor THTTPResponse.Destroy;
@@ -100,29 +99,29 @@ begin
   inherited Destroy;
 end;
 
-function THTTPResponse.ResultCode: Integer;
+function THTTPResponse.Code: Integer;
 begin
-  Result := FResultCode;
+  Result := FCode;
 end;
 
-function THTTPResponse.ResultHeader: string;
+function THTTPResponse.Header: string;
 begin
-  Result := FResultHeader;
+  Result := FHeader;
 end;
 
-function THTTPResponse.ResultText: string;
+function THTTPResponse.Text: string;
 begin
-  Result := FResultText;
+  Result := FText;
 end;
 
-function THTTPResponse.ResultStream: IAWSStream;
+function THTTPResponse.Stream: IAWSStream;
 begin
   Result := FStream;
 end;
 
 { THTTPSender }
 
-constructor THTTPSender.Create(const Method, Header, ContentType, URI: string;
+constructor THTTPSender.Create(const Method, Header, ContentType, URL: string;
   Stream: IAWSStream);
 begin
   inherited Create;
@@ -131,7 +130,7 @@ begin
   FMethod := Method;
   FHeader := Header;
   FContentType := ContentType;
-  FURI := URI;
+  FURL := URL;
   FStream := Stream;
 end;
 
@@ -147,7 +146,7 @@ begin
   FSender.Headers.Add(FHeader);
   FSender.MimeType := FContentType;
   FStream.SaveToStream(FSender.Document);
-  FSender.HTTPMethod(FMethod, FURI);
+  FSender.HTTPMethod(FMethod, FURL);
   Result := THTTPResponse.Create(
     FSender.ResultCode,
     FSender.Headers.Text,
