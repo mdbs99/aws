@@ -23,11 +23,13 @@ uses
   synacode,
   synautil,
   //aws
-  aws_base,
   aws_http;
 
 type
+  IAWSRequest = IHTTPRequest;
   IAWSResponse = IHTTPResponse;
+  TAWSRequest = THTTPRequest;
+  TAWSResponse = THTTPResponse;
 
   IAWSCredentials = interface(IInterface)
   ['{AC6EA523-F2FF-4BD0-8C87-C27E9846FA40}']
@@ -36,29 +38,12 @@ type
     function UseSSL: Boolean;
   end;
 
-  IAWSRequest = interface(IInterface)
-  ['{12744C05-22B6-45BF-B47A-49813F6B64B6}']
-    function Method: string;
-    function SubDomain: string;
-    function Domain: string;
-    function Resource: string;
-    function SubResource: string;
-    function ContentType: string;
-    function ContentMD5: string;
-    function CanonicalizedAmzHeaders: string;
-    function CanonicalizedResource: string;
-    function Stream: IAWSStream;
-    function ToString: string;
-  end;
-
   IAWSClient = interface(IInterface)
   ['{9CE71A17-9ADC-4FC1-96ED-8E9C704A988C}']
     function Send(Request: IAWSRequest): IAWSResponse;
   end;
 
-  TAWSResponse = THTTPResponse;
-
-  TAWSCredentials = class(TInterfacedObject, IAWSCredentials)
+  TAWSCredentials = class sealed(TInterfacedObject, IAWSCredentials)
   private
     FAccessKeyId: string;
     FSecretKey: string;
@@ -68,40 +53,6 @@ type
     function AccessKeyId: string;
     function SecretKey: string;
     function UseSSL: Boolean;
-  end;
-
-  TAWSRequest = class(TInterfacedObject, IAWSRequest)
-  private
-    FMethod: string;
-    FSubDomain: string;
-    FDomain: string;
-    FResource: string;
-    FSubResource: string;
-    FContentType: string;
-    FContentMD5: string;
-    FCanonicalizedAmzHeaders: string;
-    FCanonicalizedResource: string;
-    FStream: IAWSStream;
-  public
-    constructor Create(const Method, SubDomain, Domain, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string; Stream: IAWSStream);
-    constructor Create(const Method, SubDomain, Domain, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string);
-    constructor Create(const Method, SubDomain, Domain, Resource, SubResource, CanonicalizedResource: string);
-    constructor Create(const Method, SubDomain, Domain, Resource, CanonicalizedResource: string);
-    constructor Create(const Method, SubDomain, Domain, Resource, CanonicalizedResource: string; Stream: IAWSStream);
-    constructor Create(const Method, SubDomain, Domain, CanonicalizedResource: string);
-    function Method: string;
-    function SubDomain: string;
-    function Domain: string;
-    function Resource: string;
-    function SubResource: string;
-    function ContentType: string;
-    function ContentMD5: string;
-    function CanonicalizedAmzHeaders: string;
-    function CanonicalizedResource: string;
-    function Stream: IAWSStream;
-    function ToString: string; override;
   end;
 
   TAWSClient = class sealed(TInterfacedObject, IAWSClient)
@@ -140,141 +91,6 @@ end;
 function TAWSCredentials.UseSSL: Boolean;
 begin
   Result := FSSL;
-end;
-
-{ TAWSRequest }
-
-constructor TAWSRequest.Create(const Method, SubDomain, Domain, Resource, SubResource,
-  ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string; Stream: IAWSStream);
-begin
-  FMethod := Method;
-  FSubDomain := SubDomain;
-  FDomain := Domain;
-  FResource := Resource;
-  FSubResource := SubResource;
-  FContentType := ContentType;
-  FContentMD5 := ContentMD5;
-  FCanonicalizedAmzHeaders := CanonicalizedAmzHeaders;
-  FCanonicalizedResource := CanonicalizedResource;
-  FStream := Stream
-end;
-
-constructor TAWSRequest.Create(const Method, SubDomain, Domain, Resource, SubResource,
-  ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string);
-begin
-  Create(
-    Method, SubDomain, Domain, Resource, SubResource, ContentType,
-    ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource,
-    TAWSStream.Create
-  );
-end;
-
-constructor TAWSRequest.Create(const Method, SubDomain, Domain, Resource, SubResource,
-  CanonicalizedResource: string);
-begin
-  Create(
-    Method, SubDomain, Domain, Resource, SubResource, '',
-    '', '', CanonicalizedResource,
-    TAWSStream.Create
-  );
-end;
-
-constructor TAWSRequest.Create(const Method, SubDomain, Domain, Resource,
-  CanonicalizedResource: string);
-begin
-  Create(
-    Method, SubDomain, Domain, Resource, '', '',
-    '', '', CanonicalizedResource,
-    TAWSStream.Create
-  );
-end;
-
-constructor TAWSRequest.Create(const Method, SubDomain, Domain, Resource,
-  CanonicalizedResource: string; Stream: IAWSStream);
-begin
-  Create(
-    Method, SubDomain, Domain, Resource, '', '',
-    '', '', CanonicalizedResource,
-    Stream
-  );
-end;
-
-constructor TAWSRequest.Create(const Method, SubDomain, Domain, CanonicalizedResource: string);
-begin
-  Create(
-    Method, SubDomain, Domain, '', '', '',
-    '', '', CanonicalizedResource,
-    TAWSStream.Create
-  );
-end;
-
-function TAWSRequest.Method: string;
-begin
-  Result := FMethod;
-end;
-
-function TAWSRequest.SubDomain: string;
-begin
-  Result := FSubDomain;
-end;
-
-function TAWSRequest.Domain: string;
-begin
-  Result := FDomain;
-end;
-
-function TAWSRequest.Resource: string;
-begin
-  Result := FResource;
-end;
-
-function TAWSRequest.SubResource: string;
-begin
-  Result := FSubResource;
-end;
-
-function TAWSRequest.ContentType: string;
-begin
-  Result := FContentType;
-end;
-
-function TAWSRequest.ContentMD5: string;
-begin
-  Result := FContentMD5;
-end;
-
-function TAWSRequest.CanonicalizedAmzHeaders: string;
-begin
-  Result := FCanonicalizedAmzHeaders;
-end;
-
-function TAWSRequest.CanonicalizedResource: string;
-begin
-  Result := FCanonicalizedResource;
-end;
-
-function TAWSRequest.Stream: IAWSStream;
-begin
-  Result := FStream;
-end;
-
-function TAWSRequest.ToString: string;
-begin
-  with TStringList.Create do
-  try
-    Add('Method=' + FMethod);
-    Add('Resource=' + FResource);
-    Add('SubResource=' + FSubResource);
-    Add('ContentType=' + FContentType);
-    Add('ContentMD5=' + FContentMD5);
-    Add('CanonicalizedAmzHeaders=' + FCanonicalizedAmzHeaders);
-    Add('CanonicalizedResource=' + FCanonicalizedResource);
-    Result := Text;
-  finally
-    Free;
-  end;
 end;
 
 { TAWSClient }

@@ -31,8 +31,6 @@ const
 type
   ES3Error = class(Exception);
 
-  IS3Response = IAWSResponse;
-
   IS3Region = interface;
   IS3Bucket = interface;
 
@@ -66,7 +64,7 @@ type
     procedure Delete(const BucketName, SubResources: string);
     function Put(const BucketName, SubResources: string): IS3Bucket;
     { TODO : Return a Bucket list }
-    function All: IS3Response;
+    function All: IAWSResponse;
   end;
 
   IS3Region = interface(IInterface)
@@ -122,7 +120,7 @@ type
     function Get(const BucketName, SubResources: string): IS3Bucket;
     procedure Delete(const BucketName, SubResources: string);
     function Put(const BucketName, SubResources: string): IS3Bucket;
-    function All: IS3Response;
+    function All: IAWSResponse;
   end;
 
   TS3Region = class sealed(TInterfacedObject, IS3Region)
@@ -333,7 +331,7 @@ begin
   Result := TS3Bucket.Create(FClient, BucketName);
 end;
 
-function TS3Buckets.All: IS3Response;
+function TS3Buckets.All: IAWSResponse;
 begin
   Result := FClient.Send(
     TAWSRequest.Create('GET', '', AWS_S3_URL, '', '', '', '', '', '/')
