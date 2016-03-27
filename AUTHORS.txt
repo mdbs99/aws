@@ -12,3 +12,4 @@ Marcos Douglas B. dos Santos <mdbs99 at delfire.net>
 Contributors
 -----------------------------
 José Benedito (jbsolucoes)
+André Medeiros
