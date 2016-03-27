@@ -4,7 +4,7 @@ for Amazon Web Services.
 The code have some principles:
  1. all classes are sealed
  2. all methods return an interface or primitive type
- 3. all public methods are implementations to methods of an interface
+ 3. all public methods are implementations of interface methods
  4. all instances are immutable
  5. memory is released automatically 
 
