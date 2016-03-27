@@ -131,6 +131,13 @@ begin
           + 'Authorization: AWS '
           + FCredentials.AccessKeyId + ':'
           + EncodeBase64(HMAC_SHA1(H, FCredentials.SecretKey));
+
+  if Request.ContentMD5 = 'AWS3' then
+    Result := 'Date: ' + DateFmt + #10
+          + 'Host: ' + Request.Domain + #10
+          + 'X-Amzn-Authorization: '
+          + 'AWS3-HTTPS AWSAccessKeyId=' + FCredentials.AccessKeyId + ','
+          + 'Algorithm=HMACSHA1,Signature='+EncodeBase64(HMAC_SHA1(DateFmt, FCredentials.SecretKey));
 end;
 
 constructor TAWSClient.Create(Credentials: IAWSCredentials);
