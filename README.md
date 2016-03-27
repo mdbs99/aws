@@ -1,4 +1,5 @@
-**AWS Lib** is minimalist implementation, truly **object-oriented** and **interface-based** with **immutable** objects, for Amazon Web Services (S3).
+**AWS Lib** is minimalist implementation, truly **object-oriented** and **interface-based** with **immutable** objects, 
+for Amazon Web Services.
 
 The code have some principles:
  1. all classes are sealed
@@ -7,7 +8,7 @@ The code have some principles:
  4. all instances are immutable
  5. memory is released automatically 
 
-## A "Bigger" Example using Amazon S3
+## A "Bigger" Example using **Amazon S3**
 
 Bellow you see a complete example to create a new Bucket and send a file on it.
 
