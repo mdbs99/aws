@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013-2015 Marcos Douglas - mdbs99
+    Copyright (C) 2013-2016 Marcos Douglas - mdbs99
 
     See the file LICENSE.txt, included in this distribution,
     for details about the copyright.
@@ -50,6 +50,7 @@ type
     FSSL: Boolean;
   public
     constructor Create(const AccessKeyId, SecretKey: string; UseSSL: Boolean); reintroduce;
+    class function New(const AccessKeyId, SecretKey: string; UseSSL: Boolean): IAWSCredentials;
     function AccessKeyId: string;
     function SecretKey: string;
     function UseSSL: Boolean;
@@ -63,6 +64,7 @@ type
     function MakeAuthHeader(Request: IAWSRequest): string;
   public
     constructor Create(Credentials: IAWSCredentials);
+    class function New(Credentials: IAWSCredentials): IAWSClient;
     function Send(Request: IAWSRequest): IAWSResponse;
   end;
 
@@ -76,6 +78,12 @@ begin
   FAccessKeyId := AccessKeyId;
   FSecretKey := SecretKey;
   FSSL := UseSSL;
+end;
+
+class function TAWSCredentials.New(const AccessKeyId, SecretKey: string;
+  UseSSL: Boolean): IAWSCredentials;
+begin
+  Result := Create(AccessKeyId, SecretKey, UseSSL);
 end;
 
 function TAWSCredentials.AccessKeyId: string;
@@ -131,18 +139,21 @@ begin
   FCredentials := Credentials;
 end;
 
-function TAWSClient.Send(Request: IAWSRequest): IAWSResponse;
-var
-  Snd: IHTTPSender;
+class function TAWSClient.New(Credentials: IAWSCredentials): IAWSClient;
 begin
-  Snd := THTTPSender.Create(
+  Result := Create(Credentials);
+end;
+
+function TAWSClient.Send(Request: IAWSRequest): IAWSResponse;
+begin
+  Result := THTTPSender.New(
     Request.Method,
     MakeAuthHeader(Request),
     Request.ContentType,
     MakeURL(Request.SubDomain, Request.Domain, Request.Resource),
     Request.Stream
-  );
-  Result := Snd.Send;
+  )
+  .Send;
 end;
 
 end.

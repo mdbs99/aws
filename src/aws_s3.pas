@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013-2015 Marcos Douglas - mdbs99
+    Copyright (C) 2013-2016 Marcos Douglas - mdbs99
 
     See the file LICENSE.txt, included in this distribution,
     for details about the copyright.
@@ -80,6 +80,7 @@ type
     FStream: IAWSStream;
   public
     constructor Create(Bucket: IS3Bucket; const AName: string; Stream: IAWSStream);
+    class function New(Bucket: IS3Bucket; const AName: string; Stream: IAWSStream): IS3Object;
     function Bucket: IS3Bucket;
     function Name: string;
     function Stream: IAWSStream;
@@ -91,6 +92,7 @@ type
     FBucket: IS3Bucket;
   public
     constructor Create(Client: IAWSClient; Bucket: IS3Bucket);
+    class function New(Client: IAWSClient; Bucket: IS3Bucket): IS3Objects;
     function Get(const ObjectName: string; const SubResources: string): IS3Object;
     procedure Delete(const ObjectName: string);
     function Put(const ObjectName, ContentType: string; Stream: IAWSStream; const SubResources: string): IS3Object;
@@ -107,6 +109,7 @@ type
     FName: string;
   public
     constructor Create(Client: IAWSClient; const BucketName: string);
+    class function New(Client: IAWSClient; const BucketName: string): IS3Bucket;
     function Name: string;
     function Objects: IS3Objects;
   end;
@@ -116,6 +119,7 @@ type
     FClient: IAWSClient;
   public
     constructor Create(Client: IAWSClient);
+    class function New(Client: IAWSClient): IS3Buckets;
     function Check(const BucketName: string): Boolean;
     function Get(const BucketName, SubResources: string): IS3Bucket;
     procedure Delete(const BucketName, SubResources: string);
@@ -128,6 +132,7 @@ type
     FClient: IAWSClient;
   public
     constructor Create(Client: IAWSClient);
+    class function New(Client: IAWSClient): IS3Region;
     function Online: Boolean;
     function Buckets: IS3Buckets;
   end;
@@ -143,6 +148,12 @@ begin
   FBucket := Bucket;
   FName := AName;
   FStream := Stream;
+end;
+
+class function TS3Object.New(Bucket: IS3Bucket; const AName: string;
+  Stream: IAWSStream): IS3Object;
+begin
+  Result := Create(Bucket, AName, Stream);
 end;
 
 function TS3Object.Bucket: IS3Bucket;
@@ -169,18 +180,23 @@ begin
   FBucket := Bucket;
 end;
 
+class function TS3Objects.New(Client: IAWSClient; Bucket: IS3Bucket): IS3Objects;
+begin
+  Result := Create(Client, Bucket);
+end;
+
 function TS3Objects.Get(const ObjectName: string; const SubResources: string): IS3Object;
 var
   Res: IAWSResponse;
 begin
   Res := FClient.Send(
-    TAWSRequest.Create(
+    TAWSRequest.New(
       'GET', FBucket.Name, AWS_S3_URL, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName + SubResources
     )
   );
   if 200 <> Res.Code then
     raise ES3Error.CreateFmt('Get error: %d', [Res.Code]);
-  Result := TS3Object.Create(FBucket, ObjectName, Res.Stream);
+  Result := TS3Object.New(FBucket, ObjectName, Res.Stream);
 end;
 
 procedure TS3Objects.Delete(const ObjectName: string);
@@ -188,7 +204,7 @@ var
   Res: IAWSResponse;
 begin
   Res := FClient.Send(
-    TAWSRequest.Create(
+    TAWSRequest.New(
       'DELETE', FBucket.Name, AWS_S3_URL, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName
     )
   );
@@ -245,7 +261,7 @@ var
 begin
   { TODO : Not working properly yet. }
   Res := FClient.Send(
-    TAWSRequest.Create(
+    TAWSRequest.New(
       'OPTIONS', FBucket.Name, AWS_S3_URL, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName
     )
   );
@@ -261,6 +277,11 @@ begin
   inherited Create;
   FClient := Client;
   FName := BucketName;
+end;
+
+class function TS3Bucket.New(Client: IAWSClient; const BucketName: string): IS3Bucket;
+begin
+  Result := Create(Client, BucketName);
 end;
 
 function TS3Bucket.Name: string;
@@ -281,10 +302,15 @@ begin
   FClient := Client;
 end;
 
+class function TS3Buckets.New(Client: IAWSClient): IS3Buckets;
+begin
+  Result := Create(Client);
+end;
+
 function TS3Buckets.Check(const BucketName: string): Boolean;
 begin
   Result := FClient.Send(
-    TAWSRequest.Create(
+    TAWSRequest.New(
       'HEAD', BucketName, AWS_S3_URL, '', '', '', '', '', '/' + BucketName + '/'
     )
   ).Code = 200;
@@ -295,7 +321,7 @@ var
   Res: IAWSResponse;
 begin
   Res := FClient.Send(
-    TAWSRequest.Create(
+    TAWSRequest.New(
       'GET', BucketName, AWS_S3_URL, '', SubResources, '', '', '', '/' + BucketName + '/' + SubResources
     )
   );
@@ -309,7 +335,7 @@ var
   Res: IAWSResponse;
 begin
   Res := FClient.Send(
-    TAWSRequest.Create(
+    TAWSRequest.New(
       'DELETE', BucketName, AWS_S3_URL, '', SubResources, '', '', '', '/' + BucketName + SubResources
     )
   );
@@ -322,7 +348,7 @@ var
   Res: IAWSResponse;
 begin
   Res := FClient.Send(
-    TAWSRequest.Create(
+    TAWSRequest.New(
       'PUT', BucketName, AWS_S3_URL, '', SubResources, '', '', '', '/' + BucketName + SubResources
     )
   );
@@ -334,7 +360,7 @@ end;
 function TS3Buckets.All: IAWSResponse;
 begin
   Result := FClient.Send(
-    TAWSRequest.Create('GET', '', AWS_S3_URL, '', '', '', '', '', '/')
+    TAWSRequest.New('GET', '', AWS_S3_URL, '', '', '', '', '', '/')
   );
 end;
 
@@ -346,10 +372,15 @@ begin
   FClient := Client;
 end;
 
+class function TS3Region.New(Client: IAWSClient): IS3Region;
+begin
+  Result := Create(Client);
+end;
+
 function TS3Region.Online: Boolean;
 begin
   Result := FClient.Send(
-    TAWSRequest.Create(
+    TAWSRequest.New(
       'GET', '', AWS_S3_URL, '', '', '', '', '', '/'
     )
   ).Code = 200;

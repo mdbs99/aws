@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013-2015 Marcos Douglas - mdbs99
+    Copyright (C) 2013-2016 Marcos Douglas - mdbs99
 
     See the files COPYING.GH, included in this
     distribution, for details about the copyright.
@@ -100,8 +100,8 @@ begin
   end;
   Stream := TStringStream.Create(Header + #13 + Text);
   try
-    FResponse := TAWSResponse.Create(
-      Code, Header, Text, TAWSStream.Create(Stream)
+    FResponse := TAWSResponse.New(
+      Code, Header, Text, TAWSStream.New(Stream)
     );
     Result := FResponse;
   finally
@@ -124,7 +124,7 @@ end;
 procedure TS3Test.SetUp;
 begin
   inherited SetUp;
-  FCredentials := TAWSCredentials.Create('dummy_key', 'dummy_secret', False);
+  FCredentials := TAWSCredentials.New('dummy_key', 'dummy_secret', False);
   FClient := TAWSFakeClient.Create;
 end;
 
@@ -136,11 +136,8 @@ end;
 { TS3RegionTest }
 
 procedure TS3RegionTest.TestIsOnline;
-var
-  Rgn: IS3Region;
 begin
-  Rgn := TS3Region.Create(FClient);
-  AssertTrue('Service denied', Rgn.Online);
+  AssertTrue('Service denied', TS3Region.New(FClient).Online);
   AssertEquals('GET', Client.Request.Method);
   AssertEquals('/', Client.Request.CanonicalizedResource);
 end;
@@ -149,7 +146,7 @@ procedure TS3RegionTest.TestImmutableBuckets;
 var
   Rgn: IS3Region;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   AssertNotNull('Buckets not alive', Rgn.Buckets);
   AssertNotSame(Rgn.Buckets, Rgn.Buckets);
 end;
@@ -160,7 +157,7 @@ procedure TS3BucketsTest.TestCheck;
 var
   Rgn: IS3Region;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   AssertTrue(Rgn.Buckets.Check('myawsbucket'));
   AssertEquals('HEAD', Client.Request.Method);
   AssertEquals(200, Client.Response.Code);
@@ -173,7 +170,7 @@ var
   Rgn: IS3Region;
   Bkt: IS3Bucket;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   AssertEquals('myawsbucket', Bkt.Name);
   AssertEquals('GET', Client.Request.Method);
@@ -186,7 +183,7 @@ procedure TS3BucketsTest.TestDelete;
 var
   Rgn: IS3Region;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   Rgn.Buckets.Delete('quotes', '/');
   AssertEquals('DELETE', Client.Request.Method);
   AssertEquals(204, Client.Response.Code);
@@ -198,7 +195,7 @@ procedure TS3BucketsTest.TestPut;
 var
   Rgn: IS3Region;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   Rgn.Buckets.Put('colorpictures', '/');
   AssertEquals('PUT', Client.Request.Method);
   AssertEquals(200, Client.Response.Code);
@@ -211,7 +208,7 @@ var
   Rgn: IS3Region;
   Bkt: IS3Bucket;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   AssertNotSame(Bkt.Objects, Bkt.Objects);
 end;
@@ -224,7 +221,7 @@ var
   Bkt: IS3Bucket;
   Obj: IS3Object;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   Obj := Bkt.Objects.Get('foo.txt', '');
   AssertEquals(200, Client.Response.Code);
@@ -238,7 +235,7 @@ var
   Rgn: IS3Region;
   Bkt: IS3Bucket;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   Bkt.Objects.Delete('myobj');
   AssertEquals(204, Client.Response.Code);
@@ -251,7 +248,7 @@ var
   Rgn: IS3Region;
   Bkt: IS3Bucket;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   Bkt.Objects.Put('myobj', 'text/plain', nil, '');
   AssertEquals(200, Client.Response.Code);
@@ -264,7 +261,7 @@ var
   Rgn: IS3Region;
   Bkt: IS3Bucket;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   Bkt.Objects.Options('myobj');
   AssertEquals(200, Client.Response.Code);
@@ -277,7 +274,7 @@ var
   Rgn: IS3Region;
   Bkt: IS3Bucket;
 begin
-  Rgn := TS3Region.Create(FClient);
+  Rgn := TS3Region.New(FClient);
   Bkt := Rgn.Buckets.Get('myawsbucket', '');
   AssertNotSame(Bkt.Objects, Bkt.Objects);
 end;

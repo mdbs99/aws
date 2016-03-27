@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013-2015 Marcos Douglas - mdbs99
+    Copyright (C) 2013-2016 Marcos Douglas - mdbs99
 
     See the file LICENSE.txt, included in this distribution,
     for details about the copyright.
@@ -32,7 +32,8 @@ type
     FStream: TMemoryStream;
   public
     constructor Create(Stream: TStream);
-    constructor Create;
+    class function New(Stream: TStream): IAWSStream;
+    class function New: IAWSStream;
     destructor Destroy; override;
     procedure SaveToStream(Stream: TStream);
     procedure SaveToFile(const FileName: string);
@@ -50,9 +51,14 @@ begin
     FStream.LoadFromStream(Stream);
 end;
 
-constructor TAWSStream.Create;
+class function TAWSStream.New(Stream: TStream): IAWSStream;
 begin
-  Create(nil);
+  Result := Create(Stream);
+end;
+
+class function TAWSStream.New: IAWSStream;
+begin
+  Result := Create(nil);
 end;
 
 destructor TAWSStream.Destroy;

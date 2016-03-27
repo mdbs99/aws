@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013-2015 Marcos Douglas - mdbs99
+    Copyright (C) 2013-2016 Marcos Douglas - mdbs99
 
     See the file LICENSE.txt, included in this distribution,
     for details about the copyright.
@@ -68,14 +68,37 @@ type
     FCanonicalizedResource: string;
     FStream: IAWSStream;
   public
-    constructor Create(const Method, SubDomain, Domain, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string; Stream: IAWSStream);
-    constructor Create(const Method, SubDomain, Domain, Resource, SubResource, ContentType, ContentMD5,
-      CanonicalizedAmzHeaders, CanonicalizedResource: string);
-    constructor Create(const Method, SubDomain, Domain, Resource, SubResource, CanonicalizedResource: string);
-    constructor Create(const Method, SubDomain, Domain, Resource, CanonicalizedResource: string);
-    constructor Create(const Method, SubDomain, Domain, Resource, CanonicalizedResource: string; Stream: IAWSStream);
-    constructor Create(const Method, SubDomain, Domain, CanonicalizedResource: string);
+    constructor Create(
+      const Method, SubDomain, Domain, Resource,
+      SubResource, ContentType, ContentMD5, CanonicalizedAmzHeaders,
+      CanonicalizedResource: string; Stream: IAWSStream
+    );
+    class function New(
+      const Method, SubDomain, Domain, Resource,
+      SubResource, ContentType, ContentMD5, CanonicalizedAmzHeaders,
+      CanonicalizedResource: string; Stream: IAWSStream
+    ): IHTTPRequest;
+    class function New(
+      const Method, SubDomain, Domain, Resource,
+      SubResource, ContentType, ContentMD5, CanonicalizedAmzHeaders,
+      CanonicalizedResource: string
+    ): IHTTPRequest;
+    class function New(
+      const Method, SubDomain, Domain, Resource,
+      SubResource, CanonicalizedResource: string
+    ): IHTTPRequest;
+    class function New(
+      const Method, SubDomain, Domain, Resource,
+      CanonicalizedResource: string
+    ): IHTTPRequest;
+    class function New(
+      const Method, SubDomain, Domain, Resource,
+      CanonicalizedResource: string; Stream: IAWSStream
+    ): IHTTPRequest;
+    class function New(
+      const Method, SubDomain, Domain,
+      CanonicalizedResource: string
+    ): IHTTPRequest;
     function Method: string;
     function SubDomain: string;
     function Domain: string;
@@ -97,8 +120,9 @@ type
     FStream: IAWSStream;
   public
     constructor Create(Code: Integer; const Header, Text: string; Stream: IAWSStream);
-    constructor Create(Code: Integer; const Header, Text: string);
-    constructor Create(Origin: IHTTPResponse);
+    class function New(Code: Integer; const Header, Text: string; Stream: IAWSStream): IHTTPResponse;
+    class function New(Code: Integer; const Header, Text: string): IHTTPResponse;
+    class function New(Origin: IHTTPResponse): IHTTPResponse;
     destructor Destroy; override;
     function Code: Integer;
     function Header: string;
@@ -116,6 +140,7 @@ type
     FStream: IAWSStream;
   public
     constructor Create(const Method, Header, ContentType, URL: string; Stream: IAWSStream);
+    class function New(const Method, Header, ContentType, URL: string; Stream: IAWSStream): IHTTPSender;
     destructor Destroy; override;
     function Send: IHTTPResponse;
   end;
@@ -140,53 +165,65 @@ begin
   FStream := Stream
 end;
 
-constructor THTTPRequest.Create(const Method, SubDomain, Domain, Resource, SubResource,
+class function THTTPRequest.New(const Method, SubDomain, Domain, Resource, SubResource,
   ContentType, ContentMD5, CanonicalizedAmzHeaders,
-  CanonicalizedResource: string);
+  CanonicalizedResource: string; Stream: IAWSStream): IHTTPRequest;
 begin
-  Create(
+  Result := Create(
+    Method, SubDomain, Domain, Resource, SubResource,
+    ContentType, ContentMD5, CanonicalizedAmzHeaders,
+    CanonicalizedResource, Stream
+  );
+end;
+
+class function THTTPRequest.New(const Method, SubDomain, Domain, Resource, SubResource,
+  ContentType, ContentMD5, CanonicalizedAmzHeaders,
+  CanonicalizedResource: string): IHTTPRequest;
+begin
+  Result := New(
     Method, SubDomain, Domain, Resource, SubResource, ContentType,
     ContentMD5, CanonicalizedAmzHeaders, CanonicalizedResource,
-    TAWSStream.Create
+    TAWSStream.New
   );
 end;
 
-constructor THTTPRequest.Create(const Method, SubDomain, Domain, Resource, SubResource,
-  CanonicalizedResource: string);
+class function THTTPRequest.New(const Method, SubDomain, Domain, Resource, SubResource,
+  CanonicalizedResource: string): IHTTPRequest;
 begin
-  Create(
+  Result := New(
     Method, SubDomain, Domain, Resource, SubResource, '',
     '', '', CanonicalizedResource,
-    TAWSStream.Create
+    TAWSStream.New
   );
 end;
 
-constructor THTTPRequest.Create(const Method, SubDomain, Domain, Resource,
-  CanonicalizedResource: string);
+class function THTTPRequest.New(const Method, SubDomain, Domain, Resource,
+  CanonicalizedResource: string): IHTTPRequest;
 begin
-  Create(
+  Result := New(
     Method, SubDomain, Domain, Resource, '', '',
     '', '', CanonicalizedResource,
-    TAWSStream.Create
+    TAWSStream.New
   );
 end;
 
-constructor THTTPRequest.Create(const Method, SubDomain, Domain, Resource,
-  CanonicalizedResource: string; Stream: IAWSStream);
+class function THTTPRequest.New(const Method, SubDomain, Domain, Resource,
+  CanonicalizedResource: string; Stream: IAWSStream): IHTTPRequest;
 begin
-  Create(
+  Result := New(
     Method, SubDomain, Domain, Resource, '', '',
     '', '', CanonicalizedResource,
     Stream
   );
 end;
 
-constructor THTTPRequest.Create(const Method, SubDomain, Domain, CanonicalizedResource: string);
+class function THTTPRequest.New(const Method, SubDomain, Domain,
+  CanonicalizedResource: string): IHTTPRequest;
 begin
-  Create(
+  Result := New(
     Method, SubDomain, Domain, '', '', '',
     '', '', CanonicalizedResource,
-    TAWSStream.Create
+    TAWSStream.New
   );
 end;
 
@@ -262,20 +299,28 @@ end;
 constructor THTTPResponse.Create(Code: Integer; const Header, Text: string;
   Stream: IAWSStream);
 begin
+  inherited Create;
   FCode := Code;
   FHeader := Header;
   FText := Text;
   FStream := Stream;
 end;
 
-constructor THTTPResponse.Create(Code: Integer; const Header, Text: string);
+class function THTTPResponse.New(Code: Integer; const Header, Text: string;
+  Stream: IAWSStream): IHTTPResponse;
 begin
-  Create(Code, Header, Text, nil);
+  Result := Create(Code, Header, Text, Stream);
 end;
 
-constructor THTTPResponse.Create(Origin: IHTTPResponse);
+class function THTTPResponse.New(Code: Integer;
+  const Header, Text: string): IHTTPResponse;
 begin
-  Create(Origin.Code, Origin.Header, Origin.Text, Origin.Stream);
+  Result := New(Code, Header, Text, nil);
+end;
+
+class function THTTPResponse.New(Origin: IHTTPResponse): IHTTPResponse;
+begin
+  Result := New(Origin.Code, Origin.Header, Origin.Text, Origin.Stream);
 end;
 
 destructor THTTPResponse.Destroy;
@@ -318,6 +363,12 @@ begin
   FStream := Stream;
 end;
 
+class function THTTPSender.New(const Method, Header, ContentType, URL: string;
+  Stream: IAWSStream): IHTTPSender;
+begin
+  Result := Create(Method, Header, ContentType, URL, Stream);
+end;
+
 destructor THTTPSender.Destroy;
 begin
   FSender.Free;
@@ -331,11 +382,11 @@ begin
   FSender.MimeType := FContentType;
   FStream.SaveToStream(FSender.Document);
   FSender.HTTPMethod(FMethod, FURL);
-  Result := THTTPResponse.Create(
+  Result := THTTPResponse.New(
     FSender.ResultCode,
     FSender.Headers.Text,
     FSender.ResultString,
-    TAWSStream.Create(FSender.Document)
+    TAWSStream.New(FSender.Document)
   );
 end;
 
