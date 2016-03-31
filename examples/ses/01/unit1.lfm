@@ -1,0 +1,151 @@
+object Form1: TForm1
+  Left = 441
+  Height = 509
+  Top = 92
+  Width = 451
+  Caption = 'Enviar Email'
+  ClientHeight = 509
+  ClientWidth = 451
+  LCLVersion = '1.4.4.0'
+  object Button1: TButton
+    Left = 0
+    Height = 25
+    Top = 484
+    Width = 451
+    Align = alBottom
+    Caption = 'Send Email'
+    OnClick = Button1Click
+    TabOrder = 9
+  end
+  object Label1: TLabel
+    Left = 11
+    Height = 17
+    Top = 8
+    Width = 89
+    Caption = 'Access Key Id'
+    ParentColor = False
+  end
+  object edtAcessKeyId: TEdit
+    Left = 8
+    Height = 27
+    Top = 26
+    Width = 216
+    TabOrder = 0
+  end
+  object edtSecretKey: TEdit
+    Left = 229
+    Height = 27
+    Top = 26
+    Width = 218
+    TabOrder = 1
+  end
+  object Label2: TLabel
+    Left = 308
+    Height = 17
+    Top = 8
+    Width = 69
+    Caption = 'Secret Key'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 11
+    Height = 17
+    Top = 109
+    Width = 121
+    Caption = 'From mail address'
+    ParentColor = False
+  end
+  object edtFromMail: TEdit
+    Left = 8
+    Height = 27
+    Top = 127
+    Width = 439
+    TabOrder = 4
+  end
+  object Label4: TLabel
+    Left = 11
+    Height = 17
+    Top = 161
+    Width = 102
+    Caption = 'To mail address'
+    ParentColor = False
+  end
+  object edtToEmail: TEdit
+    Left = 8
+    Height = 27
+    Top = 179
+    Width = 439
+    TabOrder = 5
+  end
+  object Label5: TLabel
+    Left = 11
+    Height = 17
+    Top = 212
+    Width = 57
+    Caption = 'To Name'
+    ParentColor = False
+  end
+  object edtToName: TEdit
+    Left = 8
+    Height = 27
+    Top = 230
+    Width = 439
+    TabOrder = 6
+  end
+  object Label6: TLabel
+    Left = 11
+    Height = 17
+    Top = 263
+    Width = 48
+    Caption = 'Subject'
+    ParentColor = False
+  end
+  object edtSubject: TEdit
+    Left = 8
+    Height = 27
+    Top = 281
+    Width = 439
+    TabOrder = 7
+  end
+  object memMessage: TMemo
+    Left = 0
+    Height = 140
+    Top = 344
+    Width = 451
+    Align = alBottom
+    TabOrder = 8
+  end
+  object Label7: TLabel
+    Left = 0
+    Height = 17
+    Top = 327
+    Width = 451
+    Align = alBottom
+    Alignment = taCenter
+    Caption = 'Message'
+    ParentColor = False
+  end
+  object CheckBox1: TCheckBox
+    Left = 273
+    Height = 22
+    Top = 76
+    Width = 112
+    Caption = 'HTML Format'
+    TabOrder = 3
+  end
+  object Label8: TLabel
+    Left = 11
+    Height = 17
+    Top = 56
+    Width = 77
+    Caption = 'Region AWS'
+    ParentColor = False
+  end
+  object edtRegion: TEdit
+    Left = 8
+    Height = 27
+    Top = 76
+    Width = 216
+    TabOrder = 2
+  end
+end
