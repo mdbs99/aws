@@ -17,6 +17,8 @@ uses
 
 type
 
+  teFormato = (teHtml, teTexto);
+
   ISESObjects = Interface;
   TSESMessage = class;
 
@@ -33,7 +35,7 @@ type
 
   ISESObjects = interface(IInterface)
   ['{FF36521F-A15F-4C98-84DB-4669236F37A8}']
-    function SendEmail(Message: TSESMessage): ISESObject;
+    function SendEmail(Message: TSESMessage): IAWSResponse;
   end;
 
   TSESMessage = class
@@ -42,12 +44,16 @@ type
     FTOAddress: String;
     FFrom: String;
     FSubject: String;
+    FFormat: teFormato;
+    FCharset: String;
     FMessage: String;
   published
     property TOName: String read FTOName write FTOName;
     property TOAddress: String read FTOAddress write FTOAddress;
     property From: String read FFrom write FFrom;
     property Subject: String read FSubject write FSubject;
+    property Format: teFormato read FFormat write FFormat;
+    property Charset: String read FCharset write FCharset;
     property Message: String read FMessage write FMessage;
   end;
 
@@ -59,6 +65,7 @@ type
     FClient: IAWSClient;
   public
     constructor Create(Client: IAWSClient; sRegion: String);
+    class function New(Client: IAWSClient; sRegion: String): ISESRegion;
     function SESObjects: ISESObjects;
   end;
 
@@ -69,7 +76,8 @@ type
     FClient: IAWSClient;
   public
     constructor Create(Client: IAWSClient);
-    function SendEmail(Message: TSESMessage): ISESObject;
+    class function New(Client: IAWSClient): ISESObjects;
+    function SendEmail(Message: TSESMessage): IAWSResponse;
   end;
 
 var
@@ -85,7 +93,12 @@ begin
   FClient := Client;
 end;
 
-function TSESObjects.SendEmail(Message: TSESMessage): ISESObject;
+class function TSESObjects.New(Client: IAWSClient): ISESObjects;
+begin
+  Result := Create(Client);
+end;
+
+function TSESObjects.SendEmail(Message: TSESMessage): IAWSResponse;
 const
   sAnd = '&';
 var
@@ -98,13 +111,24 @@ begin
   sConteudo:=sConteudo+sAnd+'Destination.ToAddresses.member.1='+EncodeURLElement(Message.TOAddress);
   sConteudo:=sConteudo+sAnd+'Source='                          +EncodeURLElement(Message.From);
   sConteudo:=sConteudo+sAnd+'Message.Subject.Data='            +EncodeURLElement(Message.Subject);
-  sConteudo:=sConteudo+sAnd+'Message.Body.Text.Data='          +EncodeURLElement(Message.Message);
+  if Message.Format = teHtml then
+   begin
+      sConteudo:=sConteudo+sAnd+'Message.Body.Html.Data='      +EncodeURLElement(Message.Message);
+      if Message.Charset <> EmptyStr then
+        sConteudo:=sConteudo+sAnd+'Message.Body.Html.Charset='      +EncodeURLElement(Message.Charset);
+    end
+  else
+    begin
+      sConteudo:=sConteudo+sAnd+'Message.Body.Text.Data='      +EncodeURLElement(Message.Message);
+      if Message.Charset <> EmptyStr then
+        sConteudo:=sConteudo+sAnd+'Message.Body.Text.Charset='      +EncodeURLElement(Message.Charset);
+    end;
 
   oStream := TStringStream.Create(sConteudo);
   oAwsStream := TAWSStream.Create(oStream);
 
-  FClient.Send(
-    TAWSRequest.Create(
+  Result := FClient.Send(
+    TAWSRequest.New(
       'POST', '', sAWS_SES_URL, '', '/', 'application/x-www-form-urlencoded', 'AWS3', '', '/', oAwsStream)
   );
 
@@ -117,6 +141,11 @@ begin
   inherited Create;
   FClient := Client;
   sAWS_SES_URL:='email.'+sRegion+'.amazonaws.com';
+end;
+
+class function TSESRegion.New(Client: IAWSClient; sRegion: String): ISESRegion;
+begin
+  Result := Create(Client, sRegion);
 end;
 
 function TSESRegion.SESObjects: ISESObjects;
