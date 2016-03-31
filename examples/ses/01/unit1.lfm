@@ -1,21 +1,22 @@
 object Form1: TForm1
-  Left = 441
-  Height = 509
-  Top = 92
+  Left = 465
+  Height = 526
+  Top = 137
   Width = 451
   Caption = 'Enviar Email'
-  ClientHeight = 509
+  ClientHeight = 526
   ClientWidth = 451
+  OnCreate = FormCreate
   LCLVersion = '1.4.4.0'
   object Button1: TButton
     Left = 0
     Height = 25
-    Top = 484
+    Top = 501
     Width = 451
     Align = alBottom
     Caption = 'Send Email'
     OnClick = Button1Click
-    TabOrder = 9
+    TabOrder = 8
   end
   object Label1: TLabel
     Left = 11
@@ -107,24 +108,6 @@ object Form1: TForm1
     Width = 439
     TabOrder = 7
   end
-  object memMessage: TMemo
-    Left = 0
-    Height = 140
-    Top = 344
-    Width = 451
-    Align = alBottom
-    TabOrder = 8
-  end
-  object Label7: TLabel
-    Left = 0
-    Height = 17
-    Top = 327
-    Width = 451
-    Align = alBottom
-    Alignment = taCenter
-    Caption = 'Message'
-    ParentColor = False
-  end
   object CheckBox1: TCheckBox
     Left = 273
     Height = 22
@@ -147,5 +130,43 @@ object Form1: TForm1
     Top = 76
     Width = 216
     TabOrder = 2
+  end
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 189
+    Top = 312
+    Width = 451
+    ActivePage = TabSheet2
+    Align = alBottom
+    TabIndex = 1
+    TabOrder = 9
+    object TabSheet1: TTabSheet
+      Caption = 'Message'
+      ClientHeight = 154
+      ClientWidth = 445
+      object memMessage: TMemo
+        Left = 0
+        Height = 154
+        Top = 0
+        Width = 445
+        Align = alClient
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Response'
+      ClientHeight = 154
+      ClientWidth = 445
+      object memRetorno: TMemo
+        Left = 0
+        Height = 154
+        Top = 0
+        Width = 445
+        Align = alClient
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+      end
+    end
   end
 end

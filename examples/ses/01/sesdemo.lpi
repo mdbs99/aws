@@ -35,28 +35,23 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="3">
       <Unit0>
         <Filename Value="sesdemo.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
+        <Filename Value="unit1.lfm"/>
+        <IsPartOfProject Value="True"/>
+      </Unit1>
+      <Unit2>
         <Filename Value="unit1.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
-      </Unit1>
-      <Unit2>
-        <Filename Value="../../../erp/comum/erpmail.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ErpMail"/>
       </Unit2>
-      <Unit3>
-        <Filename Value="../../../../../Downloads/tforge074/Demos/Hashes/HashDemo/Source/CalcDemos.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -66,7 +61,6 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="/home/andre/Dropbox/Desenvolvimento/erp/comum/;../../../../../Downloads/tforge074/Demos/Hashes/HashDemo/Source"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
