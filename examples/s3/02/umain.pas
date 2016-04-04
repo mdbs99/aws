@@ -8,6 +8,7 @@ uses
   Classes, SysUtils, FileUtil, LazFileUtils, Forms, Controls, Graphics, Dialogs,
   StdCtrls, Buttons, ExtCtrls, EditBtn,
   //aws
+  aws_credentials,
   aws_client,
   aws_s3;
 
@@ -66,7 +67,12 @@ procedure TfrmMain.btnTestAccessClick(Sender: TObject);
 begin
   FRegion := TS3Region.Create(
     TAWSClient.Create(
-      TAWSCredentials.Create(edtAcessKeyId.Text, edtSecretKey.Text, True)
+      TAWSSignatureVersion1.New(
+        TAWSCredentials.New(
+          edtAcessKeyId.Text,
+          edtSecretKey.Text, True
+        )
+      )
     )
   );
   if FRegion.Online then

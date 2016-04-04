@@ -1,13 +1,16 @@
 program s3;
 {$mode objfpc}{$H+}
 uses
+  aws_credentials,
   aws_client,
   aws_s3;
 
 begin
   TS3Region.New(
     TAWSClient.New(
-      TAWSCredentials.New('access_key', 'secret_key', True)
+      TAWSSignatureVersion1.New(
+        TAWSCredentials.New('access_key', 'secret_key', True)
+      )
     )
   )
   .Buckets

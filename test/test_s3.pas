@@ -23,6 +23,7 @@ uses
   testregistry,
   //aws
   aws_base,
+  aws_credentials,
   aws_client,
   aws_s3;
 

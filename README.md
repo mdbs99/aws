@@ -22,7 +22,9 @@ uses
 begin
   TS3Region.New(
     TAWSClient.New(
-      TAWSCredentials.New('YOUR_access_key', 'YOUR_secret_key', True)
+      TAWSSignatureVersion1.New(
+        TAWSCredentials.New('access_key', 'secret_key', True)
+      )
     )
   )
   .Buckets
@@ -43,7 +45,9 @@ To get this file that was sent, use the code:
 ``` pascal
   TS3Region.New(
     TAWSClient.New(
-      TAWSCredentials.New('YOUR_access_key', 'YOUR_secret_key', True)
+      TAWSSignatureVersion1.New(
+        TAWSCredentials.New('access_key', 'secret_key', True)
+      )
     )
   )
   .Buckets
@@ -59,7 +63,9 @@ To delete this file on server, use the code:
 ``` pascal
   TS3Region.New(
     TAWSClient.New(
-      TAWSCredentials.New('YOUR_access_key', 'YOUR_secret_key', True)
+      TAWSSignatureVersion1.New(
+        TAWSCredentials.New('access_key', 'secret_key', True)
+      )
     )
   )
   .Buckets
