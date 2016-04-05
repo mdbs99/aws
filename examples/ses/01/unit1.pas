@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  ExtCtrls, ComCtrls, aws_client, aws_ses, math;
+  ExtCtrls, ComCtrls, aws_client, aws_ses, aws_credentials, math;
 
 type
 
@@ -58,7 +58,7 @@ var
 begin
   FRegionSES := TSESRegion.New(
     TAWSClient.New(
-      TAWSCredentials.New(edtAcessKeyId.Text, edtSecretKey.Text, True)
+      TAWSSignatureVersion3.New(TAWSCredentials.New(edtAcessKeyId.Text, edtSecretKey.Text, True))
     ), edtRegion.Text
   );
 

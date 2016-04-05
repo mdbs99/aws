@@ -14,14 +14,6 @@
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="ses.pas"/>
-        <ComponentName Value="Form1"/>
-        <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="8"/>
-        <UsageCount Value="20"/>
-      </Unit1>
-      <Unit2>
         <Filename Value="unit1.lfm"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
@@ -30,8 +22,8 @@
         <CursorPos X="-1" Y="-1"/>
         <UsageCount Value="20"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
-      </Unit2>
-      <Unit3>
+      </Unit1>
+      <Unit2>
         <Filename Value="unit1.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
@@ -39,17 +31,24 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="64"/>
-        <CursorPos X="38" Y="72"/>
+        <CursorPos X="60" Y="9"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="ses.pas"/>
+        <ComponentName Value="Form1"/>
+        <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="8"/>
+        <UsageCount Value="20"/>
       </Unit3>
       <Unit4>
         <Filename Value="../../../../erp/components/aws/src/aws_ses.pas"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="7"/>
-        <CursorPos X="59" Y="38"/>
+        <TopLine Value="16"/>
+        <CursorPos X="35" Y="20"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -70,7 +69,7 @@
         <Loaded Value="True"/>
       </Unit6>
     </Units>
-    <JumpHistory Count="28" HistoryIndex="27">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="sesdemo.lpr"/>
         <Caret Line="9" Column="56"/>
@@ -183,6 +182,14 @@
         <Filename Value="unit1.pas"/>
         <Caret Line="76" Column="45" TopLine="61"/>
       </Position28>
+      <Position29>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="58" Column="86" TopLine="65"/>
+      </Position29>
+      <Position30>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="61" Column="10" TopLine="51"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>
