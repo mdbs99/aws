@@ -21,8 +21,8 @@
     </CompilerOptions>
     <Description Value="AWS runtime package."/>
     <License Value="See the file LICENSE, included in this distribution, for details about the copyright."/>
-    <Version Minor="3" Release="3"/>
-    <Files Count="6">
+    <Version Minor="4"/>
+    <Files Count="7">
       <Item1>
         <Filename Value="..\src\aws.inc"/>
         <Type Value="Include"/>
@@ -44,9 +44,13 @@
         <UnitName Value="aws_base"/>
       </Item5>
       <Item6>
+        <Filename Value="..\src\aws_credentials.pas"/>
+        <UnitName Value="aws_credentials"/>
+      </Item6>
+      <Item7>
         <Filename Value="..\src\aws_ses.pas"/>
         <UnitName Value="aws_ses"/>
-      </Item6>
+      </Item7>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>
