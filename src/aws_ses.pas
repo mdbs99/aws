@@ -132,6 +132,9 @@ begin
       'POST', '', sAWS_SES_URL, '', '/', 'application/x-www-form-urlencoded', 'AWS3', '', '/', oAwsStream)
   );
 
+  oStream.Free;
+  oAwsStream.Free;
+
 end;
 
 { TSESRegion }

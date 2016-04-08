@@ -75,6 +75,8 @@ begin
   memRetorno.Lines.LoadFromFile('retorno.txt');
 
   PageControl1.ActivePage := TabSheet2;
+  
+  oMessage.Free;
 
 end;
 
