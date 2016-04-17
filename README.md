@@ -20,7 +20,7 @@ uses
   aws_s3;
 
 begin
-  TS3Region.New(
+  TS3Service.New(
     TAWSClient.New(
       TAWSSignatureVersion1.New(
         TAWSCredentials.New('access_key', 'secret_key', True)
@@ -43,7 +43,7 @@ No need to release memory!
 To get this file that was sent, use the code:
 
 ``` pascal
-  TS3Region.New(
+  TS3Service.New(
     TAWSClient.New(
       TAWSSignatureVersion1.New(
         TAWSCredentials.New('access_key', 'secret_key', True)
@@ -61,7 +61,7 @@ To get this file that was sent, use the code:
 To delete this file on server, use the code:
 
 ``` pascal
-  TS3Region.New(
+  TS3Service.New(
     TAWSClient.New(
       TAWSSignatureVersion1.New(
         TAWSCredentials.New('access_key', 'secret_key', True)

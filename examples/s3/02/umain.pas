@@ -51,7 +51,7 @@ type
     procedure btnObjectCreateClick(Sender: TObject);
     procedure btnFileDownloadClick(Sender: TObject);
   private
-    FRegion: IS3Region;
+    FRegion: IS3Service;
   end;
 
 var
@@ -65,7 +65,7 @@ implementation
 
 procedure TfrmMain.btnTestAccessClick(Sender: TObject);
 begin
-  FRegion := TS3Region.Create(
+  FRegion := TS3Service.Create(
     TAWSClient.Create(
       TAWSSignatureVersion1.New(
         TAWSCredentials.New(

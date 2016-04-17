@@ -6,7 +6,7 @@ uses
   aws_s3;
 
 begin
-  TS3Region.New(
+  TS3Service.New(
     TAWSClient.New(
       TAWSSignatureVersion1.New(
         TAWSCredentials.New('access_key', 'secret_key', True)
