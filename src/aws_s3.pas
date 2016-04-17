@@ -31,7 +31,7 @@ const
 type
   ES3Error = class(Exception);
 
-  IS3Region = interface;
+  IS3Service = interface;
   IS3Bucket = interface;
 
   IS3Object = interface(IInterface)
@@ -67,7 +67,7 @@ type
     function All: IAWSResponse;
   end;
 
-  IS3Region = interface(IInterface)
+  IS3Service = interface(IInterface)
   ['{B192DB11-4080-477A-80D4-41698832F492}']
     function Online: Boolean;
     function Buckets: IS3Buckets;
@@ -101,7 +101,7 @@ type
     function Options(const ObjectName: string): IS3Object;
   end;
 
-  TS3Region = class;
+  TS3Service = class;
 
   TS3Bucket = class sealed(TInterfacedObject, IS3Bucket)
   private
@@ -127,12 +127,12 @@ type
     function All: IAWSResponse;
   end;
 
-  TS3Region = class sealed(TInterfacedObject, IS3Region)
+  TS3Service = class sealed(TInterfacedObject, IS3Service)
   private
     FClient: IAWSClient;
   public
     constructor Create(Client: IAWSClient);
-    class function New(Client: IAWSClient): IS3Region;
+    class function New(Client: IAWSClient): IS3Service;
     function Online: Boolean;
     function Buckets: IS3Buckets;
   end;
@@ -364,20 +364,20 @@ begin
   );
 end;
 
-{ TS3Region }
+{ TS3Service }
 
-constructor TS3Region.Create(Client: IAWSClient);
+constructor TS3Service.Create(Client: IAWSClient);
 begin
   inherited Create;
   FClient := Client;
 end;
 
-class function TS3Region.New(Client: IAWSClient): IS3Region;
+class function TS3Service.New(Client: IAWSClient): IS3Service;
 begin
   Result := Create(Client);
 end;
 
-function TS3Region.Online: Boolean;
+function TS3Service.Online: Boolean;
 begin
   Result := FClient.Send(
     TAWSRequest.New(
@@ -386,7 +386,7 @@ begin
   ).Code = 200;
 end;
 
-function TS3Region.Buckets: IS3Buckets;
+function TS3Service.Buckets: IS3Buckets;
 begin
   Result := TS3Buckets.Create(FClient);
 end;

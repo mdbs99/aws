@@ -6,10 +6,10 @@ the AWS Lib.
 
 Lead Developer and Maintainer
 -----------------------------
-Marcos Douglas B. dos Santos <mdbs99 at delfire.net>
+@mdbs99 Marcos Douglas B. dos Santos <mdbs99 at delfire.net>
  
 
 Contributors
 -----------------------------
-José Benedito (jbsolucoes)
-André Medeiros
+@jbsolucoes José Benedito 
+@almp1 André Medeiros 
