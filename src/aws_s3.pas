@@ -218,14 +218,14 @@ var
   Res: IAWSResponse;
 begin
   Res := FClient.Send(
-    TAWSRequest.Create(
+    TAWSRequest.New(
       'PUT', FBucket.Name, AWS_S3_URL, '/' + ObjectName, SubResources, ContentType, '', '',
       '/' + FBucket.Name + '/' + ObjectName, Stream
     )
   );
   if 200 <> Res.Code then
     raise ES3Error.CreateFmt('Put error: %d', [Res.Code]);
-  Result := TS3Object.Create(FBucket, ObjectName, Res.Stream);
+  Result := TS3Object.New(FBucket, ObjectName, Res.Stream);
 end;
 
 function TS3Objects.Put(const ObjectName, ContentType, AFileName,
@@ -235,7 +235,7 @@ var
 begin
   Buf := TFileStream.Create(AFileName, fmOpenRead);
   try
-    Result := Put(ObjectName, ContentType, TAWSStream.Create(Buf), SubResources);
+    Result := Put(ObjectName, ContentType, TAWSStream.New(Buf), SubResources);
   finally
     Buf.Free;
   end;
@@ -249,7 +249,7 @@ begin
   try
     // hack Synapse to add Content-Length
     Buf.WriteBuffer('', 1);
-    Result := Put(ObjectName, '', TAWSStream.Create(Buf), SubResources);
+    Result := Put(ObjectName, '', TAWSStream.New(Buf), SubResources);
   finally
     Buf.Free;
   end;
@@ -267,7 +267,7 @@ begin
   );
   if 200 <> Res.Code then
     raise ES3Error.CreateFmt('Get error: %d', [Res.Code]);
-  Result := TS3Object.Create(FBucket, ObjectName, Res.Stream);
+  Result := TS3Object.New(FBucket, ObjectName, Res.Stream);
 end;
 
 { TS3Bucket }
@@ -291,7 +291,7 @@ end;
 
 function TS3Bucket.Objects: IS3Objects;
 begin
-  Result := TS3Objects.Create(FClient, Self);
+  Result := TS3Objects.New(FClient, Self);
 end;
 
 { TS3Buckets }
@@ -327,7 +327,7 @@ begin
   );
   if 200 <> Res.Code then
     raise ES3Error.CreateFmt('Get error: %d', [Res.Code]);
-  Result := TS3Bucket.Create(FClient, BucketName);
+  Result := TS3Bucket.New(FClient, BucketName);
 end;
 
 procedure TS3Buckets.Delete(const BucketName, SubResources: string);
@@ -354,7 +354,7 @@ begin
   );
   if 200 <> Res.Code then
     raise ES3Error.CreateFmt('Put error: %d', [Res.Code]);
-  Result := TS3Bucket.Create(FClient, BucketName);
+  Result := TS3Bucket.New(FClient, BucketName);
 end;
 
 function TS3Buckets.All: IAWSResponse;
@@ -388,7 +388,7 @@ end;
 
 function TS3Service.Buckets: IS3Buckets;
 begin
-  Result := TS3Buckets.Create(FClient);
+  Result := TS3Buckets.New(FClient);
 end;
 
 end.
