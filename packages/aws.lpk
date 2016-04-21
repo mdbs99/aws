@@ -22,7 +22,7 @@
     <Description Value="AWS runtime package."/>
     <License Value="See the file LICENSE, included in this distribution, for details about the copyright."/>
     <Version Minor="4"/>
-    <Files Count="7">
+    <Files Count="8">
       <Item1>
         <Filename Value="..\src\aws.inc"/>
         <Type Value="Include"/>
@@ -51,6 +51,10 @@
         <Filename Value="..\src\aws_ses.pas"/>
         <UnitName Value="aws_ses"/>
       </Item7>
+      <Item8>
+        <Filename Value="..\src\aws_net.pas"/>
+        <UnitName Value="aws_net"/>
+      </Item8>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>

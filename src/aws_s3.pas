@@ -186,46 +186,46 @@ begin
 end;
 
 function TS3Objects.Get(const ObjectName: string; const SubResources: string): IS3Object;
-var
-  Res: IAWSResponse;
 begin
-  Res := FClient.Send(
+  with FClient.Send(
     TAWSRequest.New(
       'GET', FBucket.Name, AWS_S3_URL, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName + SubResources
     )
-  );
-  if 200 <> Res.Code then
-    raise ES3Error.CreateFmt('Get error: %d', [Res.Code]);
-  Result := TS3Object.New(FBucket, ObjectName, Res.Stream);
+  ) do
+  begin
+    if 200 <> Code then
+      raise ES3Error.CreateFmt('Get error: %d', [Code]);
+    Result := TS3Object.New(FBucket, ObjectName, Stream);
+  end;
 end;
 
 procedure TS3Objects.Delete(const ObjectName: string);
-var
-  Res: IAWSResponse;
 begin
-  Res := FClient.Send(
+  with FClient.Send(
     TAWSRequest.New(
       'DELETE', FBucket.Name, AWS_S3_URL, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName
     )
-  );
-  if 204 <> Res.Code then
-    raise ES3Error.CreateFmt('Delete error: %d', [Res.Code]);
+  ) do
+  begin
+    if 204 <> Code then
+      raise ES3Error.CreateFmt('Delete error: %d', [Code]);
+  end;
 end;
 
 function TS3Objects.Put(const ObjectName, ContentType: string;
   Stream: IAWSStream; const SubResources: string): IS3Object;
-var
-  Res: IAWSResponse;
 begin
-  Res := FClient.Send(
+  with FClient.Send(
     TAWSRequest.New(
       'PUT', FBucket.Name, AWS_S3_URL, '/' + ObjectName, SubResources, ContentType, '', '',
       '/' + FBucket.Name + '/' + ObjectName, Stream
     )
-  );
-  if 200 <> Res.Code then
-    raise ES3Error.CreateFmt('Put error: %d', [Res.Code]);
-  Result := TS3Object.New(FBucket, ObjectName, Res.Stream);
+  ) do
+  begin
+    if 200 <> Code then
+      raise ES3Error.CreateFmt('Put error: %d', [Code]);
+    Result := TS3Object.New(FBucket, ObjectName, Stream);
+  end;
 end;
 
 function TS3Objects.Put(const ObjectName, ContentType, AFileName,
@@ -256,18 +256,18 @@ begin
 end;
 
 function TS3Objects.Options(const ObjectName: string): IS3Object;
-var
-  Res: IAWSResponse;
 begin
   { TODO : Not working properly yet. }
-  Res := FClient.Send(
+  with FClient.Send(
     TAWSRequest.New(
       'OPTIONS', FBucket.Name, AWS_S3_URL, '/' + ObjectName, '/' + FBucket.Name + '/' + ObjectName
     )
-  );
-  if 200 <> Res.Code then
-    raise ES3Error.CreateFmt('Get error: %d', [Res.Code]);
-  Result := TS3Object.New(FBucket, ObjectName, Res.Stream);
+  ) do
+  begin
+    if 200 <> Code then
+      raise ES3Error.CreateFmt('Get error: %d', [Code]);
+    Result := TS3Object.New(FBucket, ObjectName, Stream);
+  end;
 end;
 
 { TS3Bucket }
@@ -317,44 +317,44 @@ begin
 end;
 
 function TS3Buckets.Get(const BucketName, SubResources: string): IS3Bucket;
-var
-  Res: IAWSResponse;
 begin
-  Res := FClient.Send(
+  with FClient.Send(
     TAWSRequest.New(
       'GET', BucketName, AWS_S3_URL, '', SubResources, '', '', '', '/' + BucketName + '/' + SubResources
     )
-  );
-  if 200 <> Res.Code then
-    raise ES3Error.CreateFmt('Get error: %d', [Res.Code]);
-  Result := TS3Bucket.New(FClient, BucketName);
+  ) do
+  begin
+    if 200 <> Code then
+      raise ES3Error.CreateFmt('Get error: %d', [Code]);
+    Result := TS3Bucket.New(FClient, BucketName);
+  end;
 end;
 
 procedure TS3Buckets.Delete(const BucketName, SubResources: string);
-var
-  Res: IAWSResponse;
 begin
-  Res := FClient.Send(
+  with FClient.Send(
     TAWSRequest.New(
       'DELETE', BucketName, AWS_S3_URL, '', SubResources, '', '', '', '/' + BucketName + SubResources
     )
-  );
-  if 204 <> Res.Code then
-    raise ES3Error.CreateFmt('Delete error: %d', [Res.Code]);
+  ) do
+  begin
+    if 204 <> Code then
+      raise ES3Error.CreateFmt('Delete error: %d', [Code]);
+  end;
 end;
 
 function TS3Buckets.Put(const BucketName, SubResources: string): IS3Bucket;
-var
-  Res: IAWSResponse;
 begin
-  Res := FClient.Send(
+  with FClient.Send(
     TAWSRequest.New(
       'PUT', BucketName, AWS_S3_URL, '', SubResources, '', '', '', '/' + BucketName + SubResources
     )
-  );
-  if 200 <> Res.Code then
-    raise ES3Error.CreateFmt('Put error: %d', [Res.Code]);
-  Result := TS3Bucket.New(FClient, BucketName);
+  ) do
+  begin
+    if 200 <> Code then
+      raise ES3Error.CreateFmt('Put error: %d', [Code]);
+    Result := TS3Bucket.New(FClient, BucketName);
+  end;
 end;
 
 function TS3Buckets.All: IAWSResponse;
