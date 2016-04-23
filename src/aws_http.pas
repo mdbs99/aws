@@ -39,7 +39,7 @@ type
     function CanonicalizedAmzHeaders: string;
     function CanonicalizedResource: string;
     function Stream: IAWSStream;
-    function ToString: string;
+    function AsString: string;
   end;
 
   IHTTPResponse = interface(IInterface)
@@ -109,7 +109,7 @@ type
     function CanonicalizedAmzHeaders: string;
     function CanonicalizedResource: string;
     function Stream: IAWSStream;
-    function ToString: string; override;
+    function AsString: string;
   end;
 
   THTTPResponse = class sealed(TInterfacedObject, IHTTPResponse)
@@ -277,7 +277,7 @@ begin
   Result := FStream;
 end;
 
-function THTTPRequest.ToString: string;
+function THTTPRequest.AsString: string;
 begin
   with TStringList.Create do
   try

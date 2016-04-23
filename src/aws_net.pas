@@ -22,9 +22,9 @@ uses
 
 type
   IURL = interface
-    function Make: string;
     function WithSubDomain(const SubDomain: string): IURL;
     function WithResource(const Resource: string): IURL;
+    function AsString: string;
   end;
 
   TURL = class(TInterfacedObject, IURL)
@@ -35,9 +35,9 @@ type
     constructor Create(const Protocol, Domain: string); reintroduce;
     class function New(const Protocol, Domain: string): IURL;
     class function New(const Domain: string): IURL;
-    function Make: string;
     function WithSubDomain(const SubDomain: string): IURL;
     function WithResource(const Resource: string): IURL;
+    function AsString: string;
   end;
 
 implementation
@@ -61,11 +61,6 @@ begin
   Result := New('http', Domain);
 end;
 
-function TURL.Make: string;
-begin
-  Result := FProtocol + '://' + FDomain;
-end;
-
 function TURL.WithSubDomain(const SubDomain: string): IURL;
 begin
   Result := New(FProtocol, SubDomain + '.' + FDomain);
@@ -74,6 +69,11 @@ end;
 function TURL.WithResource(const Resource: string): IURL;
 begin
   Result := New(FProtocol, FDomain + Resource);
+end;
+
+function TURL.AsString: string;
+begin
+  Result := FProtocol + '://' + FDomain;
 end;
 
 end.
