@@ -19,13 +19,46 @@ uses
   //rtl
   sysutils,
   classes,
+  dateutils,
   //synapse
   synacode,
   synautil,
+  synacrypt,
+  //terceiros
+  SynCrypto,
   //aws
   aws_http;
 
+
 type
+
+  IAWSSignatureHMAC256 = interface(IInterface)
+  ['{9158D9A2-7ABA-4126-9F63-264E947AC60A}']
+    function AccessKey: string;
+    function DataStamp: string;
+    function RegionName: string;
+    function ServiceName: string;
+    function Signature: TSHA256Digest;
+  end;
+
+  { TAWSSignatureHMAC256 }
+
+  TAWSSignatureHMAC256 = class sealed(TInterfacedObject, IAWSSignatureHMAC256)
+  private
+    FAccessKey: string;
+    FDataStamp: string;
+    FRegionName: string;
+    FServiceName: string;
+  public
+    constructor Create(const sAccessKey, sDataStamp, sRegionName, sServiceName: string);
+    class function New(const sAccessKey, sDataStamp, sRegionName, sServiceName: string): IAWSSignatureHMAC256;
+    function AccessKey: string;
+    function DataStamp: string;
+    function RegionName: string;
+    function ServiceName: string;
+    function Signature: TSHA256Digest;
+  end;
+
   IAWSCredentials = interface(IInterface)
   ['{AC6EA523-F2FF-4BD0-8C87-C27E9846FA40}']
     function AccessKeyId: string;
@@ -75,7 +108,163 @@ type
     function Calculate(Request: IHTTPRequest): string; override;
   end;
 
+  { TAWSSignatureVersion4 }
+
+  TAWSSignatureVersion4 = class sealed(TAWSAbstractSignature)
+  private
+    function BuildHeader(const sHeader: String): String;
+    procedure SignedHeaders(const sHeader: String; var sToSing, sToCanonical: String);
+  public
+    function Calculate(Request: IHTTPRequest): string; override;
+  end;
+
 implementation
+
+{ TAWSSignatureHMAC256 }
+
+constructor TAWSSignatureHMAC256.Create(const sAccessKey, sDataStamp,
+  sRegionName, sServiceName: string);
+begin
+  inherited Create;
+  FAccessKey:= sAccessKey;
+  FDataStamp:= sDataStamp;
+  FRegionName:= sRegionName;
+  FServiceName:= sServiceName;
+end;
+
+class function TAWSSignatureHMAC256.New(const sAccessKey, sDataStamp,
+  sRegionName, sServiceName: string): IAWSSignatureHMAC256;
+begin
+  Result := Create(sAccessKey, sDataStamp, sRegionName, sServiceName);
+end;
+
+function TAWSSignatureHMAC256.AccessKey: string;
+begin
+  Result := FAccessKey;
+end;
+
+function TAWSSignatureHMAC256.DataStamp: string;
+begin
+  Result := FDataStamp;
+end;
+
+function TAWSSignatureHMAC256.RegionName: string;
+begin
+  Result := FRegionName;
+end;
+
+function TAWSSignatureHMAC256.ServiceName: string;
+begin
+  Result := FServiceName;
+end;
+
+function TAWSSignatureHMAC256.Signature: TSHA256Digest;
+var
+  oSHA256: TSHA256Digest;
+begin
+  HMAC_SHA256(UTF8Encode('AWS4'+FAccessKey), UTF8Encode(FDataStamp), oSHA256);
+  HMAC_SHA256(oSHA256, UTF8Encode(FRegionName), oSHA256);
+  HMAC_SHA256(oSHA256, UTF8Encode(FServiceName), oSHA256);
+  HMAC_SHA256(oSHA256, UTF8Encode('aws4_request'), oSHA256);
+  Result := oSHA256;
+end;
+
+{ TAWSSignatureVersion4 }
+
+function TAWSSignatureVersion4.BuildHeader(const sHeader: String): String;
+var
+  i: Integer;
+  sList: TStringList;
+begin
+  sList := TStringList.Create;
+  sList.Text:=sHeader;
+  sList.LineBreak:=#10;
+  sList.NameValueSeparator:=':';
+  sList.Sorted:=True;
+  sList.Sort;
+  Result := '';
+  for i := 1 to sList.Count - 1 do
+    Result := Result + sList[i]+#10;
+
+end;
+
+procedure TAWSSignatureVersion4.SignedHeaders(const sHeader: String; var sToSing, sToCanonical: String);
+var
+  i: Integer;
+  sList: TStringList;
+  sName, sValue: String;
+begin
+  sList := TStringList.Create;
+  sList.Text:=sHeader;
+  sList.LineBreak:=#10;
+  sList.NameValueSeparator:=':';
+  sList.Sorted:=True;
+  sList.Sort;
+  for i := 1 to sList.Count - 1 do
+    begin
+      sList.GetNameValue(i, sName, sValue);
+      sToSing := sToSing + LowerCase(sName) + ';';
+      sToCanonical := sToCanonical + LowerCase(sName)+':'+sValue+#10;
+    end;
+  system.Delete(sToSing, Length(sToSing), 1);
+end;
+
+function TAWSSignatureVersion4.Calculate(Request: IHTTPRequest): string;
+const
+  sAlgoritimo = 'AWS4-HMAC-SHA256';
+  sTipoReq = 'aws4_request';
+var
+  sHeader: string;
+  sCredencial: String;
+  sEscopo: String;
+  sDateFmt: String;
+  sAwsDateTime: String;
+  sMetodo: String;
+  sCanonical: String;
+  sCanonicalURI: String;
+  sCanonicalQuery: String;
+  sCanonicalHeaders: String;
+  sSignedHeaders: String;
+  sPayLoadHash: String;
+  sCanonicalRequest: String;
+  sStringToSign: String;
+  sSignature: String;
+  sAuthorizationHeader: String;
+  oAssinatura: TSHA256Digest;
+  oSHA256: TSHA256Digest;
+begin
+  sDateFmt:= FormatDateTime('yyyymmdd', IncHour(Now, 3));
+  sAwsDateTime:= FormatDateTime('yyyymmdd', IncHour(Now, 3))+'T'+FormatDateTime('hhnnss', IncHour(Now, 3))+'Z';
+  sMetodo:= Request.Method;
+  sCanonicalURI:=EncodeTriplet(Request.Resource, '%', [':']);
+  sCanonicalQuery:='';
+
+  sHeader := 'Host:' + Request.Domain + #10 ;
+  sCanonicalHeaders:= 'X-Amz-Date:' + sAwsDateTime + #10 + Request.CanonicalizedAmzHeaders + #10;
+  SignedHeaders(sHeader+sCanonicalHeaders, sSignedHeaders, sCanonical);
+
+  sPayLoadHash:= SHA256(Request.SubResource);
+
+  sCanonicalRequest := sMetodo + #10 + sCanonicalURI + #10 + sCanonicalQuery + #10
+                    + sCanonical + #10 + sSignedHeaders + #10 + sPayLoadHash;
+
+  sCredencial:= sDateFmt + '/' + Request.ContentMD5 + '/' + Request.CanonicalizedResource + '/' + sTipoReq;
+  sEscopo:= Credentials.AccessKeyId + '/' + sCredencial;
+  sStringToSign := sAlgoritimo + #10 +  sAwsDateTime + #10 + sCredencial + #10 + SHA256( UTF8Encode(sCanonicalRequest));
+
+  oAssinatura:=TAWSSignatureHMAC256.New(Credentials.SecretKey, sDateFmt, Request.ContentMD5, Request.CanonicalizedResource).Signature;
+
+  HMAC_SHA256(oAssinatura, UTF8Encode(sStringToSign), oSHA256);
+  sSignature := SHA256DigestToString(oSHA256);
+
+  sAuthorizationHeader := 'Authorization:' + sAlgoritimo + ' ' + 'Credential=' + sEscopo + ', ' +
+                         'SignedHeaders=' + sSignedHeaders + ', ' + 'Signature=' + sSignature;
+
+  Result := BuildHeader(sCanonicalHeaders)
+            + sAuthorizationHeader
+            ;
+
+end;
 
 { TAWSCredentials }
 
@@ -138,13 +327,21 @@ begin
   H := Request.Method + #10
      + Request.ContentMD5 + #10
      + Request.ContentType + #10
-     + DateFmt + #10
-     + Request.CanonicalizedAmzHeaders
-     + Request.CanonicalizedResource;
-  Result := 'Date: ' + DateFmt + #10
-          + 'Authorization: AWS '
+     + DateFmt + #10;
+
+  if Request.CanonicalizedAmzHeaders <> EmptyStr then
+    H := H + Request.CanonicalizedAmzHeaders + #10;
+
+  H := H + Request.CanonicalizedResource;
+
+  Result := 'Date: ' + DateFmt + #10;
+
+  if Request.CanonicalizedAmzHeaders <> EmptyStr then
+    Result := Result + Request.CanonicalizedAmzHeaders + #10;
+
+  Result := Result + 'Authorization: AWS '
           + Credentials.AccessKeyId + ':'
-          + EncodeBase64(HMAC_SHA1(H, Credentials.SecretKey));
+          + EncodeBase64(HMAC_SHA1(H, Credentials.SecretKey))
 end;
 
 { TAWSSignatureVersion3 }
