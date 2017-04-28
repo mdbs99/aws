@@ -9,7 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\src;..\terceiros"/>
+        <OtherUnitFiles Value="..\src;..\3rd\synopse"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <Linking>
@@ -55,31 +55,31 @@
         <UnitName Value="aws_net"/>
       </Item8>
       <Item9>
-        <Filename Value="..\terceiros\syncommons.pas"/>
+        <Filename Value="..\3rd\synopse\syncommons.pas"/>
         <UnitName Value="SynCommons"/>
       </Item9>
       <Item10>
-        <Filename Value="..\terceiros\syncrypto.pas"/>
+        <Filename Value="..\3rd\synopse\syncrypto.pas"/>
         <UnitName Value="SynCrypto"/>
       </Item10>
       <Item11>
-        <Filename Value="..\terceiros\synfpclinux.pas"/>
+        <Filename Value="..\3rd\synopse\synfpclinux.pas"/>
         <UnitName Value="SynFPCLinux"/>
       </Item11>
       <Item12>
-        <Filename Value="..\terceiros\synfpctypinfo.pas"/>
+        <Filename Value="..\3rd\synopse\synfpctypinfo.pas"/>
         <UnitName Value="SynFPCTypInfo"/>
       </Item12>
       <Item13>
-        <Filename Value="..\terceiros\synlz.pas"/>
+        <Filename Value="..\3rd\synopse\synlz.pas"/>
         <UnitName Value="SynLZ"/>
       </Item13>
       <Item14>
-        <Filename Value="..\terceiros\Synopse.inc"/>
+        <Filename Value="..\3rd\synopse\Synopse.inc"/>
         <Type Value="Include"/>
       </Item14>
       <Item15>
-        <Filename Value="..\terceiros\synopsecommit.inc"/>
+        <Filename Value="..\3rd\synopse\synopsecommit.inc"/>
         <Type Value="Include"/>
       </Item15>
     </Files>
