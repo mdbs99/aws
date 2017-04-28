@@ -9,8 +9,7 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <IncludeFiles Value="..\src"/>
-        <OtherUnitFiles Value="..\src"/>
+        <OtherUnitFiles Value="..\src;..\terceiros"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <Linking>
@@ -22,7 +21,7 @@
     <Description Value="AWS runtime package."/>
     <License Value="See the file LICENSE, included in this distribution, for details about the copyright."/>
     <Version Minor="4"/>
-    <Files Count="8">
+    <Files Count="15">
       <Item1>
         <Filename Value="..\src\aws.inc"/>
         <Type Value="Include"/>
@@ -55,6 +54,34 @@
         <Filename Value="..\src\aws_net.pas"/>
         <UnitName Value="aws_net"/>
       </Item8>
+      <Item9>
+        <Filename Value="..\terceiros\syncommons.pas"/>
+        <UnitName Value="SynCommons"/>
+      </Item9>
+      <Item10>
+        <Filename Value="..\terceiros\syncrypto.pas"/>
+        <UnitName Value="SynCrypto"/>
+      </Item10>
+      <Item11>
+        <Filename Value="..\terceiros\synfpclinux.pas"/>
+        <UnitName Value="SynFPCLinux"/>
+      </Item11>
+      <Item12>
+        <Filename Value="..\terceiros\synfpctypinfo.pas"/>
+        <UnitName Value="SynFPCTypInfo"/>
+      </Item12>
+      <Item13>
+        <Filename Value="..\terceiros\synlz.pas"/>
+        <UnitName Value="SynLZ"/>
+      </Item13>
+      <Item14>
+        <Filename Value="..\terceiros\Synopse.inc"/>
+        <Type Value="Include"/>
+      </Item14>
+      <Item15>
+        <Filename Value="..\terceiros\synopsecommit.inc"/>
+        <Type Value="Include"/>
+      </Item15>
     </Files>
     <RequiredPkgs Count="2">
       <Item1>
