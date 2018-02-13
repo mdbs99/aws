@@ -21,59 +21,59 @@ uses
   classes;
 
 type
-  IURL = interface
-    function Make: string;
-    function WithSubDomain(const SubDomain: string): IURL;
-    function WithResource(const Resource: string): IURL;
+  IAWSURL = interface
+    function WithSubDomain(const SubDomain: string): IAWSURL;
+    function WithResource(const Resource: string): IAWSURL;
+    function AsString: string;
   end;
 
-  TURL = class(TInterfacedObject, IURL)
+  TAWSURL = class(TInterfacedObject, IAWSURL)
   private
     FProtocol: string;
     FDomain: string;
   public
     constructor Create(const Protocol, Domain: string); reintroduce;
-    class function New(const Protocol, Domain: string): IURL;
-    class function New(const Domain: string): IURL;
-    function Make: string;
-    function WithSubDomain(const SubDomain: string): IURL;
-    function WithResource(const Resource: string): IURL;
+    class function New(const Protocol, Domain: string): IAWSURL;
+    class function New(const Domain: string): IAWSURL;
+    function WithSubDomain(const SubDomain: string): IAWSURL;
+    function WithResource(const Resource: string): IAWSURL;
+    function AsString: string;
   end;
 
 implementation
 
-{ TURL }
+{ TAWSURL }
 
-constructor TURL.Create(const Protocol, Domain: string);
+constructor TAWSURL.Create(const Protocol, Domain: string);
 begin
   inherited Create;
   FProtocol := Protocol;
   FDomain := Domain;
 end;
 
-class function TURL.New(const Protocol, Domain: string): IURL;
+class function TAWSURL.New(const Protocol, Domain: string): IAWSURL;
 begin
   Result := Create(Protocol, Domain);
 end;
 
-class function TURL.New(const Domain: string): IURL;
+class function TAWSURL.New(const Domain: string): IAWSURL;
 begin
   Result := New('http', Domain);
 end;
 
-function TURL.Make: string;
-begin
-  Result := FProtocol + '://' + FDomain;
-end;
-
-function TURL.WithSubDomain(const SubDomain: string): IURL;
+function TAWSURL.WithSubDomain(const SubDomain: string): IAWSURL;
 begin
   Result := New(FProtocol, SubDomain + '.' + FDomain);
 end;
 
-function TURL.WithResource(const Resource: string): IURL;
+function TAWSURL.WithResource(const Resource: string): IAWSURL;
 begin
   Result := New(FProtocol, FDomain + Resource);
+end;
+
+function TAWSURL.AsString: string;
+begin
+  Result := FProtocol + '://' + FDomain;
 end;
 
 end.

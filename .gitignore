@@ -10,6 +10,8 @@
 *.compiled
 *.ini
 bin/
+lib/
+packages/lib/
 test/lib/
 examples/s3/01/lib/
 examples/s3/02/lib/
