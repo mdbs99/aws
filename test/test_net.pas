@@ -1,6 +1,6 @@
 {
     AWS
-    Copyright (C) 2013-2016 Marcos Douglas - mdbs99
+    Copyright (c) 2013-2018 Marcos Douglas B. Santos
 
     See the files COPYING.GH, included in this
     distribution, for details about the copyright.
