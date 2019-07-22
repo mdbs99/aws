@@ -38,7 +38,7 @@ uses
   aws_client;
 
 const
-  AWS_S3_URL = 's3.amazonaws.com';
+  AWS_S3_URL = 's3-accelerate.amazonaws.com';
 
 type
   ES3Error = class(Exception);
